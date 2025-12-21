@@ -1,6 +1,6 @@
-﻿using FreshBack.Application.Dtos.Users;
-using FreshBack.Application.Interfaces.Users;
-using FreshBack.Domain.Models.Users;
+﻿using FreshBack.Application.Dtos.Settings.Users;
+using FreshBack.Application.Interfaces.Settings.Users;
+using FreshBack.Domain.Models.Settings.Users;
 using FreshBack.WebApi.Controllers.Abstraction;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

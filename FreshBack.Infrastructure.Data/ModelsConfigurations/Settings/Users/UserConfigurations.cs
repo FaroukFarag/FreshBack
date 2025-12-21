@@ -1,8 +1,8 @@
-﻿using FreshBack.Domain.Models.Users;
+﻿using FreshBack.Domain.Models.Settings.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace FreshBack.Infrastructure.Data.ModelsConfigurations.Users;
+namespace FreshBack.Infrastructure.Data.ModelsConfigurations.Settings.Users;
 
 public class UserConfigurations : IEntityTypeConfiguration<User>
 {

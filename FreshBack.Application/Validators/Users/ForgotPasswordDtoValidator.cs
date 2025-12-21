@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using FreshBack.Application.Dtos.Users;
+using FreshBack.Application.Dtos.Settings.Users;
 
 namespace FreshBack.Application.Validators.Users;
 

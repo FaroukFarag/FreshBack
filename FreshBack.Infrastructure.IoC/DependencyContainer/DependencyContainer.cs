@@ -1,18 +1,22 @@
 ﻿using FluentValidation;
 using FreshBack.Application.AutoMapper.Abstraction;
 using FreshBack.Application.AutoMapper.Roles;
+using FreshBack.Application.AutoMapper.Settings.Areas;
+using FreshBack.Application.AutoMapper.Settings.Users;
 using FreshBack.Application.AutoMapper.Shared;
-using FreshBack.Application.AutoMapper.Users;
 using FreshBack.Application.Configurations;
 using FreshBack.Application.Interfaces.Abstraction;
 using FreshBack.Application.Interfaces.Roles;
+using FreshBack.Application.Interfaces.Settings.Areas;
+using FreshBack.Application.Interfaces.Settings.Users;
 using FreshBack.Application.Interfaces.Shared;
-using FreshBack.Application.Interfaces.Users;
 using FreshBack.Application.Services.Abstraction;
 using FreshBack.Application.Services.Roles;
+using FreshBack.Application.Services.Settings.Areas;
 using FreshBack.Application.Services.Shared;
 using FreshBack.Application.Services.Users;
 using FreshBack.Application.Validators.Roles;
+using FreshBack.Application.Validators.Settings.Areas;
 using FreshBack.Application.Validators.Users;
 using FreshBack.Common.Tokens.Configurations;
 using FreshBack.Common.Tokens.Interfaces;
@@ -20,15 +24,17 @@ using FreshBack.Common.Tokens.Services;
 using FreshBack.Domain.Constants;
 using FreshBack.Domain.Interfaces.Repositories.Abstraction;
 using FreshBack.Domain.Interfaces.Repositories.Roles;
-using FreshBack.Domain.Interfaces.Repositories.Users;
+using FreshBack.Domain.Interfaces.Repositories.Settings.Areas;
+using FreshBack.Domain.Interfaces.Repositories.Settings.Users;
 using FreshBack.Domain.Interfaces.Specifications.Absraction;
 using FreshBack.Domain.Interfaces.UnitOfWork;
 using FreshBack.Domain.Models.Roles;
-using FreshBack.Domain.Models.Users;
+using FreshBack.Domain.Models.Settings.Users;
 using FreshBack.Domain.Specifications.Absraction;
 using FreshBack.Infrastructure.Data.Context;
 using FreshBack.Infrastructure.Data.Repositories.Abstraction;
 using FreshBack.Infrastructure.Data.Repositories.Roles;
+using FreshBack.Infrastructure.Data.Repositories.Settings.Areas;
 using FreshBack.Infrastructure.Data.Repositories.Users;
 using FreshBack.Infrastructure.Data.UnitOfWork;
 using FreshBack.WebApi.Middlewares.Exceptions;
@@ -57,6 +63,7 @@ public static class DependencyContainer
             .AddScoped<ITokensService, TokensService>()
             .AddScoped<IUserService, UserService>()
             .AddScoped<IRoleService, RoleService>()
+            .AddScoped<IAreaService, AreaService>()
             .AddScoped<IImageService, ImageService>();
     }
 
@@ -72,7 +79,8 @@ public static class DependencyContainer
     {
         services.AddScoped(typeof(IBaseRepository<,>), typeof(BaseRepository<,>))
             .AddScoped<IUserRepository, UserRepository>()
-            .AddScoped<IRoleRepository, RoleRepository>();
+            .AddScoped<IRoleRepository, RoleRepository>()
+            .AddScoped<IAreaRepository, AreaRepository>();
     }
 
     public static void RegisterSpecifications(this IServiceCollection services)
@@ -92,6 +100,7 @@ public static class DependencyContainer
         services.AddAutoMapper(typeof(PaginatedModelProfile).Assembly);
         services.AddAutoMapper(typeof(UserProfile).Assembly);
         services.AddAutoMapper(typeof(RoleProfile).Assembly);
+        services.AddAutoMapper(typeof(AreaProfile).Assembly);
     }
 
     public static void RegisterValidators(this IServiceCollection services)
@@ -101,6 +110,7 @@ public static class DependencyContainer
         services.AddValidatorsFromAssemblyContaining<ResetPasswordDtoValidator>();
         services.AddValidatorsFromAssemblyContaining<ForgotPasswordDtoValidator>();
         services.AddValidatorsFromAssemblyContaining<RoleDtoValidator>();
+        services.AddValidatorsFromAssemblyContaining<AreaDtoValidator>();
     }
 
     public static void RegisterIdentity(this IServiceCollection services)

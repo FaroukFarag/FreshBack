@@ -1,6 +1,6 @@
-﻿using FreshBack.Domain.Interfaces.Repositories.Users;
+﻿using FreshBack.Domain.Interfaces.Repositories.Settings.Users;
 using FreshBack.Domain.Interfaces.Specifications.Absraction;
-using FreshBack.Domain.Models.Users;
+using FreshBack.Domain.Models.Settings.Users;
 using FreshBack.Infrastructure.Data.Context;
 using FreshBack.Infrastructure.Data.Repositories.Abstraction;
 

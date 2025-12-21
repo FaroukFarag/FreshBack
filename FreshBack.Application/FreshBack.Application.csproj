@@ -7,9 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Dtos\Users\NewFolder\**" />
-    <EmbeddedResource Remove="Dtos\Users\NewFolder\**" />
-    <None Remove="Dtos\Users\NewFolder\**" />
+    <Compile Remove="Dtos\Settings\Users\NewFolder\**" />
+    <EmbeddedResource Remove="Dtos\Settings\Users\NewFolder\**" />
+    <None Remove="Dtos\Settings\Users\NewFolder\**" />
   </ItemGroup>
 
   <ItemGroup>

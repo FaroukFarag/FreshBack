@@ -1,13 +1,13 @@
 ﻿using AutoMapper;
+using FreshBack.Application.Dtos.Settings.Users;
 using FreshBack.Application.Dtos.Shared;
-using FreshBack.Application.Dtos.Users;
-using FreshBack.Application.Interfaces.Users;
+using FreshBack.Application.Interfaces.Settings.Users;
 using FreshBack.Application.Services.Abstraction;
 using FreshBack.Common.Tokens.Interfaces;
-using FreshBack.Domain.Interfaces.Repositories.Users;
+using FreshBack.Domain.Interfaces.Repositories.Settings.Users;
 using FreshBack.Domain.Interfaces.UnitOfWork;
 using FreshBack.Domain.Models.Roles;
-using FreshBack.Domain.Models.Users;
+using FreshBack.Domain.Models.Settings.Users;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 

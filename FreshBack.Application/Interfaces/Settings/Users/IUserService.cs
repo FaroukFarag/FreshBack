@@ -1,9 +1,9 @@
-﻿using FreshBack.Application.Dtos.Shared;
-using FreshBack.Application.Dtos.Users;
+﻿using FreshBack.Application.Dtos.Settings.Users;
+using FreshBack.Application.Dtos.Shared;
 using FreshBack.Application.Interfaces.Abstraction;
-using FreshBack.Domain.Models.Users;
+using FreshBack.Domain.Models.Settings.Users;
 
-namespace FreshBack.Application.Interfaces.Users;
+namespace FreshBack.Application.Interfaces.Settings.Users;
 
 public interface IUserService : IBaseService<UserDto, UserDto, UserDto, UserDto,
     User, int>

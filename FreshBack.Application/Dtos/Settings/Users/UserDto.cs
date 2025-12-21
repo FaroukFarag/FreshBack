@@ -1,6 +1,6 @@
 ﻿using FreshBack.Application.Dtos.Abstraction;
 
-namespace FreshBack.Application.Dtos.Users;
+namespace FreshBack.Application.Dtos.Settings.Users;
 
 public class UserDto : BaseModelDto<int>
 {

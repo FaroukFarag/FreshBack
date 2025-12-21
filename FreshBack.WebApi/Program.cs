@@ -49,8 +49,8 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.RegisterDbContext(builder.Configuration);
 builder.Services.RegisterConfiguration(builder.Configuration);
 builder.Services.RegisterServices();
-builder.Services.RegisterRepositories();
 builder.Services.RegisterSpecifications();
+builder.Services.RegisterRepositories();
 builder.Services.RegisterUnitOfWork();
 builder.Services.RegisterAutoMapper();
 builder.Services.RegisterValidators();

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace FreshBack.Domain.Models.Users;
+namespace FreshBack.Domain.Models.Settings.Users;
 
 public class User : IdentityUser<int>
 {
