@@ -9,7 +9,8 @@ public class AreaDtoValidator : AbstractValidator<AreaDto>
     {
         RuleFor(a => a.Name)
             .NotNull()
-            .NotEmpty();
+            .NotEmpty()
+            .MaximumLength(250);
 
         RuleFor(a => a.DeliveryFees)
             .NotNull()

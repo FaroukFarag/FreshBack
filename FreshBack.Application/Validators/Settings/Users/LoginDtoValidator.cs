@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using FreshBack.Application.Dtos.Settings.Users;
 
-namespace FreshBack.Application.Validators.Users;
+namespace FreshBack.Application.Validators.Settings.Users;
 
 public class LoginDtoValidator : AbstractValidator<LoginDto>
 {

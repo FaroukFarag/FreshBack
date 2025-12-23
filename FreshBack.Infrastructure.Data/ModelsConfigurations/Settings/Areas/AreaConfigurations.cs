@@ -13,6 +13,7 @@ public class AreaConfigurations : IEntityTypeConfiguration<Area>
             .HasMaxLength(250);
 
         builder.Property(a => a.DeliveryFees)
-            .IsRequired();
+            .IsRequired()
+            .HasPrecision(18, 2);
     }
 }
