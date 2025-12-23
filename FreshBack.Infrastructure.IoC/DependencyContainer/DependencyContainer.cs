@@ -1,28 +1,33 @@
 ﻿using FluentValidation;
 using FreshBack.Application.AutoMapper.Abstraction;
+using FreshBack.Application.AutoMapper.Merchants;
 using FreshBack.Application.AutoMapper.Roles;
 using FreshBack.Application.AutoMapper.Settings.Areas;
 using FreshBack.Application.AutoMapper.Settings.Users;
 using FreshBack.Application.AutoMapper.Shared;
 using FreshBack.Application.Configurations;
 using FreshBack.Application.Interfaces.Abstraction;
+using FreshBack.Application.Interfaces.Merchants;
 using FreshBack.Application.Interfaces.Roles;
 using FreshBack.Application.Interfaces.Settings.Areas;
 using FreshBack.Application.Interfaces.Settings.Users;
 using FreshBack.Application.Interfaces.Shared;
 using FreshBack.Application.Services.Abstraction;
+using FreshBack.Application.Services.Merchants;
 using FreshBack.Application.Services.Roles;
 using FreshBack.Application.Services.Settings.Areas;
 using FreshBack.Application.Services.Shared;
 using FreshBack.Application.Services.Users;
+using FreshBack.Application.Validators.Merchants;
 using FreshBack.Application.Validators.Roles;
 using FreshBack.Application.Validators.Settings.Areas;
-using FreshBack.Application.Validators.Users;
+using FreshBack.Application.Validators.Settings.Users;
 using FreshBack.Common.Tokens.Configurations;
 using FreshBack.Common.Tokens.Interfaces;
 using FreshBack.Common.Tokens.Services;
 using FreshBack.Domain.Constants;
 using FreshBack.Domain.Interfaces.Repositories.Abstraction;
+using FreshBack.Domain.Interfaces.Repositories.Merchants;
 using FreshBack.Domain.Interfaces.Repositories.Roles;
 using FreshBack.Domain.Interfaces.Repositories.Settings.Areas;
 using FreshBack.Domain.Interfaces.Repositories.Settings.Users;
@@ -33,6 +38,7 @@ using FreshBack.Domain.Models.Settings.Users;
 using FreshBack.Domain.Specifications.Absraction;
 using FreshBack.Infrastructure.Data.Context;
 using FreshBack.Infrastructure.Data.Repositories.Abstraction;
+using FreshBack.Infrastructure.Data.Repositories.Merchants;
 using FreshBack.Infrastructure.Data.Repositories.Roles;
 using FreshBack.Infrastructure.Data.Repositories.Settings.Areas;
 using FreshBack.Infrastructure.Data.Repositories.Users;
@@ -64,6 +70,8 @@ public static class DependencyContainer
             .AddScoped<IUserService, UserService>()
             .AddScoped<IRoleService, RoleService>()
             .AddScoped<IAreaService, AreaService>()
+            .AddScoped<IReviewService, ReviewService>()
+            .AddScoped<IMerchantService, MerchantService>()
             .AddScoped<IImageService, ImageService>();
     }
 
@@ -80,7 +88,9 @@ public static class DependencyContainer
         services.AddScoped(typeof(IBaseRepository<,>), typeof(BaseRepository<,>))
             .AddScoped<IUserRepository, UserRepository>()
             .AddScoped<IRoleRepository, RoleRepository>()
-            .AddScoped<IAreaRepository, AreaRepository>();
+            .AddScoped<IAreaRepository, AreaRepository>()
+            .AddScoped<IReviewRepository, ReviewRepository>()
+            .AddScoped<IMerchantRepository, MerchantRepository>();
     }
 
     public static void RegisterSpecifications(this IServiceCollection services)
@@ -101,6 +111,8 @@ public static class DependencyContainer
         services.AddAutoMapper(typeof(UserProfile).Assembly);
         services.AddAutoMapper(typeof(RoleProfile).Assembly);
         services.AddAutoMapper(typeof(AreaProfile).Assembly);
+        services.AddAutoMapper(typeof(ReviewProfile).Assembly);
+        services.AddAutoMapper(typeof(MerchantProfile).Assembly);
     }
 
     public static void RegisterValidators(this IServiceCollection services)
@@ -111,6 +123,8 @@ public static class DependencyContainer
         services.AddValidatorsFromAssemblyContaining<ForgotPasswordDtoValidator>();
         services.AddValidatorsFromAssemblyContaining<RoleDtoValidator>();
         services.AddValidatorsFromAssemblyContaining<AreaDtoValidator>();
+        services.AddValidatorsFromAssemblyContaining<ReviewDtoValidator>();
+        services.AddValidatorsFromAssemblyContaining<MerchantDtoValidator>();
     }
 
     public static void RegisterIdentity(this IServiceCollection services)
