@@ -1,9 +1,11 @@
 ﻿using FreshBack.Domain.Models.Merchants;
+using FreshBack.Domain.Models.Orders;
 using FreshBack.Domain.Models.Products;
 using FreshBack.Domain.Models.Roles;
 using FreshBack.Domain.Models.Settings.Areas;
 using FreshBack.Domain.Models.Settings.Users;
 using FreshBack.Infrastructure.Data.ModelsConfigurations.Merchants;
+using FreshBack.Infrastructure.Data.ModelsConfigurations.Orders;
 using FreshBack.Infrastructure.Data.ModelsConfigurations.Products;
 using FreshBack.Infrastructure.Data.ModelsConfigurations.Roles;
 using FreshBack.Infrastructure.Data.ModelsConfigurations.Settings.Areas;
@@ -19,6 +21,7 @@ public class FreshBackDbContext(DbContextOptions options) : IdentityDbContext<Us
     public DbSet<Review> Reviews { get; set; }
     public DbSet<Merchant> Merchants { get; set; }
     public DbSet<Product> Products { get; set; }
+    public DbSet<Order> Orders { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -30,5 +33,6 @@ public class FreshBackDbContext(DbContextOptions options) : IdentityDbContext<Us
         modelBuilder.ApplyConfiguration(new ReviewConfigurations());
         modelBuilder.ApplyConfiguration(new MerchantConfigurations());
         modelBuilder.ApplyConfiguration(new ProductConfigurations());
+        modelBuilder.ApplyConfiguration(new OrderConfigurations());
     }
 }
