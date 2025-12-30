@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using FreshBack.Application.AutoMapper.Abstraction;
 using FreshBack.Application.AutoMapper.Merchants;
+using FreshBack.Application.AutoMapper.Orders;
 using FreshBack.Application.AutoMapper.Products;
 using FreshBack.Application.AutoMapper.Roles;
 using FreshBack.Application.AutoMapper.Settings.Areas;
@@ -9,6 +10,7 @@ using FreshBack.Application.AutoMapper.Shared;
 using FreshBack.Application.Configurations;
 using FreshBack.Application.Interfaces.Abstraction;
 using FreshBack.Application.Interfaces.Merchants;
+using FreshBack.Application.Interfaces.Orders;
 using FreshBack.Application.Interfaces.Products;
 using FreshBack.Application.Interfaces.Roles;
 using FreshBack.Application.Interfaces.Settings.Areas;
@@ -16,12 +18,14 @@ using FreshBack.Application.Interfaces.Settings.Users;
 using FreshBack.Application.Interfaces.Shared;
 using FreshBack.Application.Services.Abstraction;
 using FreshBack.Application.Services.Merchants;
+using FreshBack.Application.Services.Orders;
 using FreshBack.Application.Services.Products;
 using FreshBack.Application.Services.Roles;
 using FreshBack.Application.Services.Settings.Areas;
 using FreshBack.Application.Services.Shared;
 using FreshBack.Application.Services.Users;
 using FreshBack.Application.Validators.Merchants;
+using FreshBack.Application.Validators.Orders;
 using FreshBack.Application.Validators.Products;
 using FreshBack.Application.Validators.Roles;
 using FreshBack.Application.Validators.Settings.Areas;
@@ -32,6 +36,7 @@ using FreshBack.Common.Tokens.Services;
 using FreshBack.Domain.Constants;
 using FreshBack.Domain.Interfaces.Repositories.Abstraction;
 using FreshBack.Domain.Interfaces.Repositories.Merchants;
+using FreshBack.Domain.Interfaces.Repositories.Orders;
 using FreshBack.Domain.Interfaces.Repositories.Products;
 using FreshBack.Domain.Interfaces.Repositories.Roles;
 using FreshBack.Domain.Interfaces.Repositories.Settings.Areas;
@@ -44,6 +49,7 @@ using FreshBack.Domain.Specifications.Absraction;
 using FreshBack.Infrastructure.Data.Context;
 using FreshBack.Infrastructure.Data.Repositories.Abstraction;
 using FreshBack.Infrastructure.Data.Repositories.Merchants;
+using FreshBack.Infrastructure.Data.Repositories.Orders;
 using FreshBack.Infrastructure.Data.Repositories.Products;
 using FreshBack.Infrastructure.Data.Repositories.Roles;
 using FreshBack.Infrastructure.Data.Repositories.Settings.Areas;
@@ -79,6 +85,7 @@ public static class DependencyContainer
             .AddScoped<IReviewService, ReviewService>()
             .AddScoped<IMerchantService, MerchantService>()
             .AddScoped<IProductService, ProductService>()
+            .AddScoped<IOrderService, OrderService>()
             .AddScoped<IImageService, ImageService>();
     }
 
@@ -98,6 +105,7 @@ public static class DependencyContainer
             .AddScoped<IAreaRepository, AreaRepository>()
             .AddScoped<IReviewRepository, ReviewRepository>()
             .AddScoped<IMerchantRepository, MerchantRepository>()
+            .AddScoped<IOrderRepository, OrderRepository>()
             .AddScoped<IProductRepository, ProductRepository>();
     }
 
@@ -122,6 +130,7 @@ public static class DependencyContainer
         services.AddAutoMapper(typeof(ReviewProfile).Assembly);
         services.AddAutoMapper(typeof(MerchantProfile).Assembly);
         services.AddAutoMapper(typeof(ProductProfile).Assembly);
+        services.AddAutoMapper(typeof(OrderProfile).Assembly);
     }
 
     public static void RegisterValidators(this IServiceCollection services)
@@ -135,6 +144,7 @@ public static class DependencyContainer
         services.AddValidatorsFromAssemblyContaining<ReviewDtoValidator>();
         services.AddValidatorsFromAssemblyContaining<MerchantDtoValidator>();
         services.AddValidatorsFromAssemblyContaining<ProductDtoValidator>();
+        services.AddValidatorsFromAssemblyContaining<OrderDtoValidator>();
     }
 
     public static void RegisterIdentity(this IServiceCollection services)
