@@ -2,6 +2,7 @@
 
 public enum RoleNames
 {
-    Admin = 1,
-    Employee = 2
+    Admin,
+    Merchant,
+    Customer
 }

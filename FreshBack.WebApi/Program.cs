@@ -1,3 +1,4 @@
+using FreshBack.Application.SignalR.Notifications;
 using FreshBack.Domain.Constants;
 using FreshBack.Infrastructure.IoC.DependencyContainer;
 using FreshBack.WebApi.Middlewares.Exceptions;
@@ -58,6 +59,7 @@ builder.Services.RegisterIdentity();
 builder.Services.RegisterJwtSettings(builder.Configuration);
 builder.Services.RegisterCORS(builder.Configuration);
 builder.Services.RegisterMiddlewares();
+builder.Services.RegisterSignalR();
 
 var app = builder.Build();
 
@@ -88,5 +90,7 @@ app.UseAuthorization();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.MapControllers();
+
+app.MapHub<NotificationHub>("/hubs/notifications");
 
 app.Run();
