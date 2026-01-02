@@ -4,7 +4,7 @@ using FreshBack.Domain.Enums.Products;
 
 namespace FreshBack.Application.Dtos.Products;
 
-public class ProductDto : BaseModelDto<int>
+public class CreateProductDto : BaseModelDto<int>
 {
     public string Code { get; set; } = default!;
     public string Name { get; set; } = default!;
@@ -23,5 +23,5 @@ public class ProductDto : BaseModelDto<int>
     public int MerchantId { get; set; }
 
     public MerchantDto Merchant { get; set; } = default!;
-    public IEnumerable<ProductImageDto> ProductImages { get; set; } = default!;
+    public IEnumerable<CreateProductImageDto> ProductImages { get; set; } = default!;
 }

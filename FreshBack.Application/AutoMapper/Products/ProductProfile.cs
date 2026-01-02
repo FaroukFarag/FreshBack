@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FreshBack.Application.AutoMapper.Resolvers;
 using FreshBack.Application.Dtos.Products;
 using FreshBack.Domain.Models.Products;
 
@@ -8,6 +9,18 @@ public class ProductProfile : Profile
 {
     public ProductProfile()
     {
+        CreateMap<ProductImage, ProductImageDto>()
+            .ForMember(des => des.ImagePath, opt => opt
+                .MapFrom<BaseModelImageDtoUrlResolver>());
+
+        CreateMap<ProductImageDto, ProductImage>()
+            .ForMember(des => des.ImagePath, opt => opt
+                .MapFrom<BaseModelImageUrlResolver>());
+
         CreateMap<Product, ProductDto>().ReverseMap();
+
+        CreateMap<CreateProductImageDto, ProductImage>();
+
+        CreateMap<CreateProductDto, Product>();
     }
 }
