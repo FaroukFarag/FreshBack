@@ -9,7 +9,13 @@ namespace FreshBack.WebApi.Controllers.Products;
 [Route("api/[controller]")]
 [ApiController]
 public class ProductsController(IProductService service) :
-    BaseController<IProductService, ProductDto, ProductDto, ProductDto, ProductDto,
-        Product, int>(service)
+    BaseController<IProductService, CreateProductDto, ProductDto, ProductDto,
+        ProductDto, Product, int>(service)
 {
+    [HttpPost("Create")]
+    public override Task<IActionResult> Create(
+        [FromForm] CreateProductDto createEntityDto)
+    {
+        return base.Create(createEntityDto);
+    }
 }

@@ -26,6 +26,22 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
         builder.Property(p => p.ExpiryDate)
             .IsRequired();
 
+        builder.Property(p => p.Quantity)
+            .IsRequired();
+
+        builder.Property(p => p.Price)
+            .IsRequired()
+            .HasPrecision(18, 2);
+
+        builder.Property(p => p.Views)
+            .IsRequired();
+
+        builder.Property(p => p.StartDeliveryDate)
+            .IsRequired();
+
+        builder.Property(p => p.EndDeliveryDate)
+            .IsRequired();
+
         builder.Property(p => p.Status)
             .IsRequired();
 
