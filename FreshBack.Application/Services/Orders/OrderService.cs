@@ -1,22 +1,98 @@
 ﻿using AutoMapper;
 using FreshBack.Application.Dtos.Orders;
+using FreshBack.Application.Dtos.Shared;
 using FreshBack.Application.Interfaces.Orders;
 using FreshBack.Application.Services.Abstraction;
+using FreshBack.Common.Extensions;
 using FreshBack.Domain.Interfaces.Repositories.Orders;
+using FreshBack.Domain.Interfaces.Repositories.Products;
 using FreshBack.Domain.Interfaces.UnitOfWork;
 using FreshBack.Domain.Models.Orders;
+using FreshBack.Domain.Models.Products;
+using FreshBack.Domain.Models.ProductsOrders;
+using FreshBack.Domain.Specifications.Absraction;
 
 namespace FreshBack.Application.Services.Orders;
 
 public class OrderService(
     IOrderRepository repository,
     IUnitOfWork unitOfWork,
-    IMapper mapper) : BaseService<
-    OrderDto,
+    IMapper mapper,
+    IProductRepository productRepository) : BaseService<
+    CreateOrderDto,
     OrderDto,
     OrderDto,
     OrderDto,
     Order,
     int>(repository, unitOfWork, mapper), IOrderService
 {
+    private readonly IOrderRepository _repository = repository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IMapper _mapper = mapper;
+    private readonly IProductRepository _productRepository = productRepository;
+
+    public async override Task<ResultDto<CreateOrderDto>> CreateAsync(CreateOrderDto createOrderDto)
+    {
+        return await ExecuteServiceCallAsync(
+            operationName: "Create Order",
+            action: async () =>
+            {
+                var orderProducts = createOrderDto.ProductsOrders!
+                    .ToDictionary(x => x.ProductId, x => x.Quantity);
+                var productIds = orderProducts.Keys.ToList();
+                var spec = new BaseSpecification<Product>()
+                {
+                    Criteria = p => productIds.Contains(p.Id)
+                };
+                var products = await _productRepository.GetAllAsync(spec);
+                var insufficientProducts = products
+                    .Where(p => p.Quantity < orderProducts[p.Id]);
+
+                if (insufficientProducts.Any())
+                {
+                    var message = string.Join(" | ",
+                        insufficientProducts.Select(p =>
+                            $"Product '{p.Name}' has {p.Quantity} available, " +
+                            $"but {orderProducts[p.Id]} was requested."
+                        ));
+
+                    throw new Exception(message);
+                }
+
+                var order = await _repository.CreateAsync(_mapper.Map<Order>(createOrderDto));
+
+                var orderCreated = await _unitOfWork.Complete();
+
+                if (!orderCreated)
+                    throw new Exception("Failed to create order");
+
+                return _mapper.Map<CreateOrderDto>(createOrderDto);
+            });
+    }
+
+    public async override Task<ResultDto<OrderDto>> GetAsync(int id)
+    {
+        return await ExecuteServiceCallAsync(
+            operationName: "Get Order",
+            action: async () =>
+            {
+                var spec = new BaseSpecification<Order>
+                {
+                    IncludeChains =
+                    [
+                        new IncludeChain<Order>
+                        {
+                            InitialInclude = o => o.ProductsOrders,
+                            ThenIncludes = [
+                                po => (po as ProductOrder)!.Product
+                            ]
+                        }
+                    ]
+                };
+
+                var order = await _repository.GetAsync(id, spec);
+
+                return _mapper.Map<OrderDto>(order);
+            });
+    }
 }

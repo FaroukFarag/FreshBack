@@ -1,5 +1,4 @@
 ﻿using FreshBack.Application.Dtos.Abstraction;
-using FreshBack.Application.Dtos.Merchants;
 using FreshBack.Domain.Enums.Products;
 
 namespace FreshBack.Application.Dtos.Products;
@@ -22,6 +21,5 @@ public class CreateProductDto : BaseModelDto<int>
     public ProductStatus Status { get; set; }
     public int MerchantId { get; set; }
 
-    public MerchantDto Merchant { get; set; } = default!;
     public IEnumerable<CreateProductImageDto> ProductImages { get; set; } = default!;
 }

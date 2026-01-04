@@ -18,6 +18,6 @@ public class MerchantDto : BaseModelDto<int>
     public MerchantStatus Status { get; set; }
     public int AreaId { get; set; }
 
-    public Area Area { get; set; } = default!;
-    public IEnumerable<ReviewDto> Reviews { get; set; } = default!;
+    public Area? Area { get; set; }
+    public IEnumerable<ReviewDto>? Reviews { get; set; }
 }

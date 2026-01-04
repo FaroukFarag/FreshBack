@@ -5,7 +5,7 @@ using FreshBack.Domain.Models.ProductsOrders;
 namespace FreshBack.Application.Interfaces.ProductsOrders;
 
 public interface IProductOrderService : IBaseService<
-    ProductOrderDto,
+    CreateProductOrderDto,
     ProductOrderDto,
     ProductOrderDto,
     ProductOrderDto,

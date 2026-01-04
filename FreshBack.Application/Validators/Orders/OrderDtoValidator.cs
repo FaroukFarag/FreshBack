@@ -10,21 +10,6 @@ public class OrderDtoValidator : AbstractValidator<OrderDto>
         RuleFor(o => o.Number)
             .Null();
 
-        RuleFor(o => o.CustomerName)
-            .Null()
-            .NotEmpty()
-            .MaximumLength(250);
-
-        RuleFor(o => o.CustomerEmail)
-            .Null()
-            .NotEmpty()
-            .MaximumLength(250);
-
-        RuleFor(o => o.CustomerMobileNumber)
-            .Null()
-            .NotEmpty()
-            .MaximumLength(25);
-
         RuleFor(o => o.CreationDate)
             .Null();
 

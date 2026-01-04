@@ -12,7 +12,7 @@ public class ProductOrderService(
     IProductOrderRepository repository,
     IUnitOfWork unitOfWork,
     IMapper mapper) : BaseService<
-        ProductOrderDto,
+        CreateProductOrderDto,
         ProductOrderDto,
         ProductOrderDto,
         ProductOrderDto,
