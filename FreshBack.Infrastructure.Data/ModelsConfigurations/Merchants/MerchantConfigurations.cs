@@ -38,5 +38,9 @@ public class MerchantConfigurations : IEntityTypeConfiguration<Merchant>
 
         builder.Property(m => m.AreaId)
             .IsRequired();
+
+        builder.HasMany(m => m.Reviews)
+            .WithOne(r => r.Merchant)
+            .HasForeignKey(r => r.MerchantId);
     }
 }

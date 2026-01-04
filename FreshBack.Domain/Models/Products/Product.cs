@@ -1,6 +1,7 @@
 ﻿using FreshBack.Domain.Enums.Products;
 using FreshBack.Domain.Models.Abstraction;
 using FreshBack.Domain.Models.Merchants;
+using FreshBack.Domain.Models.ProductsOrders;
 
 namespace FreshBack.Domain.Models.Products;
 
@@ -24,4 +25,5 @@ public class Product : BaseModel<int>
 
     public Merchant Merchant { get; set; } = default!;
     public IEnumerable<ProductImage> ProductImages { get; set; } = default!;
+    public IEnumerable<ProductOrder> ProductsOrders { get; set; } = default!;
 }

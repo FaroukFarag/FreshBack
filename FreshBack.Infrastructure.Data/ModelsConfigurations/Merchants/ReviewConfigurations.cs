@@ -19,5 +19,9 @@ public class ReviewConfigurations : IEntityTypeConfiguration<Review>
 
         builder.Property(r => r.UserId)
             .IsRequired();
+
+        builder.HasOne(r => r.Merchant)
+            .WithMany(m => m.Reviews)
+            .HasForeignKey(r => r.MerchantId);
     }
 }

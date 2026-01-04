@@ -4,6 +4,7 @@ using FreshBack.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FreshBack.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(FreshBackDbContext))]
-    partial class FreshBackDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260103163143_AddCustomerAndModifyOrder")]
+    partial class AddCustomerAndModifyOrder
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -58,14 +61,6 @@ namespace FreshBack.Infrastructure.Data.Migrations
 
                     b.Property<string>("Landmark")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("Latitude")
-                        .HasPrecision(18, 18)
-                        .HasColumnType("decimal(18,18)");
-
-                    b.Property<decimal>("Longitude")
-                        .HasPrecision(18, 18)
-                        .HasColumnType("decimal(18,18)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -245,34 +240,6 @@ namespace FreshBack.Infrastructure.Data.Migrations
                     b.HasIndex("MerchantId");
 
                     b.ToTable("Orders");
-                });
-
-            modelBuilder.Entity("FreshBack.Domain.Models.OtpCodes.OtpCode", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CodeHash")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("ExpireAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsUsed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasMaxLength(25)
-                        .HasColumnType("nvarchar(25)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("OtpCodes");
                 });
 
             modelBuilder.Entity("FreshBack.Domain.Models.Products.Product", b =>
