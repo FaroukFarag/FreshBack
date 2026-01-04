@@ -7,6 +7,4 @@ public class CreateProductImageDto : BaseModelDto<int>
 {
     public IFormFile ImageFile { get; set; } = default!;
     public int ProductId { get; set; }
-
-    public ProductDto Product { get; set; } = default!;
 }

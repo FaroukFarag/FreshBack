@@ -9,7 +9,7 @@ namespace FreshBack.WebApi.Controllers.Orders;
 [Route("api/[controller]")]
 [ApiController]
 public class OrdersController(IOrderService service) :
-    BaseController<IOrderService, OrderDto, OrderDto, OrderDto, OrderDto, Order,
+    BaseController<IOrderService, CreateOrderDto, OrderDto, OrderDto, OrderDto, Order,
     int>(service)
 {
 }
