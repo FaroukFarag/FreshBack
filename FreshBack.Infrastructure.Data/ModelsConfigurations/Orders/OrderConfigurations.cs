@@ -11,18 +11,6 @@ public class OrderConfigurations : IEntityTypeConfiguration<Order>
         builder.Property(o => o.Number)
             .IsRequired();
 
-        builder.Property(o => o.CustomerName)
-            .IsRequired()
-            .HasMaxLength(250);
-
-        builder.Property(o => o.CustomerEmail)
-            .IsRequired()
-            .HasMaxLength(250);
-
-        builder.Property(o => o.CustomerMobileNumber)
-            .IsRequired()
-            .HasMaxLength(25);
-
         builder.Property(o => o.CreationDate)
             .IsRequired();
 
@@ -47,5 +35,17 @@ public class OrderConfigurations : IEntityTypeConfiguration<Order>
         builder.Property(o => o.MerchantId)
             .IsRequired()
             .HasPrecision(18, 2);
+
+        builder.HasOne(o => o.Merchant)
+            .WithMany(m => m.Orders)
+            .HasForeignKey(o => o.MerchantId);
+
+        builder.HasOne(o => o.Customer)
+            .WithMany(c => c.Orders)
+            .HasForeignKey(o => o.CustomerId);
+
+        builder.HasMany(o => o.ProductsOrders)
+            .WithOne(po => po.Order)
+            .HasForeignKey(po => po.OrderId);
     }
 }

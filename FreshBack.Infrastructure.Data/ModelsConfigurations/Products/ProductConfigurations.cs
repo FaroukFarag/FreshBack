@@ -47,5 +47,10 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
 
         builder.Property(p => p.MerchantId)
             .IsRequired();
+
+        builder.HasMany(p => p.ProductsOrders)
+            .WithOne(po => po.Product)
+            .HasForeignKey(po => po.ProductId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

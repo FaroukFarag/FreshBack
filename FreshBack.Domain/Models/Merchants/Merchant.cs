@@ -1,5 +1,6 @@
 ﻿using FreshBack.Domain.Enums.Merchants;
 using FreshBack.Domain.Models.Abstraction;
+using FreshBack.Domain.Models.Orders;
 using FreshBack.Domain.Models.Settings.Areas;
 
 namespace FreshBack.Domain.Models.Merchants;
@@ -20,4 +21,5 @@ public class Merchant : BaseModel<int>
 
     public Area Area { get; set; } = default!;
     public IEnumerable<Review> Reviews { get; set; } = default!;
+    public IEnumerable<Order> Orders { get; set; } = default!;
 }
