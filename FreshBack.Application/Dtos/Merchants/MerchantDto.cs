@@ -17,6 +17,7 @@ public class MerchantDto : BaseModelDto<int>
     public TimeOnly ClosingTime { get; set; }
     public MerchantStatus Status { get; set; }
     public int AreaId { get; set; }
+    public int CategoryId { get; set; }
 
     public Area? Area { get; set; }
     public IEnumerable<ReviewDto>? Reviews { get; set; }
