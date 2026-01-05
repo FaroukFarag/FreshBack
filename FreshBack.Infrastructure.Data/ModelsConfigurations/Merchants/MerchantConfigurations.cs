@@ -42,5 +42,9 @@ public class MerchantConfigurations : IEntityTypeConfiguration<Merchant>
         builder.HasMany(m => m.Reviews)
             .WithOne(r => r.Merchant)
             .HasForeignKey(r => r.MerchantId);
+
+        builder.HasOne(m => m.Category)
+            .WithMany(c => c.Merchants)
+            .HasForeignKey(m => m.CategoryId);
     }
 }

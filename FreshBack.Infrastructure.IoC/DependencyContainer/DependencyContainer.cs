@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using FreshBack.Application.AutoMapper.Abstraction;
+using FreshBack.Application.AutoMapper.Categories;
 using FreshBack.Application.AutoMapper.Customers;
 using FreshBack.Application.AutoMapper.Merchants;
 using FreshBack.Application.AutoMapper.Notifications;
@@ -13,6 +14,7 @@ using FreshBack.Application.AutoMapper.Settings.Users;
 using FreshBack.Application.AutoMapper.Shared;
 using FreshBack.Application.Configurations;
 using FreshBack.Application.Interfaces.Abstraction;
+using FreshBack.Application.Interfaces.Categories;
 using FreshBack.Application.Interfaces.Customers;
 using FreshBack.Application.Interfaces.Merchants;
 using FreshBack.Application.Interfaces.Notifications;
@@ -25,6 +27,7 @@ using FreshBack.Application.Interfaces.Settings.Areas;
 using FreshBack.Application.Interfaces.Settings.Users;
 using FreshBack.Application.Interfaces.Shared;
 using FreshBack.Application.Services.Abstraction;
+using FreshBack.Application.Services.Categories;
 using FreshBack.Application.Services.Customers;
 using FreshBack.Application.Services.Merchants;
 using FreshBack.Application.Services.Notifications;
@@ -37,6 +40,7 @@ using FreshBack.Application.Services.Settings.Areas;
 using FreshBack.Application.Services.Shared;
 using FreshBack.Application.Services.Users;
 using FreshBack.Application.SignalR.Notifications;
+using FreshBack.Application.Validators.Categories;
 using FreshBack.Application.Validators.Customers;
 using FreshBack.Application.Validators.Merchants;
 using FreshBack.Application.Validators.Notifications;
@@ -52,6 +56,7 @@ using FreshBack.Common.Tokens.Interfaces;
 using FreshBack.Common.Tokens.Services;
 using FreshBack.Domain.Constants;
 using FreshBack.Domain.Interfaces.Repositories.Abstraction;
+using FreshBack.Domain.Interfaces.Repositories.Categories;
 using FreshBack.Domain.Interfaces.Repositories.Customers;
 using FreshBack.Domain.Interfaces.Repositories.Merchants;
 using FreshBack.Domain.Interfaces.Repositories.Notifications;
@@ -69,6 +74,7 @@ using FreshBack.Domain.Models.Settings.Users;
 using FreshBack.Domain.Specifications.Absraction;
 using FreshBack.Infrastructure.Data.Context;
 using FreshBack.Infrastructure.Data.Repositories.Abstraction;
+using FreshBack.Infrastructure.Data.Repositories.Categories;
 using FreshBack.Infrastructure.Data.Repositories.Customers;
 using FreshBack.Infrastructure.Data.Repositories.Merchants;
 using FreshBack.Infrastructure.Data.Repositories.Notifications;
@@ -115,6 +121,7 @@ public static class DependencyContainer
             .AddScoped<INotificationService, NotificationService>()
             .AddScoped<ICustomerService, CustomerService>()
             .AddScoped<IOtpCodeService, OtpCodeService>()
+            .AddScoped<ICategoryService, CategoryService>()
             .AddScoped<IImageService, ImageService>();
     }
 
@@ -139,7 +146,8 @@ public static class DependencyContainer
             .AddScoped<IProductOrderRepository, ProductOrderRepository>()
             .AddScoped<INotificationRepository, NotificationRepository>()
             .AddScoped<IOtpCodeRepository, OtpCodeRepository>()
-            .AddScoped<ICustomerRepository, CustomerRepository>();
+            .AddScoped<ICustomerRepository, CustomerRepository>()
+            .AddScoped<ICategoryRepository, CategoryRepository>();
     }
 
     public static void RegisterSpecifications(this IServiceCollection services)
@@ -168,6 +176,7 @@ public static class DependencyContainer
         services.AddAutoMapper(typeof(NotificationProfile).Assembly);
         services.AddAutoMapper(typeof(CustomerProfile).Assembly);
         services.AddAutoMapper(typeof(OtpCodeProfile).Assembly);
+        services.AddAutoMapper(typeof(CategoryProfile).Assembly);
     }
 
     public static void RegisterValidators(this IServiceCollection services)
@@ -187,6 +196,7 @@ public static class DependencyContainer
         services.AddValidatorsFromAssemblyContaining<CustomerDtoValidator>();
         services.AddValidatorsFromAssemblyContaining<CreateCustomerDtoValidator>();
         services.AddValidatorsFromAssemblyContaining<OtpCodeDtoValidator>();
+        services.AddValidatorsFromAssemblyContaining<CategoryDtoValidator>();
     }
 
     public static void RegisterIdentity(this IServiceCollection services)
