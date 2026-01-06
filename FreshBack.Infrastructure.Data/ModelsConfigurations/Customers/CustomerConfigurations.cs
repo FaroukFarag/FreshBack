@@ -47,6 +47,10 @@ public class CustomerConfigurations : IEntityTypeConfiguration<Customer>
            .IsRequired()
            .HasPrecision(18, 18);
 
+        builder.HasMany(customer => customer.Carts)
+            .WithOne(cart => cart.Customer)
+            .HasForeignKey(cart => cart.CustomerId);
+
         builder.HasMany(c => c.Orders)
             .WithOne(o => o.Customer)
             .HasForeignKey(o => o.CustomerId);

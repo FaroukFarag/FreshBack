@@ -12,4 +12,10 @@ public class CustomersController(ICustomerService service) :
     BaseController<ICustomerService, CreateCustomerDto, CustomerDto, CustomerDto,
         CustomerDto, Customer, int>(service)
 {
+    private readonly ICustomerService _service = service;
+    [HttpPost]
+    public async Task<IActionResult> Login(LoginCustomerDto loginCustomerDto)
+    {
+        return Ok(await _service.LoginAsync(loginCustomerDto));
+    }
 }

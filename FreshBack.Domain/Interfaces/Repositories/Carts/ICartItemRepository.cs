@@ -1,0 +1,8 @@
+﻿using FreshBack.Domain.Carts;
+using FreshBack.Domain.Interfaces.Repositories.Abstraction;
+
+namespace FreshBack.Domain.Interfaces.Repositories.Carts;
+
+public interface ICartItemRepository : IBaseRepository<CartItem, int>
+{
+}
