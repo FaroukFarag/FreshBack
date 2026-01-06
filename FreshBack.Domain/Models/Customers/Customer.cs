@@ -1,4 +1,5 @@
-﻿using FreshBack.Domain.Models.Abstraction;
+﻿using FreshBack.Domain.Carts;
+using FreshBack.Domain.Models.Abstraction;
 using FreshBack.Domain.Models.Orders;
 
 namespace FreshBack.Domain.Models.Customers;
@@ -18,5 +19,6 @@ public class Customer : BaseModel<int>
     public decimal Longitude { get; set; }
     public decimal Latitude { get; set; }
 
+    public IEnumerable<Cart> Carts { get; set; } = default!;
     public IEnumerable<Order> Orders { get; set; } = default!;
 }

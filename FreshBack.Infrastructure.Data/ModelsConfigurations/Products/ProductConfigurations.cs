@@ -48,6 +48,11 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
         builder.Property(p => p.MerchantId)
             .IsRequired();
 
+        builder.HasMany(p => p.CartItems)
+            .WithOne(ci => ci.Product)
+            .HasForeignKey(ci => ci.ProductId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasMany(p => p.ProductsOrders)
             .WithOne(po => po.Product)
             .HasForeignKey(po => po.ProductId)
