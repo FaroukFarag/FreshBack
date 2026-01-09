@@ -2,10 +2,10 @@
 using FreshBack.Application.Dtos.Carts;
 using FreshBack.Application.Interfaces.Carts;
 using FreshBack.Application.Services.Abstraction;
-using FreshBack.Domain.Carts;
 using FreshBack.Domain.Interfaces.Repositories.Carts;
 using FreshBack.Domain.Interfaces.Repositories.Products;
 using FreshBack.Domain.Interfaces.UnitOfWork;
+using FreshBack.Domain.Models.Carts;
 using FreshBack.Domain.Specifications.Absraction;
 
 namespace FreshBack.Application.Services.Carts;

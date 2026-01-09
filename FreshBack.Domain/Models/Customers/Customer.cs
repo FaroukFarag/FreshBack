@@ -1,5 +1,5 @@
-﻿using FreshBack.Domain.Carts;
-using FreshBack.Domain.Models.Abstraction;
+﻿using FreshBack.Domain.Models.Abstraction;
+using FreshBack.Domain.Models.Carts;
 using FreshBack.Domain.Models.Orders;
 
 namespace FreshBack.Domain.Models.Customers;

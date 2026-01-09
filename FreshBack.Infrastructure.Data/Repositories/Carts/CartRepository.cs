@@ -1,6 +1,6 @@
-﻿using FreshBack.Domain.Carts;
-using FreshBack.Domain.Interfaces.Repositories.Carts;
+﻿using FreshBack.Domain.Interfaces.Repositories.Carts;
 using FreshBack.Domain.Interfaces.Specifications.Absraction;
+using FreshBack.Domain.Models.Carts;
 using FreshBack.Infrastructure.Data.Context;
 using FreshBack.Infrastructure.Data.Repositories.Abstraction;
 

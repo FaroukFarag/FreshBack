@@ -1,7 +1,7 @@
 ﻿using FreshBack.Domain.Models.Abstraction;
 using FreshBack.Domain.Models.Products;
 
-namespace FreshBack.Domain.Carts;
+namespace FreshBack.Domain.Models.Carts;
 
 public class CartItem : BaseModel<int>
 {

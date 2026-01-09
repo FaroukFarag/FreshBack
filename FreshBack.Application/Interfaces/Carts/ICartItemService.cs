@@ -1,6 +1,6 @@
 ﻿using FreshBack.Application.Dtos.Carts;
 using FreshBack.Application.Interfaces.Abstraction;
-using FreshBack.Domain.Carts;
+using FreshBack.Domain.Models.Carts;
 
 namespace FreshBack.Application.Interfaces.Carts;
 

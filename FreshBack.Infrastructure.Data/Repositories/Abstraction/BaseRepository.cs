@@ -57,18 +57,20 @@ public class BaseRepository<TEntity, TPrimaryKey>(
         return await query.AsNoTracking().ToListAsync();
     }
 
-    public virtual async Task<IEnumerable<TEntity>> GetAllPaginatedAsync(
+    public virtual async Task<(IEnumerable<TEntity>, int)> GetAllPaginatedAsync(
         PaginatedModel paginatedModel,
         IBaseSpecification<TEntity>? spec = null)
     {
         paginatedModel.PageNumber = paginatedModel.PageNumber <= 0 ? 1 : paginatedModel.PageNumber;
         var query = ApplySpecification(spec);
-
-        return await query
+        var totalCount = query.Count();
+        var items = await query
             .Skip((paginatedModel.PageNumber - 1) * paginatedModel.PageSize)
             .Take(paginatedModel.PageSize)
             .AsNoTracking()
             .ToListAsync();
+
+        return (items, totalCount);
     }
 
     public virtual async Task<IEnumerable<TEntity>> GetAllFilteredAsync<TFilterDto>(

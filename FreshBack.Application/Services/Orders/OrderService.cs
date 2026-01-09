@@ -40,15 +40,30 @@ public class OrderService(
                 var orderProducts = createOrderDto.ProductsOrders!
                     .ToDictionary(x => x.ProductId, x => x.Quantity);
                 var productIds = orderProducts.Keys.ToList();
-                var spec = new BaseSpecification<Product>()
+                var spec = new BaseSpecification<Product>
                 {
                     Criteria = p => productIds.Contains(p.Id)
                 };
                 var products = await _productRepository.GetAllAsync(spec);
-                var insufficientProducts = products
-                    .Where(p => p.Quantity < orderProducts[p.Id]);
 
-                if (insufficientProducts.Any())
+                if (products.Count() != productIds.Count)
+                    throw new Exception("One or more products do not exist.");
+
+                var merchantId = products.First().MerchantId;
+                var differentMerchantProducts = products
+                    .Where(p => p.MerchantId != merchantId)
+                    .ToList();
+
+                if (differentMerchantProducts.Count != 0)
+                    throw new Exception(
+                        "All products in an order must belong to the same merchant."
+                    );
+
+                var insufficientProducts = products
+                    .Where(p => p.Quantity < orderProducts[p.Id])
+                    .ToList();
+
+                if (insufficientProducts.Count != 0)
                 {
                     var message = string.Join(" | ",
                         insufficientProducts.Select(p =>
@@ -59,7 +74,9 @@ public class OrderService(
                     throw new Exception(message);
                 }
 
-                var order = await _repository.CreateAsync(_mapper.Map<Order>(createOrderDto));
+                var order = _mapper.Map<Order>(createOrderDto);
+
+                await _repository.CreateAsync(order);
 
                 var orderCreated = await _unitOfWork.Complete();
 
@@ -69,6 +86,7 @@ public class OrderService(
                 return _mapper.Map<CreateOrderDto>(createOrderDto);
             });
     }
+
 
     public async override Task<ResultDto<OrderDto>> GetAsync(int id)
     {

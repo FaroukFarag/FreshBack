@@ -78,15 +78,18 @@ public class BaseService<
             });
     }
 
-    public virtual async Task<ResultDto<IEnumerable<TGetAllEntitiesDto>>> GetAllPaginatedAsync(PaginatedModelDto paginatedModelDto)
+    public virtual async Task<ResultDto<PagedResult<TGetAllEntitiesDto>>>
+        GetAllPaginatedAsync(PaginatedModelDto paginatedModelDto)
     {
         return await ExecuteServiceCallAsync(
             operationName: $"Get paginated {typeof(TEntity).Name}",
             action: async () =>
             {
-                var entities = await _repository.GetAllPaginatedAsync(_mapper.Map<PaginatedModel>(paginatedModelDto));
+                var (entities, totalCount) = await _repository.GetAllPaginatedAsync(_mapper.Map<PaginatedModel>(paginatedModelDto));
 
-                return _mapper.Map<IEnumerable<TGetAllEntitiesDto>>(entities);
+                return new PagedResult<TGetAllEntitiesDto>(
+                    _mapper.Map<IEnumerable<TGetAllEntitiesDto>>(entities),
+                    totalCount);
             });
     }
 
