@@ -12,22 +12,10 @@ public class MerchantDtoValidator : AbstractValidator<MerchantDto>
             .NotEmpty()
             .MaximumLength(250);
 
-        RuleFor(m => m.Latitude)
-            .NotNull();
-
-        RuleFor(m => m.Longitude)
-            .NotNull();
-
         RuleFor(m => m.PhoneNumber)
             .NotNull()
             .NotEmpty()
             .MaximumLength(25);
-
-        RuleFor(m => m.OpeningTime)
-            .NotNull();
-
-        RuleFor(m => m.ClosingTime)
-            .NotNull();
 
         RuleFor(m => m.AreaId)
             .NotNull();

@@ -1,4 +1,4 @@
-﻿using FreshBack.Domain.Carts;
+﻿using FreshBack.Domain.Models.Carts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

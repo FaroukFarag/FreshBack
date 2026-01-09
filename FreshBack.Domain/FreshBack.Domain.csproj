@@ -8,6 +8,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite" Version="8.0.6" />
+    <PackageReference Include="NetTopologySuite.IO.GeoTools" Version="1.13.2" />
   </ItemGroup>
 
   <ItemGroup>

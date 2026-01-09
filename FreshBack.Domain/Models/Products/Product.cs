@@ -1,6 +1,7 @@
-﻿using FreshBack.Domain.Carts;
-using FreshBack.Domain.Enums.Products;
+﻿using FreshBack.Domain.Enums.Products;
 using FreshBack.Domain.Models.Abstraction;
+using FreshBack.Domain.Models.Branches;
+using FreshBack.Domain.Models.Carts;
 using FreshBack.Domain.Models.Merchants;
 using FreshBack.Domain.Models.ProductsOrders;
 
@@ -23,8 +24,10 @@ public class Product : BaseModel<int>
     public DateTime EndDeliveryDate { get; set; }
     public ProductStatus Status { get; set; }
     public int MerchantId { get; set; }
+    public int BranchId { get; set; }
 
     public Merchant Merchant { get; set; } = default!;
+    public Branch Branch { get; set; } = default!;
     public IEnumerable<ProductImage> ProductImages { get; set; } = default!;
     public IEnumerable<CartItem> CartItems { get; set; } = default!;
     public IEnumerable<ProductOrder> ProductsOrders { get; set; } = default!;

@@ -1,4 +1,5 @@
-﻿using FreshBack.Domain.Carts;
+﻿using FreshBack.Domain.Models.Branches;
+using FreshBack.Domain.Models.Carts;
 using FreshBack.Domain.Models.Categories;
 using FreshBack.Domain.Models.Customers;
 using FreshBack.Domain.Models.Merchants;
@@ -10,6 +11,7 @@ using FreshBack.Domain.Models.ProductsOrders;
 using FreshBack.Domain.Models.Roles;
 using FreshBack.Domain.Models.Settings.Areas;
 using FreshBack.Domain.Models.Settings.Users;
+using FreshBack.Infrastructure.Data.ModelsConfigurations.Branches;
 using FreshBack.Infrastructure.Data.ModelsConfigurations.Carts;
 using FreshBack.Infrastructure.Data.ModelsConfigurations.Categories;
 using FreshBack.Infrastructure.Data.ModelsConfigurations.Customers;
@@ -33,6 +35,7 @@ public class FreshBackDbContext(DbContextOptions options) : IdentityDbContext<Us
     public DbSet<Review> Reviews { get; set; }
     public DbSet<Category> Categories { get; set; }
     public DbSet<Merchant> Merchants { get; set; }
+    public DbSet<Branch> Branches { get; set; }
     public DbSet<Product> Products { get; set; }
     public DbSet<Cart> Carts { get; set; }
     public DbSet<CartItem> CartItems { get; set; }
@@ -52,6 +55,7 @@ public class FreshBackDbContext(DbContextOptions options) : IdentityDbContext<Us
         modelBuilder.ApplyConfiguration(new ReviewConfigurations());
         modelBuilder.ApplyConfiguration(new CategoryConfigurations());
         modelBuilder.ApplyConfiguration(new MerchantConfigurations());
+        modelBuilder.ApplyConfiguration(new BranchConfigurations());
         modelBuilder.ApplyConfiguration(new ProductConfigurations());
         modelBuilder.ApplyConfiguration(new CartConfigurations());
         modelBuilder.ApplyConfiguration(new CartItemConfigurations());

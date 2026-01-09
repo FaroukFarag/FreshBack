@@ -1,6 +1,6 @@
 ﻿using FreshBack.Application.Dtos.Carts;
 using FreshBack.Application.Interfaces.Carts;
-using FreshBack.Domain.Carts;
+using FreshBack.Domain.Models.Carts;
 using FreshBack.WebApi.Controllers.Abstraction;
 using Microsoft.AspNetCore.Mvc;
 

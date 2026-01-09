@@ -1,5 +1,5 @@
-﻿using FreshBack.Domain.Carts;
-using FreshBack.Domain.Interfaces.Repositories.Abstraction;
+﻿using FreshBack.Domain.Interfaces.Repositories.Abstraction;
+using FreshBack.Domain.Models.Carts;
 
 namespace FreshBack.Domain.Interfaces.Repositories.Carts;
 

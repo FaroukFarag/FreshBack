@@ -4,6 +4,7 @@ using FreshBack.Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 
@@ -12,9 +13,11 @@ using NetTopologySuite.Geometries;
 namespace FreshBack.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(FreshBackDbContext))]
-    partial class FreshBackDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260107144900_AddLocationToMerchant")]
+    partial class AddLocationToMerchant
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -23,70 +26,7 @@ namespace FreshBack.Infrastructure.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("FreshBack.Domain.Models.Branches.Branch", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AreaId")
-                        .HasColumnType("int");
-
-                    b.Property<TimeOnly>("ClosingTime")
-                        .HasColumnType("time");
-
-                    b.Property<string>("ImagePath")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Point>("Location")
-                        .IsRequired()
-                        .HasColumnType("geography");
-
-                    b.Property<int>("MerchantId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.Property<string>("NameEn")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.Property<string>("Neighborhood")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("NeighborhoodEn")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<TimeOnly>("OpeningTime")
-                        .HasColumnType("time");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AreaId");
-
-                    b.HasIndex("MerchantId");
-
-                    b.ToTable("Branches", t =>
-                        {
-                            t.HasCheckConstraint("CK_Branches_ClosingTime_After_OpeningTime", "[ClosingTime] > [OpeningTime]");
-                        });
-                });
-
-            modelBuilder.Entity("FreshBack.Domain.Models.Carts.Cart", b =>
+            modelBuilder.Entity("FreshBack.Domain.Carts.Cart", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -104,7 +44,7 @@ namespace FreshBack.Infrastructure.Data.Migrations
                     b.ToTable("Carts");
                 });
 
-            modelBuilder.Entity("FreshBack.Domain.Models.Carts.CartItem", b =>
+            modelBuilder.Entity("FreshBack.Domain.Carts.CartItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -231,14 +171,24 @@ namespace FreshBack.Infrastructure.Data.Migrations
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
+                    b.Property<TimeOnly>("ClosingTime")
+                        .HasColumnType("time");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<Point>("Location")
+                        .IsRequired()
+                        .HasColumnType("geography");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
+
+                    b.Property<TimeOnly>("OpeningTime")
+                        .HasColumnType("time");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
@@ -404,9 +354,6 @@ namespace FreshBack.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("BranchId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -458,8 +405,6 @@ namespace FreshBack.Infrastructure.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BranchId");
 
                     b.HasIndex("MerchantId");
 
@@ -729,26 +674,7 @@ namespace FreshBack.Infrastructure.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("FreshBack.Domain.Models.Branches.Branch", b =>
-                {
-                    b.HasOne("FreshBack.Domain.Models.Settings.Areas.Area", "Area")
-                        .WithMany()
-                        .HasForeignKey("AreaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FreshBack.Domain.Models.Merchants.Merchant", "Merchant")
-                        .WithMany("Branches")
-                        .HasForeignKey("MerchantId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Area");
-
-                    b.Navigation("Merchant");
-                });
-
-            modelBuilder.Entity("FreshBack.Domain.Models.Carts.Cart", b =>
+            modelBuilder.Entity("FreshBack.Domain.Carts.Cart", b =>
                 {
                     b.HasOne("FreshBack.Domain.Models.Customers.Customer", "Customer")
                         .WithMany("Carts")
@@ -759,9 +685,9 @@ namespace FreshBack.Infrastructure.Data.Migrations
                     b.Navigation("Customer");
                 });
 
-            modelBuilder.Entity("FreshBack.Domain.Models.Carts.CartItem", b =>
+            modelBuilder.Entity("FreshBack.Domain.Carts.CartItem", b =>
                 {
-                    b.HasOne("FreshBack.Domain.Models.Carts.Cart", "Cart")
+                    b.HasOne("FreshBack.Domain.Carts.Cart", "Cart")
                         .WithMany("CartItems")
                         .HasForeignKey("CartId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -837,19 +763,11 @@ namespace FreshBack.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("FreshBack.Domain.Models.Products.Product", b =>
                 {
-                    b.HasOne("FreshBack.Domain.Models.Branches.Branch", "Branch")
-                        .WithMany("Products")
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("FreshBack.Domain.Models.Merchants.Merchant", "Merchant")
                         .WithMany()
                         .HasForeignKey("MerchantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Branch");
 
                     b.Navigation("Merchant");
                 });
@@ -935,12 +853,7 @@ namespace FreshBack.Infrastructure.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("FreshBack.Domain.Models.Branches.Branch", b =>
-                {
-                    b.Navigation("Products");
-                });
-
-            modelBuilder.Entity("FreshBack.Domain.Models.Carts.Cart", b =>
+            modelBuilder.Entity("FreshBack.Domain.Carts.Cart", b =>
                 {
                     b.Navigation("CartItems");
                 });
@@ -959,8 +872,6 @@ namespace FreshBack.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("FreshBack.Domain.Models.Merchants.Merchant", b =>
                 {
-                    b.Navigation("Branches");
-
                     b.Navigation("Orders");
 
                     b.Navigation("Reviews");
