@@ -8,44 +8,17 @@ public class CustomerConfigurations : IEntityTypeConfiguration<Customer>
 {
     public void Configure(EntityTypeBuilder<Customer> builder)
     {
-        builder.Property(c => c.Name)
-            .IsRequired()
-            .HasMaxLength(250);
-
-        builder.Property(c => c.Email)
-            .IsRequired()
-            .HasMaxLength(100);
-
         builder.Property(c => c.PhoneNumber)
             .IsRequired()
             .HasMaxLength(25);
 
-        builder.Property(c => c.Country)
-            .IsRequired()
-            .HasMaxLength(50);
+        builder.Property(c => c.Name)
+            .IsRequired(false)
+            .HasMaxLength(250);
 
-        builder.Property(c => c.City)
-            .IsRequired()
-            .HasMaxLength(50);
-
-        builder.Property(c => c.Area)
-            .IsRequired()
-            .HasMaxLength(50);
-
-        builder.Property(c => c.Street)
-            .IsRequired()
+        builder.Property(c => c.Email)
+            .IsRequired(false)
             .HasMaxLength(100);
-
-        builder.Property(c => c.BuildingNo)
-           .IsRequired();
-
-        builder.Property(c => c.Longitude)
-           .IsRequired()
-           .HasPrecision(18, 18);
-
-        builder.Property(c => c.Latitude)
-           .IsRequired()
-           .HasPrecision(18, 18);
 
         builder.HasMany(customer => customer.Carts)
             .WithOne(cart => cart.Customer)

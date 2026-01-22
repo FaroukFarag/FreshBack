@@ -5,7 +5,7 @@ using FreshBack.Domain.Models.Merchants;
 namespace FreshBack.Application.Interfaces.Merchants;
 
 public interface IMerchantService : IBaseService<
-    MerchantDto,
+    CreateMerchantDto,
     MerchantDto,
     MerchantDto,
     MerchantDto,

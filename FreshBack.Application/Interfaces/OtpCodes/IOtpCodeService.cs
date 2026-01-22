@@ -13,5 +13,5 @@ public interface IOtpCodeService : IBaseService<
     OtpCode,
     int>
 {
-    Task<ResultDto<OtpCodeDto>> VerifyOtp(OtpCodeDto otpCodeDto);
+    Task<ResultDto<OtpVerifiedDto>> VerifyOtp(OtpCodeDto otpCodeDto);
 }

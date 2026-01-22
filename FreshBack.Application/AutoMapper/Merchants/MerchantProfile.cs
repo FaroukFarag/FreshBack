@@ -9,5 +9,7 @@ public class MerchantProfile : Profile
     public MerchantProfile()
     {
         CreateMap<Merchant, MerchantDto>().ReverseMap();
+
+        CreateMap<Merchant, CreateMerchantDto>().ReverseMap();
     }
 }

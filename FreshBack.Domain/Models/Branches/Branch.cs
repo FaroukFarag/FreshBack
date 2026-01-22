@@ -1,5 +1,10 @@
-﻿using FreshBack.Domain.Models.Abstraction;
+﻿using FreshBack.Domain.Enums.Branches;
+using FreshBack.Domain.Models.Abstraction;
+using FreshBack.Domain.Models.BranchesFavorites;
+using FreshBack.Domain.Models.Categories;
 using FreshBack.Domain.Models.Merchants;
+using FreshBack.Domain.Models.Orders;
+using FreshBack.Domain.Models.OrdersPhotos;
 using FreshBack.Domain.Models.Products;
 using FreshBack.Domain.Models.Settings.Areas;
 using NetTopologySuite.Geometries;
@@ -18,8 +23,14 @@ public class Branch : BaseImageModel<int>
     public BranchStatus Status { get; set; }
     public int AreaId { get; set; }
     public int MerchantId { get; set; }
+    public int CategoryId { get; set; }
 
     public Area Area { get; set; } = default!;
     public Merchant Merchant { get; set; } = default!;
+    public Category Category { get; set; } = default!;
+    public IEnumerable<Order> Orders { get; set; } = default!;
+    public IEnumerable<OrderPhoto> OrderPhotos { get; set; } = default!;
     public IEnumerable<Product> Products { get; set; } = default!;
+    public IEnumerable<CustomerBranchFavorite> CustomersBranchesFavorite { get; set; } = default!;
+    public IEnumerable<Review> Reviews { get; set; } = default!;
 }

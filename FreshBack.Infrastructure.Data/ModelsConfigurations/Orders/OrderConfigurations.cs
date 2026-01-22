@@ -12,7 +12,8 @@ public class OrderConfigurations : IEntityTypeConfiguration<Order>
             .IsRequired();
 
         builder.Property(o => o.CreationDate)
-            .IsRequired();
+            .IsRequired()
+            .HasDefaultValue(DateTime.Now);
 
         builder.Property(o => o.Status)
             .IsRequired();
@@ -33,12 +34,22 @@ public class OrderConfigurations : IEntityTypeConfiguration<Order>
             .HasPrecision(18, 2);
 
         builder.Property(o => o.MerchantId)
-            .IsRequired()
-            .HasPrecision(18, 2);
+            .IsRequired();
+
+        builder.Property(o => o.BranchId)
+            .IsRequired();
+
+        builder.Property(o => o.CustomerId)
+            .IsRequired();
 
         builder.HasOne(o => o.Merchant)
             .WithMany(m => m.Orders)
             .HasForeignKey(o => o.MerchantId);
+
+        builder.HasOne(o => o.Branch)
+            .WithMany(m => m.Orders)
+            .HasForeignKey(o => o.BranchId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(o => o.Customer)
             .WithMany(c => c.Orders)

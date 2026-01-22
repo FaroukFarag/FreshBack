@@ -8,5 +8,7 @@ public class RoleConfigurations : IEntityTypeConfiguration<Role>
 {
     public void Configure(EntityTypeBuilder<Role> builder)
     {
+
+        builder.Property(r => r.Id).ValueGeneratedNever();
     }
 }

@@ -11,7 +11,7 @@ namespace FreshBack.Application.Services.Merchants;
 public class MerchantService(
     IMerchantRepository repository,
     IUnitOfWork unitOfWork,
-    IMapper mapper) : BaseService<MerchantDto, MerchantDto, MerchantDto,
+    IMapper mapper) : BaseService<CreateMerchantDto, MerchantDto, MerchantDto,
         MerchantDto, Merchant, int>(repository, unitOfWork, mapper), IMerchantService
 {
 }

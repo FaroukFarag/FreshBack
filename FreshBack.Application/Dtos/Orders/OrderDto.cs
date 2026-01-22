@@ -18,6 +18,7 @@ public class OrderDto : BaseModelDto<int>
     public decimal? TotalAmount => ProductsOrders?
         .Sum(po => po.Quantity * po.Product?.Price) - Discount + Fees;
     public int MerchantId { get; set; }
+    public int BranchId { get; set; }
     public int CustomerId { get; set; }
 
     public MerchantDto? Merchant { get; set; }

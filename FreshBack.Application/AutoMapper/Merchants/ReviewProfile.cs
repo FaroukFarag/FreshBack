@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using FreshBack.Application.Dtos.Merchants;
-using FreshBack.Domain.Models.Merchants;
+using FreshBack.Application.Dtos.Branches;
+using FreshBack.Domain.Models.Branches;
 
 namespace FreshBack.Application.AutoMapper.Merchants;
 

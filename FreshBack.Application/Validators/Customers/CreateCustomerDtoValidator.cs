@@ -22,28 +22,5 @@ public class CreateCustomerDtoValidator : AbstractValidator<CreateCustomerDto>
             .Matches(@"^(?:\+20|0)?1[0125]\d{8}$")
             .WithMessage("Invalid mobile number")
             .MaximumLength(25);
-
-        RuleFor(c => c.Country)
-            .NotNull()
-            .NotEmpty()
-            .MaximumLength(50);
-
-        RuleFor(c => c.City)
-            .NotNull()
-            .NotEmpty()
-            .MaximumLength(50);
-
-        RuleFor(c => c.Area)
-            .NotNull()
-            .NotEmpty()
-            .MaximumLength(50);
-
-        RuleFor(c => c.Street)
-            .NotNull()
-            .NotEmpty()
-            .MaximumLength(100);
-
-        RuleFor(c => c.BuildingNo)
-            .NotNull();
     }
 }

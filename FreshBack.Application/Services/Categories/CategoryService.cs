@@ -13,7 +13,7 @@ public class CategoryService(
     IUnitOfWork unitOfWork,
     IMapper mapper) :
     BaseService<
-        CategoryDto,
+        CreateCategoryDto,
         CategoryDto,
         CategoryDto,
         CategoryDto,

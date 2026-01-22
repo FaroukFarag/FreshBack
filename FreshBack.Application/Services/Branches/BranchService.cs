@@ -1,43 +1,81 @@
 ﻿using AutoMapper;
+using FreshBack.Application.Configurations;
 using FreshBack.Application.Dtos.Branches;
+using FreshBack.Application.Dtos.Merchants;
 using FreshBack.Application.Dtos.Shared;
 using FreshBack.Application.Interfaces.Branches;
+using FreshBack.Application.Interfaces.Shared;
 using FreshBack.Application.Services.Abstraction;
+using FreshBack.Domain.Constants.Branches;
 using FreshBack.Domain.Interfaces.Repositories.Branches;
 using FreshBack.Domain.Interfaces.UnitOfWork;
 using FreshBack.Domain.Models.Branches;
 using FreshBack.Domain.Models.Shared;
 using FreshBack.Domain.Specifications.Absraction;
+using FreshBack.Domain.Specifications.Branches;
+using Microsoft.Extensions.Options;
 using NetTopologySuite.Geometries;
+using System.Linq.Expressions;
 
 namespace FreshBack.Application.Services.Branches;
 
 public class BranchService(
     IBranchRepository repository,
     IUnitOfWork unitOfWork,
-    IMapper mapper) :
-    BaseService<
-        BranchDto,
+    IMapper mapper,
+    IImageService imageService,
+    IOptions<ImageSettings> settings)
+    : BaseService<
+        CreateBranchDto,
         BranchDto,
         BranchDto,
         BranchDto,
         Branch,
-        int>(repository, unitOfWork, mapper), IBranchService
+        int>(repository, unitOfWork, mapper),
+      IBranchService
 {
     private readonly IBranchRepository _repository = repository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _mapper = mapper;
+    private readonly IImageService _imageService = imageService;
+    private readonly ImageSettings _settings = settings.Value;
 
-    public async override Task<ResultDto<BranchDto>> GetAsync(int id)
+    public override async Task<ResultDto<CreateBranchDto>> CreateAsync(
+        CreateBranchDto createBranchDto)
     {
         return await ExecuteServiceCallAsync(
-            operationName: "Get All Branchs Paginated",
-            action: async () =>
+            "Create Branch",
+            async () =>
+            {
+                createBranchDto.ImagePath =
+                    await _imageService.SaveImageAsync(
+                        createBranchDto.ImageFile,
+                        BranchConstants.SubFolder);
+
+                var branch = _mapper.Map<Branch>(createBranchDto);
+
+                await _repository.CreateAsync(branch);
+
+                if (!await _unitOfWork.Complete())
+                    throw new Exception("Failed to create branch");
+
+                return _mapper.Map<CreateBranchDto>(branch);
+            });
+    }
+
+    public override async Task<ResultDto<BranchDto>> GetAsync(int id)
+    {
+        return await ExecuteServiceCallAsync(
+            "Get Branch",
+            async () =>
             {
                 var spec = new BaseSpecification<Branch>
                 {
                     Includes =
                     [
-                        b => b.Products
+                        b => b.Merchant,
+                        b => b.Products,
+                        b => b.Reviews
                     ]
                 };
                 var branch = await _repository.GetAsync(id, spec);
@@ -46,30 +84,113 @@ public class BranchService(
             });
     }
 
-    public async Task<ResultDto<PagedResult<BranchDto>>> GetAllPaginatedAsync(BranchPaginatedModelDto paginatedModelDto)
+    public async Task<ResultDto<PagedResult<BranchDto>>> GetAllPaginatedAsync(
+        BranchPaginatedModelDto paginatedModelDto)
     {
         return await ExecuteServiceCallAsync(
-            operationName: "Get All Branches Paginated",
-            action: async () =>
+            "Get All Branches Paginated",
+            async () =>
             {
-                var location = new Point(
-                    paginatedModelDto.Longitude,
-                    paginatedModelDto.Latitude)
-                {
-                    SRID = 4326
-                };
-                var spec = new BaseSpecification<Branch>
-                {
-                    Criteria = m => m.Status == BranchStatus.Active,
-                    OrderBy = m => m.Location.Distance(location)
-                };
-                var paginatedModel = _mapper.Map<PaginatedModel>(paginatedModelDto);
-                var (branches, totalCount) = await _repository
-                    .GetAllPaginatedAsync(paginatedModel, spec);
+                var userLocation = CreateUserLocation(paginatedModelDto);
+
+                var spec = new BranchPaginatedSpecification(
+                    paginatedModelDto.SearchTerm,
+                    paginatedModelDto.CategoryId,
+                    paginatedModelDto.SortBy,
+                    paginatedModelDto.SortDirection,
+                    userLocation);
+
+                var paginatedModel =
+                    _mapper.Map<PaginatedModel>(paginatedModelDto);
+                var projection = ToDto(userLocation, _settings.BaseUrl);
+
+                var (branches, totalCount) =
+                    await _repository.GetAllPaginatedAsync(
+                        paginatedModel,
+                        projection,
+                        spec);
 
                 return new PagedResult<BranchDto>(
-                    _mapper.Map<IEnumerable<BranchDto>>(branches),
+                    branches,
                     totalCount);
             });
+    }
+
+    public async Task<ResultDto<PagedResult<BranchDto>>> GetOtherBranchesPaginatedAsync(
+        OtherBranchesPaginatedModelDto paginatedModelDto)
+    {
+        return await ExecuteServiceCallAsync(
+            "Get Other Branches Paginated",
+            async () =>
+            {
+                var branchSpec = new BaseSpecification<Branch>
+                {
+                    Includes =
+                    [
+                        b => b.Merchant
+                    ]
+                };
+                var branch = await _repository
+                    .GetAsync(paginatedModelDto.BranchId, branchSpec);
+                var merchantId = branch.MerchantId;
+
+                if (merchantId == 0)
+                    throw new Exception("Branch not found");
+
+                var spec = new BaseSpecification<Branch>
+                {
+                    Criteria = b => b.MerchantId == merchantId,
+                    Includes =
+                    [
+                        b => b.Merchant
+                    ]
+                };
+
+                var paginatedModel = _mapper.Map<PaginatedModel>(paginatedModelDto);
+
+                var (branches, totalCount) =
+                    await _repository.GetAllPaginatedAsync(
+                        paginatedModel,
+                        spec);
+
+                return new PagedResult<BranchDto>(
+                    _mapper.Map<IReadOnlyList<BranchDto>>(branches),
+                    totalCount);
+            });
+    }
+
+    private static Point CreateUserLocation(BranchPaginatedModelDto dto)
+        => new(dto.Longitude, dto.Latitude) { SRID = 4326 };
+
+    private static Expression<Func<Branch, BranchDto>> ToDto(Point userLocation, string baseUrl)
+    {
+        return b => new BranchDto
+        {
+            Id = b.Id,
+            Name = b.Name,
+            NameEn = b.NameEn,
+            Neighborhood = b.Neighborhood,
+            NeighborhoodEn = b.NeighborhoodEn,
+            Latitude = b.Location.Y,
+            Longitude = b.Location.X,
+            DistanceInMeters = (decimal)b.Location.Distance(userLocation),
+
+            OpeningTime = b.OpeningTime,
+            ClosingTime = b.ClosingTime,
+            Status = b.Status,
+
+            LeastPrice = b.Products.Min(p => p.Price),
+
+            ImagePath = string.IsNullOrEmpty(b.ImagePath)
+                ? null
+                : baseUrl.TrimEnd('/') + "/" +
+                  b.ImagePath.Replace("\\", "/").TrimStart('/'),
+
+            Merchant = new MerchantDto
+            {
+                Id = b.Merchant.Id,
+                Name = b.Merchant.Name
+            }
+        };
     }
 }

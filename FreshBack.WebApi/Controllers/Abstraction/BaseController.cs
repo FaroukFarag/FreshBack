@@ -1,11 +1,13 @@
 ﻿using FreshBack.Application.Dtos.Shared;
 using FreshBack.Application.Interfaces.Abstraction;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FreshBack.WebApi.Controllers.Abstraction;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public abstract class BaseController<TService, TCreateEntityDto, TGetAllEntitiesDto,
     TGetEntityDto, TUpdateEntityDto, TEntity, TPrimaryKey>(TService service) :
     ControllerBase

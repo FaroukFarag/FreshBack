@@ -5,7 +5,7 @@ using FreshBack.Domain.Models.Categories;
 namespace FreshBack.Application.Interfaces.Categories;
 
 public interface ICategoryService : IBaseService<
-    CategoryDto,
+    CreateCategoryDto,
     CategoryDto,
     CategoryDto,
     CategoryDto,

@@ -3,8 +3,10 @@ using FreshBack.Application.SignalR.Notifications;
 using FreshBack.Domain.Constants;
 using FreshBack.Infrastructure.IoC.DependencyContainer;
 using FreshBack.WebApi.Middlewares.Exceptions;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
+using System.Globalization;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,7 +26,7 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "HR Management System API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Fresh Back System API", Version = "v1" });
 
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
@@ -52,6 +54,27 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+builder.Services.AddLocalization();
+
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var supportedCultures = new[]
+    {
+        new CultureInfo("en"),
+        new CultureInfo("ar")
+    };
+
+    options.DefaultRequestCulture = new RequestCulture("en");
+
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+
+    options.RequestCultureProviders =
+    [
+        new AcceptLanguageHeaderRequestCultureProvider()
+    ];
+});
+
 builder.Services.RegisterDbContext(builder.Configuration);
 builder.Services.RegisterConfiguration(builder.Configuration);
 builder.Services.RegisterServices();
@@ -64,6 +87,7 @@ builder.Services.RegisterIdentity();
 builder.Services.RegisterJwtSettings(builder.Configuration);
 builder.Services.RegisterCORS(builder.Configuration);
 builder.Services.RegisterMiddlewares();
+builder.Services.RegisterDatabaseSeeder();
 builder.Services.RegisterSignalR();
 
 var app = builder.Build();
@@ -86,7 +110,11 @@ app.UseSwaggerUI();
 
 app.Services.ApplyMigrations();
 
+await app.Services.SeedDatabaseAsync();
+
 app.UseCors(AppSettings.AllowedOrigins);
+
+app.UseRequestLocalization();
 
 app.UseAuthentication();
 

@@ -26,6 +26,23 @@ public class BranchProfile : Profile
             .ForMember(des => des.ImagePath, opt => opt
                 .MapFrom<BaseModelImageUrlResolver>());
 
+        CreateMap<CreateBranchDto, Branch>()
+            .ForMember(d => d.Location,
+                o => o.MapFrom(s =>
+                    new Point(s.Longitude, s.Latitude) { SRID = 4326 }))
+            .ForMember(des => des.ImagePath, opt => opt
+                .MapFrom<BaseModelImageUrlResolver>());
+
+        CreateMap<Branch, CreateBranchDto>()
+            .ForMember(d => d.Latitude,
+                o => o.MapFrom(s => s.Location.Y))
+            .ForMember(d => d.Longitude,
+                o => o.MapFrom(s => s.Location.X))
+            .ForMember(des => des.ImagePath, opt => opt
+                .MapFrom<BaseModelImageDtoUrlResolver>());
+
         CreateMap<BranchPaginatedModelDto, PaginatedModel>();
+
+        CreateMap<OtherBranchesPaginatedModelDto, PaginatedModel>();
     }
 }
