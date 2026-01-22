@@ -9,7 +9,7 @@ namespace FreshBack.WebApi.Controllers.Merchants;
 [Route("api/[controller]")]
 [ApiController]
 public class MerchantsController(IMerchantService service) :
-    BaseController<IMerchantService, MerchantDto, MerchantDto, MerchantDto,
+    BaseController<IMerchantService, CreateMerchantDto, MerchantDto, MerchantDto,
         MerchantDto, Merchant, int>(service)
 {
 }

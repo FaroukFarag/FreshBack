@@ -20,6 +20,7 @@ public class CreateProductDto : BaseModelDto<int>
     public DateTime EndDeliveryDate { get; set; }
     public ProductStatus Status { get; set; }
     public int MerchantId { get; set; }
+    public int BranchId { get; set; }
 
     public IEnumerable<CreateProductImageDto> ProductImages { get; set; } = default!;
 }

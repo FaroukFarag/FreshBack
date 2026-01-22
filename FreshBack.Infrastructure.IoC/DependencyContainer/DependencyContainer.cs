@@ -1,12 +1,15 @@
 ﻿using FluentValidation;
 using FreshBack.Application.AutoMapper.Abstraction;
+using FreshBack.Application.AutoMapper.Addresses;
 using FreshBack.Application.AutoMapper.Branches;
 using FreshBack.Application.AutoMapper.Carts;
 using FreshBack.Application.AutoMapper.Categories;
 using FreshBack.Application.AutoMapper.Customers;
+using FreshBack.Application.AutoMapper.CustomersBranchesFavorite;
 using FreshBack.Application.AutoMapper.Merchants;
 using FreshBack.Application.AutoMapper.Notifications;
 using FreshBack.Application.AutoMapper.Orders;
+using FreshBack.Application.AutoMapper.OrdersPhotos;
 using FreshBack.Application.AutoMapper.OtpCodes;
 using FreshBack.Application.AutoMapper.Products;
 using FreshBack.Application.AutoMapper.ProductsOrders;
@@ -16,13 +19,16 @@ using FreshBack.Application.AutoMapper.Settings.Users;
 using FreshBack.Application.AutoMapper.Shared;
 using FreshBack.Application.Configurations;
 using FreshBack.Application.Interfaces.Abstraction;
+using FreshBack.Application.Interfaces.Addresses;
 using FreshBack.Application.Interfaces.Branches;
 using FreshBack.Application.Interfaces.Carts;
 using FreshBack.Application.Interfaces.Categories;
 using FreshBack.Application.Interfaces.Customers;
+using FreshBack.Application.Interfaces.CustomersBranchesFavorite;
 using FreshBack.Application.Interfaces.Merchants;
 using FreshBack.Application.Interfaces.Notifications;
 using FreshBack.Application.Interfaces.Orders;
+using FreshBack.Application.Interfaces.OrdersPhotos;
 using FreshBack.Application.Interfaces.OtpCodes;
 using FreshBack.Application.Interfaces.Products;
 using FreshBack.Application.Interfaces.ProductsOrders;
@@ -31,13 +37,16 @@ using FreshBack.Application.Interfaces.Settings.Areas;
 using FreshBack.Application.Interfaces.Settings.Users;
 using FreshBack.Application.Interfaces.Shared;
 using FreshBack.Application.Services.Abstraction;
+using FreshBack.Application.Services.Addresses;
 using FreshBack.Application.Services.Branches;
 using FreshBack.Application.Services.Carts;
 using FreshBack.Application.Services.Categories;
 using FreshBack.Application.Services.Customers;
+using FreshBack.Application.Services.CustomersBranchesFavorite;
 using FreshBack.Application.Services.Merchants;
 using FreshBack.Application.Services.Notifications;
 using FreshBack.Application.Services.Orders;
+using FreshBack.Application.Services.OrdersPhotos;
 using FreshBack.Application.Services.OtpCodes;
 using FreshBack.Application.Services.Products;
 using FreshBack.Application.Services.ProductsOrders;
@@ -46,13 +55,16 @@ using FreshBack.Application.Services.Settings.Areas;
 using FreshBack.Application.Services.Shared;
 using FreshBack.Application.Services.Users;
 using FreshBack.Application.SignalR.Notifications;
+using FreshBack.Application.Validators.Addresses;
 using FreshBack.Application.Validators.Branches;
 using FreshBack.Application.Validators.Carts;
 using FreshBack.Application.Validators.Categories;
 using FreshBack.Application.Validators.Customers;
+using FreshBack.Application.Validators.CustomersBranchesFavorite;
 using FreshBack.Application.Validators.Merchants;
 using FreshBack.Application.Validators.Notifications;
 using FreshBack.Application.Validators.Orders;
+using FreshBack.Application.Validators.OrdersPhotos;
 using FreshBack.Application.Validators.OtpCodes;
 using FreshBack.Application.Validators.Products;
 using FreshBack.Application.Validators.ProductsOrders;
@@ -64,19 +76,23 @@ using FreshBack.Common.Tokens.Interfaces;
 using FreshBack.Common.Tokens.Services;
 using FreshBack.Domain.Constants;
 using FreshBack.Domain.Interfaces.Repositories.Abstraction;
+using FreshBack.Domain.Interfaces.Repositories.Addresses;
 using FreshBack.Domain.Interfaces.Repositories.Branches;
 using FreshBack.Domain.Interfaces.Repositories.Carts;
 using FreshBack.Domain.Interfaces.Repositories.Categories;
 using FreshBack.Domain.Interfaces.Repositories.Customers;
+using FreshBack.Domain.Interfaces.Repositories.CustomersBranchesFavorite;
 using FreshBack.Domain.Interfaces.Repositories.Merchants;
 using FreshBack.Domain.Interfaces.Repositories.Notifications;
 using FreshBack.Domain.Interfaces.Repositories.Orders;
+using FreshBack.Domain.Interfaces.Repositories.OrdersPhotos;
 using FreshBack.Domain.Interfaces.Repositories.OtpCodes;
 using FreshBack.Domain.Interfaces.Repositories.Products;
 using FreshBack.Domain.Interfaces.Repositories.ProductsOrders;
 using FreshBack.Domain.Interfaces.Repositories.Roles;
 using FreshBack.Domain.Interfaces.Repositories.Settings.Areas;
 using FreshBack.Domain.Interfaces.Repositories.Settings.Users;
+using FreshBack.Domain.Interfaces.Seeders;
 using FreshBack.Domain.Interfaces.Specifications.Absraction;
 using FreshBack.Domain.Interfaces.UnitOfWork;
 using FreshBack.Domain.Models.Roles;
@@ -84,19 +100,23 @@ using FreshBack.Domain.Models.Settings.Users;
 using FreshBack.Domain.Specifications.Absraction;
 using FreshBack.Infrastructure.Data.Context;
 using FreshBack.Infrastructure.Data.Repositories.Abstraction;
+using FreshBack.Infrastructure.Data.Repositories.Addresses;
 using FreshBack.Infrastructure.Data.Repositories.Branches;
 using FreshBack.Infrastructure.Data.Repositories.Carts;
 using FreshBack.Infrastructure.Data.Repositories.Categories;
 using FreshBack.Infrastructure.Data.Repositories.Customers;
+using FreshBack.Infrastructure.Data.Repositories.CustomersBranchesFavorite;
 using FreshBack.Infrastructure.Data.Repositories.Merchants;
 using FreshBack.Infrastructure.Data.Repositories.Notifications;
 using FreshBack.Infrastructure.Data.Repositories.Orders;
+using FreshBack.Infrastructure.Data.Repositories.OrdersPhotos;
 using FreshBack.Infrastructure.Data.Repositories.OtpCodes;
 using FreshBack.Infrastructure.Data.Repositories.Products;
 using FreshBack.Infrastructure.Data.Repositories.ProductsOrders;
 using FreshBack.Infrastructure.Data.Repositories.Roles;
 using FreshBack.Infrastructure.Data.Repositories.Settings.Areas;
 using FreshBack.Infrastructure.Data.Repositories.Users;
+using FreshBack.Infrastructure.Data.Seeders;
 using FreshBack.Infrastructure.Data.UnitOfWork;
 using FreshBack.WebApi.Middlewares.Exceptions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -132,11 +152,14 @@ public static class DependencyContainer
             .AddScoped<ICartItemService, CartItemService>()
             .AddScoped<ICartService, CartService>()
             .AddScoped<IOrderService, OrderService>()
+            .AddScoped<IOrderPhotoService, OrderPhotoService>()
             .AddScoped<IProductOrderService, ProductOrderService>()
             .AddScoped<INotificationService, NotificationService>()
+            .AddScoped<IAddressService, AddressService>()
             .AddScoped<ICustomerService, CustomerService>()
             .AddScoped<IOtpCodeService, OtpCodeService>()
             .AddScoped<ICategoryService, CategoryService>()
+            .AddScoped<ICustomerBranchFavoriteService, CustomerBranchFavoriteService>()
             .AddScoped<IImageService, ImageService>();
     }
 
@@ -163,10 +186,14 @@ public static class DependencyContainer
             .AddScoped<ICartItemRepository, CartItemRepository>()
             .AddScoped<ICartRepository, CartRepository>()
             .AddScoped<IOrderRepository, OrderRepository>()
+            .AddScoped<IOrderPhotoRepository, OrderPhotoRepository>()
             .AddScoped<IProductOrderRepository, ProductOrderRepository>()
             .AddScoped<INotificationRepository, NotificationRepository>()
             .AddScoped<IOtpCodeRepository, OtpCodeRepository>()
+            .AddScoped<IAddressRepository, AddressRepository>()
             .AddScoped<ICustomerRepository, CustomerRepository>()
+            .AddScoped<ICustomerBranchFavoriteRepository,
+                CustomerBranchFavoriteRepository>()
             .AddScoped<ICategoryRepository, CategoryRepository>();
     }
 
@@ -195,11 +222,14 @@ public static class DependencyContainer
         services.AddAutoMapper(typeof(CartItemProfile).Assembly);
         services.AddAutoMapper(typeof(CartProfile).Assembly);
         services.AddAutoMapper(typeof(OrderProfile).Assembly);
+        services.AddAutoMapper(typeof(OrderPhotoProfile).Assembly);
         services.AddAutoMapper(typeof(ProductOrderProfile).Assembly);
         services.AddAutoMapper(typeof(NotificationProfile).Assembly);
+        services.AddAutoMapper(typeof(AddressProfile).Assembly);
         services.AddAutoMapper(typeof(CustomerProfile).Assembly);
         services.AddAutoMapper(typeof(OtpCodeProfile).Assembly);
         services.AddAutoMapper(typeof(CategoryProfile).Assembly);
+        services.AddAutoMapper(typeof(CustomerBranchFavoriteProfile).Assembly);
     }
 
     public static void RegisterValidators(this IServiceCollection services)
@@ -217,12 +247,19 @@ public static class DependencyContainer
         services.AddValidatorsFromAssemblyContaining<CartItemDtoValidator>();
         services.AddValidatorsFromAssemblyContaining<CartDtoValidator>();
         services.AddValidatorsFromAssemblyContaining<OrderDtoValidator>();
+        services.AddValidatorsFromAssemblyContaining<OrderPhotoDtoValidator>();
+        services.AddValidatorsFromAssemblyContaining<CreateOrderPhotoDtoValidator>();
         services.AddValidatorsFromAssemblyContaining<ProductOrderDtoValidator>();
         services.AddValidatorsFromAssemblyContaining<NotificationDtoValidator>();
+        services.AddValidatorsFromAssemblyContaining<AddressDtoValidator>();
         services.AddValidatorsFromAssemblyContaining<CustomerDtoValidator>();
         services.AddValidatorsFromAssemblyContaining<CreateCustomerDtoValidator>();
         services.AddValidatorsFromAssemblyContaining<OtpCodeDtoValidator>();
         services.AddValidatorsFromAssemblyContaining<CategoryDtoValidator>();
+        services.AddValidatorsFromAssemblyContaining<
+            CreateCustomerBranchFavoriteDtoValidator>();
+        services.AddValidatorsFromAssemblyContaining<
+            CustomerBranchFavoriteDtoValidator>();
     }
 
     public static void RegisterIdentity(this IServiceCollection services)
@@ -283,10 +320,26 @@ public static class DependencyContainer
         services.AddTransient<ExceptionHandlingMiddleware>();
     }
 
+    public static IServiceCollection RegisterDatabaseSeeder(this IServiceCollection services)
+    {
+        services.AddScoped<IDatabaseSeeder, DatabaseSeeder>();
+
+        return services;
+    }
+
     public static void RegisterSignalR(this IServiceCollection services)
     {
         services.AddSignalR();
 
         services.AddScoped<INotificationSender, SignalRNotificationSender>();
+    }
+
+    public static async Task SeedDatabaseAsync(this IServiceProvider serviceProvider)
+    {
+        using var scope = serviceProvider.CreateScope();
+        var services = scope.ServiceProvider;
+        var seeder = services.GetRequiredService<IDatabaseSeeder>();
+
+        await seeder.SeedAsync();
     }
 }

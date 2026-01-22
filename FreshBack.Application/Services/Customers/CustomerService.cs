@@ -21,7 +21,7 @@ public class CustomerService(
     CreateCustomerDto,
     CustomerDto,
     CustomerDto,
-    CustomerDto,
+    UpdateCustomerDto,
     Customer,
     int>(repository, unitOfWork, mapper), ICustomerService
 {
@@ -67,6 +67,24 @@ public class CustomerService(
                 createCustomerDto.Token = await _tokensService.GenerateToken(claims);
 
                 return createCustomerDto;
+            });
+    }
+
+    public async override Task<ResultDto<CustomerDto>> GetAsync(int id)
+    {
+        return await ExecuteServiceCallAsync(
+            operationName: "Get Customer",
+            action: async () =>
+            {
+                return await _repository.GetAsync(id, c => new CustomerDto
+                {
+                    Id = c.Id,
+                    Name = c.Name!,
+                    Email = c.Email!,
+                    PhoneNumber = c.PhoneNumber,
+                    SavedMeals = c.Orders.SelectMany(o => o.ProductsOrders)
+                        .Sum(po => po.Quantity)
+                });
             });
     }
 

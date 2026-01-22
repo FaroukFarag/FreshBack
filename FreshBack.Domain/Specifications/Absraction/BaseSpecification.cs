@@ -1,4 +1,5 @@
 ﻿using FreshBack.Common.Extensions;
+using FreshBack.Domain.Enums.Shared;
 using FreshBack.Domain.Interfaces.Specifications.Absraction;
 using System.Linq.Expressions;
 
@@ -17,7 +18,7 @@ public class BaseSpecification<TEntity> : IBaseSpecification<TEntity>
         Criteria = criteria;
     }
 
-    protected void AddInclude(Expression<Func<TEntity, object>> includeExpression)
+    public void AddInclude(Expression<Func<TEntity, object>> includeExpression)
     {
         Includes.Add(includeExpression);
     }
@@ -29,13 +30,34 @@ public class BaseSpecification<TEntity> : IBaseSpecification<TEntity>
 
     protected void AddOrderBy(Expression<Func<TEntity, object>> orderByExpression)
     {
+        OrderByDescending = null;
         OrderBy = orderByExpression;
     }
 
     protected void AddOrderByDescending(Expression<Func<TEntity, object>> orderByDescendingExpression)
     {
+        OrderBy = null;
         OrderByDescending = orderByDescendingExpression;
     }
+
+    protected void ApplyOrder<TKey>(
+        Expression<Func<TEntity, TKey>> expr,
+        SortDirection direction)
+    {
+        if (direction == SortDirection.Asc)
+            AddOrderBy(ToObject(expr));
+        else
+            AddOrderByDescending(ToObject(expr));
+    }
+
+    private static Expression<Func<TEntity, object>> ToObject<TKey>(
+        Expression<Func<TEntity, TKey>> expr)
+    {
+        return Expression.Lambda<Func<TEntity, object>>(
+            Expression.Convert(expr.Body, typeof(object)),
+            expr.Parameters);
+    }
+
 }
 
 public static class IncludeChainExtensions

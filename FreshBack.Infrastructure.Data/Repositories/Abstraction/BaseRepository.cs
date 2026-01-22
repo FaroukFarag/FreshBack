@@ -50,6 +50,36 @@ public class BaseRepository<TEntity, TPrimaryKey>(
         }
     }
 
+    public virtual async Task<TResult> GetAsync<TResult>(
+        TPrimaryKey id,
+        Expression<Func<TEntity, TResult>> selector,
+        IBaseSpecification<TEntity>? spec = null)
+    {
+        var query = ApplySpecification(spec)
+            .AsNoTracking();
+
+        if (id is ITuple)
+        {
+            var predicate =
+                CompositeKeyHelper.BuildCompositeKeyPredicate<TEntity, TPrimaryKey>(id);
+
+            return await query
+                .Where(predicate)
+                .Select(selector)
+                .FirstOrDefaultAsync()
+                ?? throw new ArgumentException($"Entity with id {id} not found.");
+        }
+
+        else
+        {
+            return await query
+                .Where(e => EF.Property<TPrimaryKey>(e, "Id")!.Equals(id))
+                .Select(selector)
+                .FirstOrDefaultAsync()
+                ?? throw new ArgumentException($"Entity with id {id} not found.");
+        }
+    }
+
     public virtual async Task<IEnumerable<TEntity>> GetAllAsync(IBaseSpecification<TEntity>? spec = null)
     {
         var query = ApplySpecification(spec);
@@ -68,6 +98,24 @@ public class BaseRepository<TEntity, TPrimaryKey>(
             .Skip((paginatedModel.PageNumber - 1) * paginatedModel.PageSize)
             .Take(paginatedModel.PageSize)
             .AsNoTracking()
+            .ToListAsync();
+
+        return (items, totalCount);
+    }
+
+    public virtual async Task<(IEnumerable<TResult>, int)> GetAllPaginatedAsync<TResult>(
+        PaginatedModel paginatedModel,
+        Expression<Func<TEntity, TResult>> selector,
+        IBaseSpecification<TEntity>? spec = null)
+    {
+        paginatedModel.PageNumber = paginatedModel.PageNumber <= 0 ? 1 : paginatedModel.PageNumber;
+
+        var query = ApplySpecification(spec);
+        var totalCount = await query.CountAsync();
+        var items = await query
+            .Skip((paginatedModel.PageNumber - 1) * paginatedModel.PageSize)
+            .Take(paginatedModel.PageSize)
+            .Select(selector)
             .ToListAsync();
 
         return (items, totalCount);

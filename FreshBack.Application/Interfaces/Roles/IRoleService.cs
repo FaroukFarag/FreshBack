@@ -4,7 +4,11 @@ using FreshBack.Domain.Models.Roles;
 
 namespace FreshBack.Application.Interfaces.Roles;
 
-public interface IRoleService : IBaseService<RoleDto, RoleDto, RoleDto, RoleDto,
+public interface IRoleService : IBaseService<
+    RoleDto,
+    RoleDto,
+    RoleDto,
+    RoleDto,
     Role, int>
 {
 }

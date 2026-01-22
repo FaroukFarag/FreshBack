@@ -1,5 +1,6 @@
 ﻿using FreshBack.Domain.Enums.Orders;
 using FreshBack.Domain.Models.Abstraction;
+using FreshBack.Domain.Models.Branches;
 using FreshBack.Domain.Models.Customers;
 using FreshBack.Domain.Models.Merchants;
 using FreshBack.Domain.Models.ProductsOrders;
@@ -16,9 +17,11 @@ public class Order : BaseModel<int>
     public decimal Discount { get; set; }
     public decimal Fees { get; set; }
     public int MerchantId { get; set; }
+    public int BranchId { get; set; }
     public int CustomerId { get; set; }
 
     public Merchant Merchant { get; set; } = default!;
+    public Branch Branch { get; set; } = default!;
     public Customer Customer { get; set; } = default!;
     public IEnumerable<ProductOrder> ProductsOrders { get; set; } = default!;
 }

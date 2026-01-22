@@ -10,7 +10,9 @@ using FreshBack.Domain.Interfaces.UnitOfWork;
 using FreshBack.Domain.Models.Orders;
 using FreshBack.Domain.Models.Products;
 using FreshBack.Domain.Models.ProductsOrders;
+using FreshBack.Domain.Models.Shared;
 using FreshBack.Domain.Specifications.Absraction;
+using FreshBack.Domain.Specifications.Orders;
 
 namespace FreshBack.Application.Services.Orders;
 
@@ -31,7 +33,9 @@ public class OrderService(
     private readonly IMapper _mapper = mapper;
     private readonly IProductRepository _productRepository = productRepository;
 
-    public async override Task<ResultDto<CreateOrderDto>> CreateAsync(CreateOrderDto createOrderDto)
+    public async Task<ResultDto<CreateOrderDto>> CreateAsync(
+        CreateOrderDto createOrderDto,
+        int customerId)
     {
         return await ExecuteServiceCallAsync(
             operationName: "Create Order",
@@ -76,6 +80,8 @@ public class OrderService(
 
                 var order = _mapper.Map<Order>(createOrderDto);
 
+                order.CustomerId = customerId;
+
                 await _repository.CreateAsync(order);
 
                 var orderCreated = await _unitOfWork.Complete();
@@ -86,7 +92,6 @@ public class OrderService(
                 return _mapper.Map<CreateOrderDto>(createOrderDto);
             });
     }
-
 
     public async override Task<ResultDto<OrderDto>> GetAsync(int id)
     {
@@ -111,6 +116,33 @@ public class OrderService(
                 var order = await _repository.GetAsync(id, spec);
 
                 return _mapper.Map<OrderDto>(order);
+            });
+    }
+
+    public async Task<ResultDto<PagedResult<OrderDto>>> GetCustomerOrders(
+        GetCustomerPreviousOrdersDto getCustomerPreviousOrdersDto,
+        int customerId)
+    {
+        return await ExecuteServiceCallAsync(
+            "Get All Branches Paginated",
+            async () =>
+            {
+                var spec = new OrdersForCustomerSpecification(
+                    customerId,
+                    getCustomerPreviousOrdersDto.Status,
+                    getCustomerPreviousOrdersDto.SortBy,
+                    getCustomerPreviousOrdersDto.SortDirection);
+                var paginatedModel =
+                    _mapper.Map<PaginatedModel>(getCustomerPreviousOrdersDto);
+
+                var (orders, totalCount) =
+                    await _repository.GetAllPaginatedAsync(
+                        paginatedModel,
+                        spec);
+
+                return new PagedResult<OrderDto>(
+                    _mapper.Map<IReadOnlyList<OrderDto>>(orders),
+                    totalCount);
             });
     }
 }

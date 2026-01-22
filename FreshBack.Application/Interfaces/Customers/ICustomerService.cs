@@ -9,7 +9,7 @@ public interface ICustomerService : IBaseService<
     CreateCustomerDto,
     CustomerDto,
     CustomerDto,
-    CustomerDto,
+    UpdateCustomerDto,
     Customer,
     int>
 {
