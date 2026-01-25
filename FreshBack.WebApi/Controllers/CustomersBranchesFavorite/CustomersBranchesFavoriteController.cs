@@ -17,10 +17,11 @@ public class CustomersBranchesFavoriteController(
         CustomerBranchFavorite, (int CustomerId, int BranchId)>(service)
 {
     private readonly ICustomerBranchFavoriteService _service = service;
+
     [HttpGet("Get")]
     public async Task<IActionResult> Get(int customerId, int branchId)
     {
-        var id = (customerId, branchId);
+        var id = (branchId, customerId);
 
         return await base.Get(id);
     }
@@ -40,5 +41,20 @@ public class CustomersBranchesFavoriteController(
             .GetCustomerFavoriteBranchesPaginatedAsync(
                 paginatedModelDto,
                 User.GetUserId()));
+    }
+
+    [HttpDelete("Delete")]
+    public async Task<IActionResult> Delete(int customerId, int branchId)
+    {
+        var id = (branchId, customerId);
+
+        return await base.Delete(id);
+    }
+
+    [ApiExplorerSettings(IgnoreApi = true)]
+    [NonAction]
+    public override async Task<IActionResult> Delete((int, int) id)
+    {
+        return await base.Delete(id);
     }
 }

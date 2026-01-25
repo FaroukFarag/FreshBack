@@ -19,6 +19,7 @@ public class BranchDto : BaseImageModelDto<int>
     public TimeOnly ClosingTime { get; set; }
     public BranchStatus Status { get; set; }
     public decimal LeastPrice { get; set; }
+    public bool IsFavorite { get; set; }
     public int AreaId { get; set; }
     public int MerchantId { get; set; }
 

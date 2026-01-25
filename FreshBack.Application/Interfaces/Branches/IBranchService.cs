@@ -14,7 +14,7 @@ public interface IBranchService : IBaseService<
     int>
 {
     Task<ResultDto<PagedResult<BranchDto>>> GetAllPaginatedAsync(
-        BranchPaginatedModelDto paginatedModelDto);
+        BranchPaginatedModelDto paginatedModelDto, int customerId);
     Task<ResultDto<PagedResult<BranchDto>>> GetOtherBranchesPaginatedAsync(
         OtherBranchesPaginatedModelDto paginatedModelDto);
 }

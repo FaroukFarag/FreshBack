@@ -44,7 +44,6 @@ public sealed class BranchPaginatedSpecification : BaseSpecification<Branch>
     private void ApplyIncludes()
     {
         AddInclude(b => b.Merchant);
-        AddInclude(b => b.Products);
     }
 
     private void ApplySorting(
