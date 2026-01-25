@@ -29,7 +29,7 @@ public class ReviewConfigurations : IEntityTypeConfiguration<Review>
         builder.ToTable(t =>
         t.HasCheckConstraint(
             "CK_Review_Rating",
-            "[Rating] BETWEEN 1 AND 4")); ;
+            "[Rating] BETWEEN 1 AND 5")); ;
 
         builder.HasOne(r => r.Branch)
             .WithMany(m => m.Reviews)

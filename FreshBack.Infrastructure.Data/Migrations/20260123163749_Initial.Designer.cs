@@ -13,7 +13,7 @@ using NetTopologySuite.Geometries;
 namespace FreshBack.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(FreshBackDbContext))]
-    [Migration("20260121163327_Initial")]
+    [Migration("20260123163749_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -186,7 +186,7 @@ namespace FreshBack.Infrastructure.Data.Migrations
 
                     b.ToTable("Reviews", t =>
                         {
-                            t.HasCheckConstraint("CK_Review_Rating", "[Rating] BETWEEN 1 AND 4");
+                            t.HasCheckConstraint("CK_Review_Rating", "[Rating] BETWEEN 1 AND 5");
                         });
                 });
 
@@ -375,7 +375,7 @@ namespace FreshBack.Infrastructure.Data.Migrations
                     b.Property<DateTime>("CreationDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2026, 1, 21, 17, 33, 27, 288, DateTimeKind.Local).AddTicks(8368));
+                        .HasDefaultValue(new DateTime(2026, 1, 23, 17, 37, 48, 650, DateTimeKind.Local).AddTicks(2948));
 
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");

@@ -9,7 +9,7 @@ public class CreateReviewDtoValidator : AbstractValidator<CreateReviewDto>
     {
         RuleFor(r => r.Rating)
             .NotNull()
-            .InclusiveBetween(1, 4);
+            .InclusiveBetween(1, 5);
 
         RuleFor(r => r.Comment)
             .NotNull()

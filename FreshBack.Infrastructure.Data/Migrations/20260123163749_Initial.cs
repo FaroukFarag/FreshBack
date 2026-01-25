@@ -349,8 +349,8 @@ namespace FreshBack.Infrastructure.Data.Migrations
                 name: "CustomersBranchesFavorite",
                 columns: table => new
                 {
-                    BranchId = table.Column<int>(type: "int", nullable: false),
-                    CustomerId = table.Column<int>(type: "int", nullable: false)
+                    CustomerId = table.Column<int>(type: "int", nullable: false),
+                    BranchId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -376,7 +376,7 @@ namespace FreshBack.Infrastructure.Data.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Number = table.Column<int>(type: "int", nullable: false),
-                    CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValue: new DateTime(2026, 1, 21, 17, 33, 27, 288, DateTimeKind.Local).AddTicks(8368)),
+                    CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValue: new DateTime(2026, 1, 23, 17, 37, 48, 650, DateTimeKind.Local).AddTicks(2948)),
                     Status = table.Column<int>(type: "int", nullable: false),
                     PaymentMethod = table.Column<int>(type: "int", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
@@ -465,7 +465,7 @@ namespace FreshBack.Infrastructure.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Reviews", x => x.Id);
-                    table.CheckConstraint("CK_Review_Rating", "[Rating] BETWEEN 1 AND 4");
+                    table.CheckConstraint("CK_Review_Rating", "[Rating] BETWEEN 1 AND 5");
                     table.ForeignKey(
                         name: "FK_Reviews_Branches_BranchId",
                         column: x => x.BranchId,

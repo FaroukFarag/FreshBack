@@ -149,8 +149,25 @@ public class BaseRepository<TEntity, TPrimaryKey>(
 
     public virtual TEntity Delete(TPrimaryKey id)
     {
-        var entity = _context.Set<TEntity>().Find(id) ??
-            throw new ArgumentException($"Entity with id {id} not found.");
+        IQueryable<TEntity> query = _context.Set<TEntity>();
+
+        TEntity entity;
+
+        if (id is ITuple)
+        {
+            var predicate =
+                CompositeKeyHelper.BuildCompositeKeyPredicate<TEntity, TPrimaryKey>(id);
+
+            entity = query.FirstOrDefault(predicate)
+                ?? throw new ArgumentException($"Entity with id {id} not found.");
+        }
+
+        else
+        {
+            entity = query.FirstOrDefault(e =>
+                EF.Property<TPrimaryKey>(e, "Id")!.Equals(id))
+                ?? throw new ArgumentException($"Entity with id {id} not found.");
+        }
 
         _context.Set<TEntity>().Remove(entity);
 

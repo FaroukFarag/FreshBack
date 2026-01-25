@@ -85,7 +85,7 @@ public class BranchService(
     }
 
     public async Task<ResultDto<PagedResult<BranchDto>>> GetAllPaginatedAsync(
-        BranchPaginatedModelDto paginatedModelDto)
+        BranchPaginatedModelDto paginatedModelDto, int customerId)
     {
         return await ExecuteServiceCallAsync(
             "Get All Branches Paginated",
@@ -102,7 +102,7 @@ public class BranchService(
 
                 var paginatedModel =
                     _mapper.Map<PaginatedModel>(paginatedModelDto);
-                var projection = ToDto(userLocation, _settings.BaseUrl);
+                var projection = ToDto(userLocation, _settings.BaseUrl, customerId);
 
                 var (branches, totalCount) =
                     await _repository.GetAllPaginatedAsync(
@@ -162,7 +162,8 @@ public class BranchService(
     private static Point CreateUserLocation(BranchPaginatedModelDto dto)
         => new(dto.Longitude, dto.Latitude) { SRID = 4326 };
 
-    private static Expression<Func<Branch, BranchDto>> ToDto(Point userLocation, string baseUrl)
+    private static Expression<Func<Branch, BranchDto>> ToDto(
+        Point userLocation, string baseUrl, int customerId)
     {
         return b => new BranchDto
         {
@@ -174,13 +175,12 @@ public class BranchService(
             Latitude = b.Location.Y,
             Longitude = b.Location.X,
             DistanceInMeters = (decimal)b.Location.Distance(userLocation),
-
             OpeningTime = b.OpeningTime,
             ClosingTime = b.ClosingTime,
             Status = b.Status,
-
             LeastPrice = b.Products.Min(p => p.Price),
-
+            IsFavorite = b.CustomersBranchesFavorite
+                .Any(cbf => cbf.CustomerId == customerId),
             ImagePath = string.IsNullOrEmpty(b.ImagePath)
                 ? null
                 : baseUrl.TrimEnd('/') + "/" +
