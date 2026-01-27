@@ -14,7 +14,7 @@ public class BranchDto : BaseImageModelDto<int>
     public string NeighborhoodEn { get; set; } = default!;
     public double Latitude { get; set; }
     public double Longitude { get; set; }
-    public decimal DistanceInMeters { get; set; }
+    public decimal DistanceInKm { get; set; }
     public TimeOnly OpeningTime { get; set; }
     public TimeOnly ClosingTime { get; set; }
     public BranchStatus Status { get; set; }

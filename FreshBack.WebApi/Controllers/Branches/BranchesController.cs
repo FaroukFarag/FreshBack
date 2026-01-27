@@ -2,6 +2,7 @@
 using FreshBack.Application.Interfaces.Branches;
 using FreshBack.Domain.Models.Branches;
 using FreshBack.WebApi.Controllers.Abstraction;
+using FreshBack.WebApi.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,7 +28,7 @@ public class BranchesController(IBranchService service) :
     public async Task<IActionResult> GetAllBranchesPaginated(
         BranchPaginatedModelDto paginatedModelDto)
     {
-        return Ok(await _service.GetAllPaginatedAsync(paginatedModelDto));
+        return Ok(await _service.GetAllPaginatedAsync(paginatedModelDto, User.GetUserId()));
     }
 
     [HttpPost("GetOtherBranchesPaginated")]

@@ -87,6 +87,16 @@ public class BaseRepository<TEntity, TPrimaryKey>(
         return await query.AsNoTracking().ToListAsync();
     }
 
+    public virtual async Task<IEnumerable<TResult>>
+        GetAllAsync<TResult>(
+            Expression<Func<TEntity, TResult>> selector,
+            IBaseSpecification<TEntity>? spec = null)
+    {
+        var query = ApplySpecification(spec);
+
+        return await query.AsNoTracking().Select(selector).ToListAsync();
+    }
+
     public virtual async Task<(IEnumerable<TEntity>, int)> GetAllPaginatedAsync(
         PaginatedModel paginatedModel,
         IBaseSpecification<TEntity>? spec = null)
