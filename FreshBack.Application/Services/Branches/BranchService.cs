@@ -174,11 +174,11 @@ public class BranchService(
             NeighborhoodEn = b.NeighborhoodEn,
             Latitude = b.Location.Y,
             Longitude = b.Location.X,
-            DistanceInMeters = (decimal)b.Location.Distance(userLocation),
+            DistanceInKm = (decimal)b.Location.Distance(userLocation) / 1000m,
             OpeningTime = b.OpeningTime,
             ClosingTime = b.ClosingTime,
             Status = b.Status,
-            LeastPrice = b.Products.Min(p => p.Price),
+            LeastPrice = b.Products.Any() ? b.Products.Min(p => p.Price) : 0,
             IsFavorite = b.CustomersBranchesFavorite
                 .Any(cbf => cbf.CustomerId == customerId),
             ImagePath = string.IsNullOrEmpty(b.ImagePath)

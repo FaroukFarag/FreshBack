@@ -25,6 +25,7 @@ using FreshBack.Application.Interfaces.Carts;
 using FreshBack.Application.Interfaces.Categories;
 using FreshBack.Application.Interfaces.Customers;
 using FreshBack.Application.Interfaces.CustomersBranchesFavorite;
+using FreshBack.Application.Interfaces.FinanceManagement;
 using FreshBack.Application.Interfaces.Merchants;
 using FreshBack.Application.Interfaces.Notifications;
 using FreshBack.Application.Interfaces.Orders;
@@ -43,6 +44,7 @@ using FreshBack.Application.Services.Carts;
 using FreshBack.Application.Services.Categories;
 using FreshBack.Application.Services.Customers;
 using FreshBack.Application.Services.CustomersBranchesFavorite;
+using FreshBack.Application.Services.FinanceManagement;
 using FreshBack.Application.Services.Merchants;
 using FreshBack.Application.Services.Notifications;
 using FreshBack.Application.Services.Orders;
@@ -160,6 +162,7 @@ public static class DependencyContainer
             .AddScoped<IOtpCodeService, OtpCodeService>()
             .AddScoped<ICategoryService, CategoryService>()
             .AddScoped<ICustomerBranchFavoriteService, CustomerBranchFavoriteService>()
+            .AddScoped<IFinanceManagementService, FinanceManagementService>()
             .AddScoped<IImageService, ImageService>();
     }
 

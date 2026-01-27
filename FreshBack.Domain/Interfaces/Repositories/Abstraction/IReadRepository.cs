@@ -17,6 +17,10 @@ public interface IReadRepository<TEntity, TPrimaryKey> where TEntity : class
 
     Task<IEnumerable<TEntity>> GetAllAsync(IBaseSpecification<TEntity>? spec = null);
 
+    Task<IEnumerable<TResult>> GetAllAsync<TResult>(
+        Expression<Func<TEntity, TResult>> selector,
+        IBaseSpecification<TEntity>? spec = null);
+
     Task<(IEnumerable<TEntity>, int)> GetAllPaginatedAsync(
         PaginatedModel paginatedModel,
         IBaseSpecification<TEntity>? spec = null);

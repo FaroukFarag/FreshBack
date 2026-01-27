@@ -6,7 +6,9 @@ public static class ClaimsPrincipalExtensions
 {
     public static int GetUserId(this ClaimsPrincipal user)
     {
-        return int.Parse(
-            user.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (int.TryParse(user.FindFirstValue(ClaimTypes.NameIdentifier)!, out int userId))
+            return userId;
+
+        return 0;
     }
 }

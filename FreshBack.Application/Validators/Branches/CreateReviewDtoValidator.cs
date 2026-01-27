@@ -17,7 +17,7 @@ public class CreateReviewDtoValidator : AbstractValidator<CreateReviewDto>
 
         RuleFor(r => r.Date)
             .NotNull()
-            .GreaterThanOrEqualTo(DateTime.Now);
+            .GreaterThanOrEqualTo(DateTime.Now.AddDays(-1));
 
         RuleFor(r => r.CustomerId)
             .NotNull()
