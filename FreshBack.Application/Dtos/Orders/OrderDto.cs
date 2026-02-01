@@ -1,4 +1,5 @@
 ﻿using FreshBack.Application.Dtos.Abstraction;
+using FreshBack.Application.Dtos.Branches;
 using FreshBack.Application.Dtos.Customers;
 using FreshBack.Application.Dtos.Merchants;
 using FreshBack.Application.Dtos.ProductsOrders;
@@ -22,6 +23,7 @@ public class OrderDto : BaseModelDto<int>
     public int CustomerId { get; set; }
 
     public MerchantDto? Merchant { get; set; }
+    public BranchDto? Branch { get; set; }
     public CustomerDto? Customer { get; set; }
     public IEnumerable<ProductOrderDto>? ProductsOrders { get; set; }
 }

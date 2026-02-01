@@ -16,6 +16,10 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
             .IsRequired()
             .HasMaxLength(250);
 
+        builder.Property(p => p.NameEn)
+            .IsRequired()
+            .HasMaxLength(250);
+
         builder.Property(p => p.Discount)
             .IsRequired()
             .HasPrecision(18, 2);
@@ -30,6 +34,10 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
             .IsRequired();
 
         builder.Property(p => p.Price)
+            .IsRequired()
+            .HasPrecision(18, 2);
+
+        builder.Property(p => p.WeightInKg)
             .IsRequired()
             .HasPrecision(18, 2);
 

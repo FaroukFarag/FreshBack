@@ -15,13 +15,56 @@ public class ProductDtoValidator : AbstractValidator<ProductDto>
             .NotNull()
             .NotEmpty();
 
+        RuleFor(p => p.NameEn)
+            .NotNull()
+            .NotEmpty();
+
+        RuleFor(p => p.Description)
+           .NotNull()
+           .NotEmpty();
+
+        RuleFor(p => p.DescriptionEn)
+            .NotNull()
+            .NotEmpty();
+
+        RuleFor(p => p.Allergens)
+           .NotNull()
+           .NotEmpty();
+
+        RuleFor(p => p.AllergensEn)
+            .NotNull()
+            .NotEmpty();
+
+        RuleFor(p => p.Warnings)
+           .NotNull()
+           .NotEmpty();
+
+        RuleFor(p => p.WarningsEn)
+            .NotNull()
+            .NotEmpty();
+
         RuleFor(p => p.Discount)
             .NotNull();
 
-        RuleFor(p => p.CreationDate)
+        RuleFor(p => p.ExpiryDate)
             .NotNull();
 
-        RuleFor(p => p.ExpiryDate)
+        RuleFor(p => p.Quantity)
+            .NotNull()
+            .GreaterThan(0);
+
+        RuleFor(p => p.Price)
+            .NotNull()
+            .GreaterThan(0);
+
+        RuleFor(p => p.WeightInKg)
+            .NotNull()
+            .GreaterThan(0);
+
+        RuleFor(p => p.StartDeliveryDate)
+            .NotNull();
+
+        RuleFor(p => p.EndDeliveryDate)
             .NotNull();
 
         RuleFor(p => p.Status)

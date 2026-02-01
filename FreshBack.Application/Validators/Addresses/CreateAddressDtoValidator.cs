@@ -29,5 +29,19 @@ public class CreateAddressDtoValidator : AbstractValidator<CreateAddressDto>
 
         RuleFor(ca => ca.BuildingNo)
             .NotNull();
+
+        RuleFor(ca => ca.Longitude)
+            .NotNull();
+
+        RuleFor(ca => ca.Latitude)
+            .NotNull();
+
+        RuleFor(ca => ca.MainAddress)
+            .NotNull()
+            .NotEmpty()
+            .MaximumLength(250);
+
+        RuleFor(ca => ca.CustomerId)
+            .NotNull();
     }
 }

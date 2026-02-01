@@ -119,6 +119,29 @@ public class OrderService(
             });
     }
 
+    public async override Task<ResultDto<PagedResult<OrderDto>>> GetAllPaginatedAsync(
+        PaginatedModelDto paginatedModelDto)
+    {
+        return await ExecuteServiceCallAsync(
+            operationName: "Get Order",
+            action: async () =>
+            {
+                var spec = new BaseSpecification<Order>
+                {
+                    Includes =
+                    [
+                        o => o.Merchant
+                    ]
+                };
+
+                var (orders, totalCount) = await _repository.GetAllPaginatedAsync(
+                    _mapper.Map<PaginatedModel>(paginatedModelDto), spec);
+
+                return new PagedResult<OrderDto>(
+                    _mapper.Map<IReadOnlyList<OrderDto>>(orders), totalCount);
+            });
+    }
+
     public async Task<ResultDto<PagedResult<OrderDto>>> GetCustomerOrders(
         GetCustomerPreviousOrdersDto getCustomerPreviousOrdersDto,
         int customerId)

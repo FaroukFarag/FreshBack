@@ -11,10 +11,6 @@ public class CreateReviewDtoValidator : AbstractValidator<CreateReviewDto>
             .NotNull()
             .InclusiveBetween(1, 5);
 
-        RuleFor(r => r.Comment)
-            .NotNull()
-            .NotEmpty();
-
         RuleFor(r => r.Date)
             .NotNull()
             .GreaterThanOrEqualTo(DateTime.Now.AddDays(-1));

@@ -11,5 +11,7 @@ public class CustomerProfile : Profile
         CreateMap<Customer, CustomerDto>().ReverseMap();
 
         CreateMap<Customer, CreateCustomerDto>().ReverseMap();
+
+        CreateMap<Customer, UpdateCustomerDto>().ReverseMap();
     }
 }

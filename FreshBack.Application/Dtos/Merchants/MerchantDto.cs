@@ -7,8 +7,11 @@ namespace FreshBack.Application.Dtos.Merchants;
 public class MerchantDto : BaseModelDto<int>
 {
     public string Name { get; set; } = default!;
+    public string NameEn { get; set; } = default!;
     public string Description { get; set; } = default!;
+    public string DescriptionEn { get; set; } = default!;
     public string Story { get; set; } = default!;
+    public string StoryEn { get; set; } = default!;
     public string PhoneNumber { get; set; } = default!;
     public MerchantStatus Status { get; set; }
     public int AreaId { get; set; }

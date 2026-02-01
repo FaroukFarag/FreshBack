@@ -6,6 +6,7 @@ namespace FreshBack.Domain.Models.Settings.Areas;
 public class Area : BaseModel<int>
 {
     public string Name { get; set; } = default!;
+    public string NameEn { get; set; } = default!;
     public decimal DeliveryFees { get; set; }
 
     public IEnumerable<Branch> Branches { get; set; } = default!;

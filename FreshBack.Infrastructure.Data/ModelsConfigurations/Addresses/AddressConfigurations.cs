@@ -34,5 +34,13 @@ public class AddressConfigurations : IEntityTypeConfiguration<Address>
         builder.Property(a => a.Latitude)
            .IsRequired()
            .HasPrecision(18, 8);
+
+        builder.Property(a => a.MainAddress)
+           .IsRequired()
+           .HasMaxLength(250);
+
+        builder.HasOne(a => a.Customer)
+            .WithMany(c => c.Addresses)
+            .HasForeignKey(a => a.CustomerId);
     }
 }
