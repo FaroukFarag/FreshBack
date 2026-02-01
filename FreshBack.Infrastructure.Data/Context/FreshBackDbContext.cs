@@ -7,12 +7,12 @@ using FreshBack.Domain.Models.Customers;
 using FreshBack.Domain.Models.Merchants;
 using FreshBack.Domain.Models.Notifications;
 using FreshBack.Domain.Models.Orders;
-using FreshBack.Domain.Models.OrdersPhotos;
 using FreshBack.Domain.Models.OtpCodes;
 using FreshBack.Domain.Models.Products;
 using FreshBack.Domain.Models.ProductsOrders;
 using FreshBack.Domain.Models.Roles;
 using FreshBack.Domain.Models.Settings.Areas;
+using FreshBack.Domain.Models.Settings.Commissions;
 using FreshBack.Domain.Models.Settings.Users;
 using FreshBack.Infrastructure.Data.ModelsConfigurations.Addresses;
 using FreshBack.Infrastructure.Data.ModelsConfigurations.Branches;
@@ -23,12 +23,12 @@ using FreshBack.Infrastructure.Data.ModelsConfigurations.CustomersBranchesFavori
 using FreshBack.Infrastructure.Data.ModelsConfigurations.Merchants;
 using FreshBack.Infrastructure.Data.ModelsConfigurations.Notifications;
 using FreshBack.Infrastructure.Data.ModelsConfigurations.Orders;
-using FreshBack.Infrastructure.Data.ModelsConfigurations.OrdersPhotos;
 using FreshBack.Infrastructure.Data.ModelsConfigurations.OtpCodes;
 using FreshBack.Infrastructure.Data.ModelsConfigurations.Products;
 using FreshBack.Infrastructure.Data.ModelsConfigurations.ProductsOrders;
 using FreshBack.Infrastructure.Data.ModelsConfigurations.Roles;
 using FreshBack.Infrastructure.Data.ModelsConfigurations.Settings.Areas;
+using FreshBack.Infrastructure.Data.ModelsConfigurations.Settings.Commissions;
 using FreshBack.Infrastructure.Data.ModelsConfigurations.Settings.Users;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -45,7 +45,6 @@ public class FreshBackDbContext(DbContextOptions options) : IdentityDbContext<Us
     public DbSet<Product> Products { get; set; }
     public DbSet<Cart> Carts { get; set; }
     public DbSet<CartItem> CartItems { get; set; }
-    public DbSet<OrderPhoto> OrderPhotos { get; set; }
     public DbSet<Order> Orders { get; set; }
     public DbSet<ProductOrder> ProductsOrders { get; set; }
     public DbSet<Notification> Notifications { get; set; }
@@ -53,6 +52,8 @@ public class FreshBackDbContext(DbContextOptions options) : IdentityDbContext<Us
     public DbSet<Customer> Customers { get; set; }
     public DbSet<OtpCode> OtpCodes { get; set; }
     public DbSet<CustomerBranchFavorite> CustomersBranchesFavorite { get; set; }
+    public DbSet<Commission> Commissions { get; set; }
+    public DbSet<CategoryCommission> CategoryCommissions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -68,7 +69,6 @@ public class FreshBackDbContext(DbContextOptions options) : IdentityDbContext<Us
         modelBuilder.ApplyConfiguration(new ProductConfigurations());
         modelBuilder.ApplyConfiguration(new CartConfigurations());
         modelBuilder.ApplyConfiguration(new CartItemConfigurations());
-        modelBuilder.ApplyConfiguration(new OrderPhotoConfigurations());
         modelBuilder.ApplyConfiguration(new OrderConfigurations());
         modelBuilder.ApplyConfiguration(new ProductOrderConfigurations());
         modelBuilder.ApplyConfiguration(new NotificationConfigurations());
@@ -76,5 +76,7 @@ public class FreshBackDbContext(DbContextOptions options) : IdentityDbContext<Us
         modelBuilder.ApplyConfiguration(new CustomerConfigurations());
         modelBuilder.ApplyConfiguration(new OtpCodeConfigurations());
         modelBuilder.ApplyConfiguration(new CustomerBranchFavoriteConfigurations());
+        modelBuilder.ApplyConfiguration(new CommissionConfigurations());
+        modelBuilder.ApplyConfiguration(new CategoryCommissionConfigurations());
     }
 }

@@ -14,12 +14,19 @@ public sealed class OrdersForCustomerSpecification : BaseSpecification<Order>
         SortDirection sortDirection)
     {
         ApplyCriteria(customerId, status);
+        ApplyIncludes();
         ApplySorting(sortBy, sortDirection);
     }
 
     private void ApplyCriteria(int customerId, OrderStatus status)
     {
         Criteria = b => b.CustomerId == customerId && b.Status == status;
+    }
+
+    private void ApplyIncludes()
+    {
+        AddInclude(b => b.Merchant);
+        AddInclude(b => b.Branch);
     }
 
     private void ApplySorting(OrderSortBy sortBy, SortDirection direction)

@@ -10,6 +10,7 @@ public class Customer : BaseModel<int>
 {
     public string PhoneNumber { get; set; } = default!;
     public string? Name { get; set; }
+    public string? NameEn { get; set; }
     public string? Email { get; set; }
 
     public IEnumerable<Address> Addresses { get; set; } = default!;

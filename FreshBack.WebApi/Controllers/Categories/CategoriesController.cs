@@ -14,6 +14,13 @@ public class CategoriesController(ICategoryService service) :
     BaseController<ICategoryService, CreateCategoryDto, CategoryDto, CategoryDto,
         CategoryDto, Category, int>(service)
 {
+    [HttpPost("Create")]
+    public override Task<IActionResult> Create(
+        [FromForm] CreateCategoryDto createEntityDto)
+    {
+        return base.Create(createEntityDto);
+    }
+
     [AllowAnonymous]
     public override Task<IActionResult> GetAllPaginated(PaginatedModelDto paginatedModelDto)
     {

@@ -12,6 +12,11 @@ public class AreaDtoValidator : AbstractValidator<AreaDto>
             .NotEmpty()
             .MaximumLength(250);
 
+        RuleFor(a => a.NameEn)
+            .NotNull()
+            .NotEmpty()
+            .MaximumLength(250);
+
         RuleFor(a => a.DeliveryFees)
             .NotNull()
             .GreaterThan(0);

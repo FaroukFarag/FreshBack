@@ -10,9 +10,6 @@ public class OrderDtoValidator : AbstractValidator<OrderDto>
         RuleFor(o => o.Number)
             .Null();
 
-        RuleFor(o => o.CreationDate)
-            .Null();
-
         RuleFor(o => o.Status)
             .Null();
 

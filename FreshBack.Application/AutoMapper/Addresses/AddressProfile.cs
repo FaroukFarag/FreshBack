@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using FreshBack.Application.Dtos.Addresses;
-using FreshBack.Application.Dtos.Shared;
 using FreshBack.Domain.Models.Addresses;
+using FreshBack.Domain.Models.Shared;
 
 namespace FreshBack.Application.AutoMapper.Addresses;
 
@@ -13,6 +13,6 @@ public class AddressProfile : Profile
 
         CreateMap<Address, CreateAddressDto>().ReverseMap();
 
-        CreateMap<PaginatedModelDto, AddressPaginatedModelDto>();
+        CreateMap<AddressPaginatedModelDto, PaginatedModel>();
     }
 }

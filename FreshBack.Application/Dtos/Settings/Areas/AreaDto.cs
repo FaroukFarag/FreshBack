@@ -5,5 +5,6 @@ namespace FreshBack.Application.Dtos.Settings.Areas;
 public class AreaDto : BaseModelDto<int>
 {
     public string Name { get; set; } = default!;
+    public string NameEn { get; set; } = default!;
     public decimal DeliveryFees { get; set; }
 }

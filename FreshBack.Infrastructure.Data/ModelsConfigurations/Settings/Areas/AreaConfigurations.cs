@@ -12,6 +12,10 @@ public class AreaConfigurations : IEntityTypeConfiguration<Area>
             .IsRequired()
             .HasMaxLength(250);
 
+        builder.Property(a => a.NameEn)
+            .IsRequired()
+            .HasMaxLength(250);
+
         builder.Property(a => a.DeliveryFees)
             .IsRequired()
             .HasPrecision(18, 2);

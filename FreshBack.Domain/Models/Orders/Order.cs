@@ -10,7 +10,7 @@ namespace FreshBack.Domain.Models.Orders;
 public class Order : BaseModel<int>
 {
     public int Number { get; set; }
-    public DateTime CreationDate { get; set; }
+    public DateTime CreationDate { get; set; } = DateTime.Now;
     public OrderStatus Status { get; set; }
     public PaymentMethod PaymentMethod { get; set; }
     public decimal Price { get; set; }
@@ -23,5 +23,6 @@ public class Order : BaseModel<int>
     public Merchant Merchant { get; set; } = default!;
     public Branch Branch { get; set; } = default!;
     public Customer Customer { get; set; } = default!;
+    public Review Review { get; set; } = default!;
     public IEnumerable<ProductOrder> ProductsOrders { get; set; } = default!;
 }

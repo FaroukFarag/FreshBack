@@ -14,6 +14,7 @@ public class AddressDto : BaseModelDto<int>
     public string? Landmark { get; set; }
     public decimal Longitude { get; set; }
     public decimal Latitude { get; set; }
+    public string MainAddress { get; set; } = default!;
     public int CustomerId { get; set; }
 
     public Customer Customer { get; set; } = default!;
