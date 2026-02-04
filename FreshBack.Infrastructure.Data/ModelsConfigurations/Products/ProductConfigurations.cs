@@ -20,19 +20,6 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
             .IsRequired()
             .HasMaxLength(250);
 
-        builder.Property(p => p.Discount)
-            .IsRequired()
-            .HasPrecision(18, 2);
-
-        builder.Property(p => p.CreationDate)
-            .IsRequired();
-
-        builder.Property(p => p.ExpiryDate)
-            .IsRequired();
-
-        builder.Property(p => p.Quantity)
-            .IsRequired();
-
         builder.Property(p => p.Price)
             .IsRequired()
             .HasPrecision(18, 2);
@@ -41,27 +28,15 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
             .IsRequired()
             .HasPrecision(18, 2);
 
-        builder.Property(p => p.Views)
-            .IsRequired();
-
-        builder.Property(p => p.StartDeliveryDate)
-            .IsRequired();
-
-        builder.Property(p => p.EndDeliveryDate)
-            .IsRequired();
-
-        builder.Property(p => p.Status)
-            .IsRequired();
-
         builder.Property(p => p.MerchantId)
             .IsRequired();
 
         builder.Property(p => p.MerchantId)
             .IsRequired();
 
-        builder.HasOne(p => p.Branch)
-            .WithMany(b => b.Products)
-            .HasForeignKey(p => p.BranchId)
+        builder.HasMany(p => p.ProductsBranches)
+            .WithOne(bp => bp.Product)
+            .HasForeignKey(bp => bp.ProductId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasMany(p => p.CartItems)

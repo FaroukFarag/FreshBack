@@ -33,4 +33,10 @@ public class FinanceManagementController(
     {
         return Ok(await _service.GetTotalRevenuesByMerchant());
     }
+
+    [HttpGet("GetTotalCommissions")]
+    public async Task<IActionResult> GetTotalCommissions()
+    {
+        return Ok(await _service.GetTotalCommissions());
+    }
 }

@@ -2,6 +2,7 @@
 using FreshBack.Application.AutoMapper.Abstraction;
 using FreshBack.Application.AutoMapper.Addresses;
 using FreshBack.Application.AutoMapper.Branches;
+using FreshBack.Application.AutoMapper.BranchesProducts;
 using FreshBack.Application.AutoMapper.Carts;
 using FreshBack.Application.AutoMapper.Categories;
 using FreshBack.Application.AutoMapper.Customers;
@@ -21,6 +22,7 @@ using FreshBack.Application.Configurations;
 using FreshBack.Application.Interfaces.Abstraction;
 using FreshBack.Application.Interfaces.Addresses;
 using FreshBack.Application.Interfaces.Branches;
+using FreshBack.Application.Interfaces.BranchesProducts;
 using FreshBack.Application.Interfaces.Carts;
 using FreshBack.Application.Interfaces.Categories;
 using FreshBack.Application.Interfaces.Customers;
@@ -41,6 +43,7 @@ using FreshBack.Application.Interfaces.Statistics;
 using FreshBack.Application.Services.Abstraction;
 using FreshBack.Application.Services.Addresses;
 using FreshBack.Application.Services.Branches;
+using FreshBack.Application.Services.BranchesProducts;
 using FreshBack.Application.Services.Carts;
 using FreshBack.Application.Services.Categories;
 using FreshBack.Application.Services.Customers;
@@ -61,6 +64,7 @@ using FreshBack.Application.Services.Statistics;
 using FreshBack.Application.SignalR.Notifications;
 using FreshBack.Application.Validators.Addresses;
 using FreshBack.Application.Validators.Branches;
+using FreshBack.Application.Validators.BranchesProducts;
 using FreshBack.Application.Validators.Carts;
 using FreshBack.Application.Validators.Categories;
 using FreshBack.Application.Validators.Customers;
@@ -82,6 +86,7 @@ using FreshBack.Domain.Constants;
 using FreshBack.Domain.Interfaces.Repositories.Abstraction;
 using FreshBack.Domain.Interfaces.Repositories.Addresses;
 using FreshBack.Domain.Interfaces.Repositories.Branches;
+using FreshBack.Domain.Interfaces.Repositories.BranchesProducts;
 using FreshBack.Domain.Interfaces.Repositories.Carts;
 using FreshBack.Domain.Interfaces.Repositories.Categories;
 using FreshBack.Domain.Interfaces.Repositories.Customers;
@@ -106,6 +111,7 @@ using FreshBack.Infrastructure.Data.Context;
 using FreshBack.Infrastructure.Data.Repositories.Abstraction;
 using FreshBack.Infrastructure.Data.Repositories.Addresses;
 using FreshBack.Infrastructure.Data.Repositories.Branches;
+using FreshBack.Infrastructure.Data.Repositories.BranchesProducts;
 using FreshBack.Infrastructure.Data.Repositories.Carts;
 using FreshBack.Infrastructure.Data.Repositories.Categories;
 using FreshBack.Infrastructure.Data.Repositories.Customers;
@@ -153,6 +159,7 @@ public static class DependencyContainer
             .AddScoped<IMerchantService, MerchantService>()
             .AddScoped<IBranchService, BranchService>()
             .AddScoped<IProductService, ProductService>()
+            .AddScoped<IBranchProductService, BranchProductService>()
             .AddScoped<ICartItemService, CartItemService>()
             .AddScoped<ICartService, CartService>()
             .AddScoped<IOrderService, OrderService>()
@@ -190,6 +197,7 @@ public static class DependencyContainer
             .AddScoped<IMerchantRepository, MerchantRepository>()
             .AddScoped<IBranchRepository, BranchRepository>()
             .AddScoped<IProductRepository, ProductRepository>()
+            .AddScoped<IBranchProductRepository, BranchProductRepository>()
             .AddScoped<ICartItemRepository, CartItemRepository>()
             .AddScoped<ICartRepository, CartRepository>()
             .AddScoped<IOrderRepository, OrderRepository>()
@@ -227,6 +235,7 @@ public static class DependencyContainer
         services.AddAutoMapper(typeof(MerchantProfile).Assembly);
         services.AddAutoMapper(typeof(BranchProfile).Assembly);
         services.AddAutoMapper(typeof(ProductProfile).Assembly);
+        services.AddAutoMapper(typeof(BranchProductProfile).Assembly);
         services.AddAutoMapper(typeof(CartItemProfile).Assembly);
         services.AddAutoMapper(typeof(CartProfile).Assembly);
         services.AddAutoMapper(typeof(OrderProfile).Assembly);
@@ -256,6 +265,7 @@ public static class DependencyContainer
         services.AddValidatorsFromAssemblyContaining<BranchDtoValidator>();
         services.AddValidatorsFromAssemblyContaining<ProductDtoValidator>();
         services.AddValidatorsFromAssemblyContaining<CreateProductDtoValidator>();
+        services.AddValidatorsFromAssemblyContaining<CreateBranchProductDtoValidator>();
         services.AddValidatorsFromAssemblyContaining<CartItemDtoValidator>();
         services.AddValidatorsFromAssemblyContaining<CartDtoValidator>();
         services.AddValidatorsFromAssemblyContaining<OrderDtoValidator>();

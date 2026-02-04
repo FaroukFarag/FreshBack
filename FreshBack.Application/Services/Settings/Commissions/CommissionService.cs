@@ -1,11 +1,15 @@
 ﻿using AutoMapper;
+using FreshBack.Application.Dtos.Categories;
 using FreshBack.Application.Dtos.Settings.Commissions;
 using FreshBack.Application.Dtos.Shared;
 using FreshBack.Application.Interfaces.Settings.Commissions;
 using FreshBack.Application.Services.Abstraction;
 using FreshBack.Domain.Enums.Settings.Commissions;
+using FreshBack.Domain.Interfaces.Repositories.Categories;
+using FreshBack.Domain.Interfaces.Repositories.Orders;
 using FreshBack.Domain.Interfaces.Repositories.Settings.Commissions;
 using FreshBack.Domain.Interfaces.UnitOfWork;
+using FreshBack.Domain.Models.Orders;
 using FreshBack.Domain.Models.Settings.Commissions;
 using FreshBack.Domain.Specifications.Absraction;
 
@@ -15,7 +19,9 @@ public class CommissionService(
     ICommissionRepository repository,
     IUnitOfWork unitOfWork,
     IMapper mapper,
-    ICategoryCommissionRepository categoryCommissionRepository) : BaseService<
+    ICategoryCommissionRepository categoryCommissionRepository,
+    ICategoryRepository categoryRepository,
+    IOrderRepository orderRepository) : BaseService<
         CreateCommissionDto,
         CommissionDto,
         CommissionDto,
@@ -28,6 +34,8 @@ public class CommissionService(
     private readonly IMapper _mapper = mapper;
     private readonly ICategoryCommissionRepository _categoryCommissionRepository =
         categoryCommissionRepository;
+    private readonly ICategoryRepository _categoryRepository = categoryRepository;
+    private readonly IOrderRepository _orderRepository = orderRepository;
 
     public async override Task<ResultDto<IEnumerable<CommissionDto>>> GetAllAsync()
     {
@@ -49,7 +57,8 @@ public class CommissionService(
     }
 
     public async Task<ResultDto<decimal>> CalculateCommissionAsync(
-        int categoryId, decimal orderTotal)
+        DateTime? from = null,
+        DateTime? to = null)
     {
         var commissionsResult = await GetAllAsync();
 
@@ -59,27 +68,67 @@ public class CommissionService(
         var commission = commissionsResult.ResultData.FirstOrDefault();
 
         if (commission is null)
-            ResultDto<decimal>.CreateSuccessResult(0);
+            return ResultDto<decimal>.CreateSuccessResult(0);
 
-        var value = commission!.Type switch
+        var value = commission.Type switch
         {
-            CommissionType.FixedAmount => commission.FixedAmount ?? 0,
-            CommissionType.MerchantCategory => CalculateCategoryCommission(
-                commission, categoryId, orderTotal),
+            CommissionType.FixedAmount => await CalculateFixedAmountCommission(
+                commission.FixedAmount, from, to),
+            CommissionType.MerchantCategory => await CalculateCategoryCommission(
+                commission, from, to),
             _ => 0
         };
 
         return ResultDto<decimal>.CreateSuccessResult(value);
     }
 
-    private static decimal CalculateCategoryCommission(
-        CommissionDto commissionDto, int categoryId, decimal orderTotal)
+    private async Task<decimal> CalculateFixedAmountCommission(
+        decimal? fixedAmount,
+        DateTime? from = null,
+        DateTime? to = null)
     {
-        var categoryCommission = commissionDto.CategoryCommissions
-            .FirstOrDefault(c => c.CategoryId == categoryId);
+        if (fixedAmount is null)
+            return 0;
 
-        return categoryCommission != null
-            ? orderTotal * (categoryCommission.PercentageOfTotal / 100)
-            : 0;
+        var totalOrders = await _orderRepository.GetCountAsync(
+            new BaseSpecification<Order>
+            {
+                Criteria = o =>
+                    (!from.HasValue || o.CreationDate >= from.Value) &&
+                    (!to.HasValue || o.CreationDate < to.Value)
+            });
+
+        return totalOrders * fixedAmount.Value;
+    }
+
+    private async Task<decimal> CalculateCategoryCommission(
+        CommissionDto commissionDto,
+        DateTime? from = null,
+        DateTime? to = null)
+    {
+        var categoriesRevenues = await _categoryRepository
+            .GetAllAsync(c => new TotalCategoryRevenuesDto
+            {
+                CategoryId = c.Id,
+                Amount = c.Branches.SelectMany(b => b.Orders)
+                            .Where(o =>
+                                (!from.HasValue || o.CreationDate >= from.Value) &&
+                                (!to.HasValue || o.CreationDate < to.Value))
+                            .SelectMany(o => o.ProductsOrders)
+                            .Sum(po => po.Quantity * po.Product.Price) -
+                        c.Branches.SelectMany(b => b.Orders)
+                            .Where(o =>
+                                (!from.HasValue || o.CreationDate >= from.Value) &&
+                                (!to.HasValue || o.CreationDate < to.Value))
+                            .Sum(o => o.Discount)
+            });
+
+        var commission = commissionDto.CategoryCommissions.Join(
+            categoriesRevenues,
+            cc => cc.CategoryId,
+            cr => cr.CategoryId,
+            (cc, cr) => cr.Amount * (cc.PercentageOfTotal / 100)).Sum();
+
+        return commission;
     }
 }

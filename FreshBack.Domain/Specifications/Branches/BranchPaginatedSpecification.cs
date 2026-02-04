@@ -1,7 +1,9 @@
-﻿using FreshBack.Common.Utilities;
+﻿using FreshBack.Common.Extensions;
+using FreshBack.Common.Utilities;
 using FreshBack.Domain.Enums.Branches;
 using FreshBack.Domain.Enums.Shared;
 using FreshBack.Domain.Models.Branches;
+using FreshBack.Domain.Models.BranchesProducts;
 using FreshBack.Domain.Specifications.Absraction;
 using NetTopologySuite.Geometries;
 
@@ -31,7 +33,7 @@ public sealed class BranchPaginatedSpecification : BaseSpecification<Branch>
                 string.IsNullOrEmpty(searchTerm) ||
                 b.Name.Contains(searchTerm) ||
                 b.NameEn.Contains(searchTerm) ||
-                b.Products.Any(p => p.Name.Contains(searchTerm))
+                b.BranchesProducts.Any(bp => bp.Product.Name.Contains(searchTerm))
             );
 
         if (categoryId.HasValue)
@@ -44,7 +46,14 @@ public sealed class BranchPaginatedSpecification : BaseSpecification<Branch>
     private void ApplyIncludes()
     {
         AddInclude(b => b.Merchant);
-        AddInclude(b => b.Products);
+        AddIncludeChain(new IncludeChain<Branch>
+        {
+            InitialInclude = b => b.BranchesProducts,
+            ThenIncludes =
+            [
+                bp => (bp as BranchProduct)!.Product
+            ]
+        });
     }
 
     private void ApplySorting(
@@ -55,7 +64,7 @@ public sealed class BranchPaginatedSpecification : BaseSpecification<Branch>
         switch (sortBy)
         {
             case BranchSortBy.Price:
-                ApplyOrder(b => b.Products.Min(p => p.Price), direction);
+                ApplyOrder(b => b.BranchesProducts.Min(p => p.Product.Price), direction);
                 break;
 
             case BranchSortBy.Category:

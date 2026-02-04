@@ -43,16 +43,6 @@ public class CreateProductDtoValidator : AbstractValidator<CreateProductDto>
             .NotNull()
             .NotEmpty();
 
-        RuleFor(p => p.Discount)
-            .NotNull();
-
-        RuleFor(cp => cp.ExpiryDate)
-            .NotNull();
-
-        RuleFor(cp => cp.Quantity)
-            .NotNull()
-            .GreaterThan(0);
-
         RuleFor(cp => cp.Price)
             .NotNull()
             .GreaterThan(0);
@@ -60,15 +50,6 @@ public class CreateProductDtoValidator : AbstractValidator<CreateProductDto>
         RuleFor(cp => cp.WeightInKg)
             .NotNull()
             .GreaterThan(0);
-
-        RuleFor(cp => cp.StartDeliveryDate)
-            .NotNull();
-
-        RuleFor(cp => cp.EndDeliveryDate)
-            .NotNull();
-
-        RuleFor(cp => cp.Status)
-            .NotNull();
 
         RuleFor(cp => cp.MerchantId)
             .NotNull();

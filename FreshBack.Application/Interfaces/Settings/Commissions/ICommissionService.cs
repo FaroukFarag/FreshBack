@@ -14,5 +14,5 @@ public interface ICommissionService : IBaseService<
     int>
 {
     Task<ResultDto<decimal>> CalculateCommissionAsync(
-        int categoryId, decimal orderTotal);
+        DateTime? from = null, DateTime? to = null);
 }

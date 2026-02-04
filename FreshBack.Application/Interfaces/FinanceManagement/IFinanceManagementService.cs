@@ -10,4 +10,5 @@ public interface IFinanceManagementService
     Task<ResultDto<IEnumerable<TotalAreaRevenuesDto>>> GetTotalRevenuesByArea(int? month);
     Task<ResultDto<IEnumerable<TotalMerchantRevenuesDto>>>
         GetTotalRevenuesByMerchant();
+    Task<ResultDto<TotalCommissionsDto>> GetTotalCommissions();
 }

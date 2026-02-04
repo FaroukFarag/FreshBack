@@ -34,60 +34,20 @@ public class OrderService(
     private readonly IProductRepository _productRepository = productRepository;
 
     public async Task<ResultDto<CreateOrderDto>> CreateAsync(
-        CreateOrderDto createOrderDto,
-        int customerId)
+     CreateOrderDto createOrderDto,
+     int customerId)
     {
         return await ExecuteServiceCallAsync(
             operationName: "Create Order",
             action: async () =>
             {
-                var orderProducts = createOrderDto.ProductsOrders!
-                    .ToDictionary(x => x.ProductId, x => x.Quantity);
-                var productIds = orderProducts.Keys.ToList();
-                var spec = new BaseSpecification<Product>
-                {
-                    Criteria = p => productIds.Contains(p.Id)
-                };
-                var products = await _productRepository.GetAllAsync(spec);
+                var orderProducts = BuildOrderProductsDictionary(createOrderDto);
+                var products = await GetAndValidateProducts(orderProducts.Keys);
 
-                if (products.Count() != productIds.Count)
-                    throw new Exception("One or more products do not exist.");
+                ValidateSameMerchant(products);
+                ValidateProductAvailability(products, orderProducts, createOrderDto.BranchId);
 
-                var merchantId = products.First().MerchantId;
-                var differentMerchantProducts = products
-                    .Where(p => p.MerchantId != merchantId)
-                    .ToList();
-
-                if (differentMerchantProducts.Count != 0)
-                    throw new Exception(
-                        "All products in an order must belong to the same merchant."
-                    );
-
-                var insufficientProducts = products
-                    .Where(p => p.Quantity < orderProducts[p.Id])
-                    .ToList();
-
-                if (insufficientProducts.Count != 0)
-                {
-                    var message = string.Join(" | ",
-                        insufficientProducts.Select(p =>
-                            $"Product '{p.Name}' has {p.Quantity} available, " +
-                            $"but {orderProducts[p.Id]} was requested."
-                        ));
-
-                    throw new Exception(message);
-                }
-
-                var order = _mapper.Map<Order>(createOrderDto);
-
-                order.CustomerId = customerId;
-
-                await _repository.CreateAsync(order);
-
-                var orderCreated = await _unitOfWork.Complete();
-
-                if (!orderCreated)
-                    throw new Exception("Failed to create order");
+                var order = await CreateOrder(createOrderDto, customerId);
 
                 return _mapper.Map<CreateOrderDto>(createOrderDto);
             });
@@ -167,5 +127,89 @@ public class OrderService(
                     _mapper.Map<IReadOnlyList<OrderDto>>(orders),
                     totalCount);
             });
+    }
+
+    private Dictionary<int, int> BuildOrderProductsDictionary(CreateOrderDto dto)
+    {
+        return dto.ProductsOrders!.ToDictionary(x => x.ProductId, x => x.Quantity);
+    }
+
+    private async Task<List<Product>> GetAndValidateProducts(IEnumerable<int> productIds)
+    {
+        var productIdList = productIds.ToList();
+        var spec = new BaseSpecification<Product>
+        {
+            Criteria = p => productIdList.Contains(p.Id)
+        };
+
+        var products = (await _productRepository.GetAllAsync(spec)).ToList();
+
+        if (products.Count != productIdList.Count)
+            throw new Exception("One or more products do not exist.");
+
+        return products;
+    }
+
+    private void ValidateSameMerchant(List<Product> products)
+    {
+        var merchantId = products.First().MerchantId;
+        var hasMultipleMerchants = products.Any(p => p.MerchantId != merchantId);
+
+        if (hasMultipleMerchants)
+            throw new Exception("All products in an order must belong to the same merchant.");
+    }
+
+    private void ValidateProductAvailability(
+        List<Product> products,
+        Dictionary<int, int> orderProducts,
+        int branchId)
+    {
+        var insufficientProducts = products
+            .Where(p => GetBranchQuantity(p, branchId) < orderProducts[p.Id])
+            .ToList();
+
+        if (insufficientProducts.Any())
+        {
+            var errorMessage = BuildInsufficientStockMessage(
+                insufficientProducts,
+                orderProducts,
+                branchId);
+            throw new Exception(errorMessage);
+        }
+    }
+
+    private int GetBranchQuantity(Product product, int branchId)
+    {
+        return product.ProductsBranches
+            .FirstOrDefault(bp => bp.BranchId == branchId)?.Quantity ?? 0;
+    }
+
+    private string BuildInsufficientStockMessage(
+        List<Product> insufficientProducts,
+        Dictionary<int, int> orderProducts,
+        int branchId)
+    {
+        var messages = insufficientProducts.Select(p =>
+        {
+            var available = GetBranchQuantity(p, branchId);
+            var requested = orderProducts[p.Id];
+            return $"Product '{p.Name}' has {available} available, but {requested} was requested.";
+        });
+
+        return string.Join(" | ", messages);
+    }
+
+    private async Task<Order> CreateOrder(CreateOrderDto dto, int customerId)
+    {
+        var order = _mapper.Map<Order>(dto);
+        order.CustomerId = customerId;
+
+        await _repository.CreateAsync(order);
+
+        var orderCreated = await _unitOfWork.Complete();
+        if (!orderCreated)
+            throw new Exception("Failed to create order");
+
+        return order;
     }
 }
