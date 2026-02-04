@@ -28,7 +28,8 @@ public class CartService(
     private readonly IMapper _mapper = mapper;
     private readonly IProductRepository _productRepository = productRepository;
 
-    public async Task<CartDto> SyncCartAsync(int customerId, List<CartItemDto> cartItems)
+    public async Task<CartDto> SyncCartAsync(
+        int customerId, int branchId, List<CartItemDto> cartItems)
     {
         var spec = new BaseSpecification<Cart>
         {
@@ -47,8 +48,10 @@ public class CartService(
 
             if (product == null) continue;
 
+            var branchProduct = product.ProductsBranches
+                .FirstOrDefault(bp => bp.BranchId == branchId);
             var cartItem = cart.CartItems.FirstOrDefault(i => i.ProductId == item.ProductId);
-            var quantity = Math.Min(item.Quantity, product.Quantity);
+            var quantity = Math.Min(item.Quantity, branchProduct!.Quantity);
 
             if (cartItem == null)
             {
@@ -64,7 +67,7 @@ public class CartService(
             {
                 cartItem.Quantity = Math.Min(
                     cartItem.Quantity + quantity,
-                    product.Quantity);
+                    branchProduct!.Quantity);
             }
         }
 

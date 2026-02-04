@@ -1,6 +1,7 @@
 ﻿using FreshBack.Application.Dtos.FinanceManagement;
 using FreshBack.Application.Dtos.Shared;
 using FreshBack.Application.Interfaces.FinanceManagement;
+using FreshBack.Application.Interfaces.Settings.Commissions;
 using FreshBack.Domain.Interfaces.Repositories.Merchants;
 using FreshBack.Domain.Interfaces.Repositories.Orders;
 using FreshBack.Domain.Interfaces.Repositories.ProductsOrders;
@@ -15,7 +16,8 @@ public class FinanceManagementService(
     IOrderRepository orderRepository,
     IProductOrderRepository productOrderRepository,
     IAreaRepository areaRepository,
-    IMerchantRepository merchantRepository) :
+    IMerchantRepository merchantRepository,
+    ICommissionService commissionService) :
     IFinanceManagementService
 {
     private readonly IOrderRepository _orderRepository = orderRepository;
@@ -23,6 +25,7 @@ public class FinanceManagementService(
         productOrderRepository;
     private readonly IAreaRepository _areaRepository = areaRepository;
     private readonly IMerchantRepository _merchantRepository = merchantRepository;
+    private readonly ICommissionService _commissionService = commissionService;
 
     public async Task<ResultDto<TotalRevenuesDto>> GetTotalRevenues()
     {
@@ -31,10 +34,7 @@ public class FinanceManagementService(
             var thisMonth = GetMonthRange(0);
             var lastMonth = GetMonthRange(-1);
 
-            var totalRevenue =
-                await _productOrderRepository.GetSumAsync(
-                    po => po.Quantity * (po.Product.Price - po.Product.Discount))
-                - await _orderRepository.GetSumAsync(o => o.Discount);
+            var totalRevenue = await GetRevenueAsync();
 
             var thisMonthRevenue =
                 await GetRevenueAsync(thisMonth.fromDate, thisMonth.toDate);
@@ -115,7 +115,7 @@ public class FinanceManagementService(
                              (o, po) => new
                              {
                                  Revenue =
-                                     po.Quantity * (po.Product.Price - po.Product.Discount)
+                                     po.Quantity * po.Product.Price
                              })
                          .Sum(ar => ar.Revenue)
                         -
@@ -148,7 +148,7 @@ public class FinanceManagementService(
                     Amount = m.Branches.SelectMany(b => b.Orders
                             .SelectMany(o => o.ProductsOrders, (o, po) => new
                             {
-                                Revenue = po.Quantity * (po.Product.Price - po.Product.Discount)
+                                Revenue = po.Quantity * po.Product.Price
                             })).Sum(mr => mr.Revenue) -
                         m.Branches.SelectMany(b => b.Orders)
                             .Sum(o => o.Discount)
@@ -165,6 +165,47 @@ public class FinanceManagementService(
         }
     }
 
+    public async Task<ResultDto<TotalCommissionsDto>> GetTotalCommissions()
+    {
+        try
+        {
+            var thisMonth = GetMonthRange(0);
+            var lastMonth = GetMonthRange(-1);
+
+            var currentCommissionsResult = await _commissionService
+                .CalculateCommissionAsync(thisMonth.fromDate, thisMonth.toDate);
+
+            if (!currentCommissionsResult.Succeeded)
+                return ResultDto<TotalCommissionsDto>
+                    .CreateFailResult(currentCommissionsResult.Message);
+
+            var lastMonthCommissionsResult = await _commissionService
+                .CalculateCommissionAsync(lastMonth.fromDate, lastMonth.toDate);
+
+            if (!lastMonthCommissionsResult.Succeeded)
+                return ResultDto<TotalCommissionsDto>
+                    .CreateFailResult(lastMonthCommissionsResult.Message);
+
+            var currentAmount = currentCommissionsResult.ResultData;
+            var lastMonthAmount = lastMonthCommissionsResult.ResultData;
+
+            return ResultDto<TotalCommissionsDto>
+                .CreateSuccessResult(new TotalCommissionsDto
+                {
+                    Amount = currentAmount,
+                    PercentageComparedToLastMonth =
+                        Math.Round(
+                            CalculatePercentage(currentAmount, lastMonthAmount),
+                            2)
+                });
+        }
+        catch (Exception ex)
+        {
+            return ResultDto<TotalCommissionsDto>
+                .CreateFailResult(ex.Message);
+        }
+    }
+
     private static (DateTime fromDate, DateTime toDate) GetMonthRange(int offset)
     {
         var now = DateTime.Now;
@@ -173,27 +214,25 @@ public class FinanceManagementService(
         return (start, start.AddMonths(1));
     }
 
-    private async Task<decimal> GetRevenueAsync(DateTime from, DateTime to)
+    private async Task<decimal> GetRevenueAsync(DateTime? from = null, DateTime? to = null)
     {
-        var productsRevenue =
-            await _productOrderRepository.GetSumAsync(
-                po => po.Quantity * (po.Product.Price - po.Product.Discount),
-                new BaseSpecification<ProductOrder>
-                {
-                    Criteria = po =>
-                        po.Order.CreationDate >= from &&
-                        po.Order.CreationDate < to
-                });
+        var productsRevenue = await _productOrderRepository.GetSumAsync(
+            po => po.Quantity * po.Product.Price,
+            new BaseSpecification<ProductOrder>
+            {
+                Criteria = po =>
+                    (!from.HasValue || po.Order.CreationDate >= from.Value) &&
+                    (!to.HasValue || po.Order.CreationDate < to.Value)
+            });
 
-        var discounts =
-            await _orderRepository.GetSumAsync(
-                o => o.Discount,
-                new BaseSpecification<Order>
-                {
-                    Criteria = o =>
-                        o.CreationDate >= from &&
-                        o.CreationDate < to
-                });
+        var discounts = await _orderRepository.GetSumAsync(
+            o => o.Discount,
+            new BaseSpecification<Order>
+            {
+                Criteria = o =>
+                    (!from.HasValue || o.CreationDate >= from.Value) &&
+                    (!to.HasValue || o.CreationDate < to.Value)
+            });
 
         return productsRevenue - discounts;
     }

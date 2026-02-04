@@ -31,8 +31,7 @@ public class StatisticsService(
             {
                 OrderByDescending = m => m.Branches.SelectMany(b => b.Orders
                             .SelectMany(o => o.ProductsOrders))
-                            .Sum(m => m.Quantity * (m.Product.Price -
-                                m.Product.Discount)) -
+                            .Sum(m => m.Quantity * m.Product.Price) -
                         m.Branches.SelectMany(b => b.Orders).Sum(o => o.Discount)
             };
 
@@ -44,8 +43,7 @@ public class StatisticsService(
                         MerchantName = m.Name,
                         TotalSales = m.Branches.SelectMany(b => b.Orders
                                 .SelectMany(o => o.ProductsOrders))
-                                .Sum(m => m.Quantity * (m.Product.Price -
-                                    m.Product.Discount)) -
+                                .Sum(m => m.Quantity * m.Product.Price) -
                             m.Branches.SelectMany(b => b.Orders).Sum(o => o.Discount)
 
                     }, spec);

@@ -6,10 +6,12 @@ using FreshBack.Application.Dtos.Shared;
 using FreshBack.Application.Interfaces.Branches;
 using FreshBack.Application.Interfaces.Shared;
 using FreshBack.Application.Services.Abstraction;
+using FreshBack.Common.Extensions;
 using FreshBack.Domain.Constants.Branches;
 using FreshBack.Domain.Interfaces.Repositories.Branches;
 using FreshBack.Domain.Interfaces.UnitOfWork;
 using FreshBack.Domain.Models.Branches;
+using FreshBack.Domain.Models.BranchesProducts;
 using FreshBack.Domain.Models.Shared;
 using FreshBack.Domain.Specifications.Absraction;
 using FreshBack.Domain.Specifications.Branches;
@@ -74,8 +76,18 @@ public class BranchService(
                     Includes =
                     [
                         b => b.Merchant,
-                        b => b.Products,
                         b => b.Reviews
+                    ],
+                    IncludeChains =
+                    [
+                        new IncludeChain<Branch>
+                        {
+                            InitialInclude = b => b.BranchesProducts,
+                            ThenIncludes =
+                            [
+                                bp => (bp as BranchProduct)!.Product
+                            ]
+                        }
                     ]
                 };
                 var branch = await _repository.GetAsync(id, spec);
@@ -178,7 +190,8 @@ public class BranchService(
             OpeningTime = b.OpeningTime,
             ClosingTime = b.ClosingTime,
             Status = b.Status,
-            LeastPrice = b.Products.Any() ? b.Products.Min(p => p.Price) : 0,
+            LeastPrice = b.BranchesProducts.Any() ? b.BranchesProducts
+                .Min(p => p.Product.Price) : 0,
             IsFavorite = b.CustomersBranchesFavorite
                 .Any(cbf => cbf.CustomerId == customerId),
             ImagePath = string.IsNullOrEmpty(b.ImagePath)

@@ -66,9 +66,9 @@ public class BranchConfigurations : IEntityTypeConfiguration<Branch>
             .WithMany(c => c.Branches)
             .HasForeignKey(b => b.CategoryId);
 
-        builder.HasMany(b => b.Products)
-            .WithOne(p => p.Branch)
-            .HasForeignKey(p => p.BranchId);
+        builder.HasMany(b => b.BranchesProducts)
+            .WithOne(bp => bp.Branch)
+            .HasForeignKey(bp => bp.BranchId);
 
         builder.HasMany(b => b.CustomersBranchesFavorite)
             .WithOne(cbf => cbf.Branch)
