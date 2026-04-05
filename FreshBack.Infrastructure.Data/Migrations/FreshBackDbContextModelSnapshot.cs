@@ -49,6 +49,12 @@ namespace FreshBack.Infrastructure.Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
 
@@ -57,6 +63,12 @@ namespace FreshBack.Infrastructure.Data.Migrations
 
                     b.Property<string>("Landmark")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("int");
 
                     b.Property<decimal>("Latitude")
                         .HasPrecision(18, 8)
@@ -100,9 +112,21 @@ namespace FreshBack.Infrastructure.Data.Migrations
                     b.Property<TimeOnly>("ClosingTime")
                         .HasColumnType("time");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
                     b.Property<string>("ImagePath")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("int");
 
                     b.Property<Point>("Location")
                         .IsRequired()
@@ -165,23 +189,28 @@ namespace FreshBack.Infrastructure.Data.Migrations
                     b.Property<string>("Comment")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("ImagePath")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("int");
 
                     b.Property<int>("MerchantId")
                         .HasColumnType("int");
 
-                    b.Property<int>("OrderId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Rating")
+                    b.Property<int?>("Rating")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -192,13 +221,49 @@ namespace FreshBack.Infrastructure.Data.Migrations
 
                     b.HasIndex("MerchantId");
 
-                    b.HasIndex("OrderId")
-                        .IsUnique();
-
                     b.ToTable("Reviews", t =>
                         {
                             t.HasCheckConstraint("CK_Review_Rating", "[Rating] BETWEEN 1 AND 5");
                         });
+                });
+
+            modelBuilder.Entity("FreshBack.Domain.Models.Branches.ReviewImage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("BranchId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImagePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ReviewId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("ReviewId");
+
+                    b.ToTable("Feedbacks");
                 });
 
             modelBuilder.Entity("FreshBack.Domain.Models.BranchesFavorites.CustomerBranchFavorite", b =>
@@ -264,7 +329,19 @@ namespace FreshBack.Infrastructure.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
                     b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LastModifiedBy")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -312,9 +389,21 @@ namespace FreshBack.Infrastructure.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
                     b.Property<string>("ImagePath")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -339,9 +428,21 @@ namespace FreshBack.Infrastructure.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
                     b.Property<string>("Email")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .HasMaxLength(250)
@@ -372,6 +473,12 @@ namespace FreshBack.Infrastructure.Data.Migrations
                     b.Property<int>("AreaId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -379,6 +486,12 @@ namespace FreshBack.Infrastructure.Data.Migrations
                     b.Property<string>("DescriptionEn")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -425,6 +538,18 @@ namespace FreshBack.Infrastructure.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("int");
+
                     b.Property<int>("Receiver")
                         .HasColumnType("int");
 
@@ -449,10 +574,16 @@ namespace FreshBack.Infrastructure.Data.Migrations
                     b.Property<int>("BranchId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreationDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2026, 2, 3, 19, 23, 50, 218, DateTimeKind.Local).AddTicks(5560));
+                        .HasDefaultValue(new DateTime(2026, 4, 5, 15, 51, 8, 879, DateTimeKind.Local).AddTicks(5585));
 
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
@@ -465,13 +596,19 @@ namespace FreshBack.Infrastructure.Data.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<DateTime>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("int");
+
                     b.Property<int>("MerchantId")
                         .HasColumnType("int");
 
                     b.Property<int>("Number")
                         .HasColumnType("int");
 
-                    b.Property<int>("PaymentMethod")
+                    b.Property<int>("PaymentMethodId")
                         .HasColumnType("int");
 
                     b.Property<decimal>("Price")
@@ -488,6 +625,8 @@ namespace FreshBack.Infrastructure.Data.Migrations
                     b.HasIndex("CustomerId");
 
                     b.HasIndex("MerchantId");
+
+                    b.HasIndex("PaymentMethodId");
 
                     b.ToTable("Orders");
                 });
@@ -541,6 +680,12 @@ namespace FreshBack.Infrastructure.Data.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -548,6 +693,12 @@ namespace FreshBack.Infrastructure.Data.Migrations
                     b.Property<string>("DescriptionEn")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("int");
 
                     b.Property<int>("MerchantId")
                         .HasColumnType("int");
@@ -660,9 +811,24 @@ namespace FreshBack.Infrastructure.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("DeliveryFees")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -693,6 +859,18 @@ namespace FreshBack.Infrastructure.Data.Migrations
                     b.Property<int>("CommissionId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("PercentageOfTotal")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
@@ -715,9 +893,21 @@ namespace FreshBack.Infrastructure.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
                     b.Property<decimal?>("FixedAmount")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("int");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -725,6 +915,44 @@ namespace FreshBack.Infrastructure.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Commissions");
+                });
+
+            modelBuilder.Entity("FreshBack.Domain.Models.Settings.PaymentMethods.PaymentMethod", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("LastModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("NameAr")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PaymentMethods");
                 });
 
             modelBuilder.Entity("FreshBack.Domain.Models.Settings.Users.User", b =>
@@ -755,6 +983,9 @@ namespace FreshBack.Infrastructure.Data.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<int?>("MerchantId")
+                        .HasColumnType("int");
+
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -775,6 +1006,9 @@ namespace FreshBack.Infrastructure.Data.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
@@ -783,6 +1017,8 @@ namespace FreshBack.Infrastructure.Data.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("MerchantId");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -872,11 +1108,18 @@ namespace FreshBack.Infrastructure.Data.Migrations
                     b.Property<int>("RoleId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasMaxLength(21)
+                        .HasColumnType("nvarchar(21)");
+
                     b.HasKey("UserId", "RoleId");
 
-                    b.HasIndex("RoleId");
-
                     b.ToTable("AspNetUserRoles", (string)null);
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("IdentityUserRole<int>");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
@@ -896,6 +1139,15 @@ namespace FreshBack.Infrastructure.Data.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("FreshBack.Domain.Models.UsersRoles.UserRole", b =>
+                {
+                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUserRole<int>");
+
+                    b.HasIndex("RoleId");
+
+                    b.HasDiscriminator().HasValue("UserRole");
                 });
 
             modelBuilder.Entity("FreshBack.Domain.Models.Addresses.Address", b =>
@@ -956,19 +1208,26 @@ namespace FreshBack.Infrastructure.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("FreshBack.Domain.Models.Orders.Order", "Order")
-                        .WithOne("Review")
-                        .HasForeignKey("FreshBack.Domain.Models.Branches.Review", "OrderId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.Navigation("Branch");
 
                     b.Navigation("Customer");
 
                     b.Navigation("Merchant");
+                });
 
-                    b.Navigation("Order");
+            modelBuilder.Entity("FreshBack.Domain.Models.Branches.ReviewImage", b =>
+                {
+                    b.HasOne("FreshBack.Domain.Models.Branches.Branch", null)
+                        .WithMany("Feedbacks")
+                        .HasForeignKey("BranchId");
+
+                    b.HasOne("FreshBack.Domain.Models.Branches.Review", "Review")
+                        .WithMany("ReviewImages")
+                        .HasForeignKey("ReviewId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Review");
                 });
 
             modelBuilder.Entity("FreshBack.Domain.Models.BranchesFavorites.CustomerBranchFavorite", b =>
@@ -1070,11 +1329,19 @@ namespace FreshBack.Infrastructure.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("FreshBack.Domain.Models.Settings.PaymentMethods.PaymentMethod", "PaymentMethod")
+                        .WithMany("Orders")
+                        .HasForeignKey("PaymentMethodId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Branch");
 
                     b.Navigation("Customer");
 
                     b.Navigation("Merchant");
+
+                    b.Navigation("PaymentMethod");
                 });
 
             modelBuilder.Entity("FreshBack.Domain.Models.Products.Product", b =>
@@ -1137,6 +1404,15 @@ namespace FreshBack.Infrastructure.Data.Migrations
                     b.Navigation("Commission");
                 });
 
+            modelBuilder.Entity("FreshBack.Domain.Models.Settings.Users.User", b =>
+                {
+                    b.HasOne("FreshBack.Domain.Models.Merchants.Merchant", "Merchant")
+                        .WithMany()
+                        .HasForeignKey("MerchantId");
+
+                    b.Navigation("Merchant");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.HasOne("FreshBack.Domain.Models.Roles.Role", null)
@@ -1164,21 +1440,6 @@ namespace FreshBack.Infrastructure.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
-                {
-                    b.HasOne("FreshBack.Domain.Models.Roles.Role", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FreshBack.Domain.Models.Settings.Users.User", null)
-                        .WithMany("UserRoles")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
                     b.HasOne("FreshBack.Domain.Models.Settings.Users.User", null)
@@ -1188,15 +1449,41 @@ namespace FreshBack.Infrastructure.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("FreshBack.Domain.Models.UsersRoles.UserRole", b =>
+                {
+                    b.HasOne("FreshBack.Domain.Models.Roles.Role", "Role")
+                        .WithMany("RoleUsers")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FreshBack.Domain.Models.Settings.Users.User", "User")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("FreshBack.Domain.Models.Branches.Branch", b =>
                 {
                     b.Navigation("BranchesProducts");
 
                     b.Navigation("CustomersBranchesFavorite");
 
+                    b.Navigation("Feedbacks");
+
                     b.Navigation("Orders");
 
                     b.Navigation("Reviews");
+                });
+
+            modelBuilder.Entity("FreshBack.Domain.Models.Branches.Review", b =>
+                {
+                    b.Navigation("ReviewImages");
                 });
 
             modelBuilder.Entity("FreshBack.Domain.Models.Carts.Cart", b =>
@@ -1235,9 +1522,6 @@ namespace FreshBack.Infrastructure.Data.Migrations
             modelBuilder.Entity("FreshBack.Domain.Models.Orders.Order", b =>
                 {
                     b.Navigation("ProductsOrders");
-
-                    b.Navigation("Review")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("FreshBack.Domain.Models.Products.Product", b =>
@@ -1251,6 +1535,11 @@ namespace FreshBack.Infrastructure.Data.Migrations
                     b.Navigation("ProductsOrders");
                 });
 
+            modelBuilder.Entity("FreshBack.Domain.Models.Roles.Role", b =>
+                {
+                    b.Navigation("RoleUsers");
+                });
+
             modelBuilder.Entity("FreshBack.Domain.Models.Settings.Areas.Area", b =>
                 {
                     b.Navigation("Branches");
@@ -1259,6 +1548,11 @@ namespace FreshBack.Infrastructure.Data.Migrations
             modelBuilder.Entity("FreshBack.Domain.Models.Settings.Commissions.Commission", b =>
                 {
                     b.Navigation("CategoryCommissions");
+                });
+
+            modelBuilder.Entity("FreshBack.Domain.Models.Settings.PaymentMethods.PaymentMethod", b =>
+                {
+                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("FreshBack.Domain.Models.Settings.Users.User", b =>

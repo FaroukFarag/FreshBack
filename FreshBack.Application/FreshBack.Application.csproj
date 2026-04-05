@@ -25,4 +25,8 @@
     <ProjectReference Include="..\FreshBack.Domain\FreshBack.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Dtos\Dashboard\" />
+  </ItemGroup>
+
 </Project>

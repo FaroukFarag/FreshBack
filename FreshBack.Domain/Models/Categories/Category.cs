@@ -4,7 +4,7 @@ using FreshBack.Domain.Models.Settings.Commissions;
 
 namespace FreshBack.Domain.Models.Categories;
 
-public class Category : BaseImageModel<int>
+public class Category : BaseImageAuditModel<int>
 {
     public string Name { get; set; } = default!;
     public string NameEn { get; set; } = default!;

@@ -21,32 +21,21 @@ public class ReviewService(
         Review, int>(repository, unitOfWork, mapper), IReviewService
 {
     private readonly IReviewRepository _repository = repository;
-    private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _mapper = mapper;
     private readonly IImageService _imageService = imageService;
 
     public async Task<ResultDto<CreateReviewDto>> CreateCustomerReviewAsync(
         CreateReviewDto createReviewDto, int customerId)
     {
-        return await ExecuteServiceCallAsync(
-            "Create Customer Review",
-            async () =>
-            {
-                createReviewDto.CustomerId = customerId;
+        foreach (var reviewImage in createReviewDto.ReviewImages)
+        {
+            reviewImage.ImagePath = await _imageService
+                .SaveImageAsync(reviewImage.ImageFile, ReviewConstants.SubFolder);
+        }
 
-                return await CreateReview(createReviewDto);
-            });
-    }
+        createReviewDto.CustomerId = customerId;
 
-    public async override Task<ResultDto<CreateReviewDto>> CreateAsync(
-        CreateReviewDto createReviewDto)
-    {
-        return await ExecuteServiceCallAsync(
-            "Create Review",
-            async () =>
-            {
-                return await CreateReview(createReviewDto);
-            });
+        return await base.CreateAsync(createReviewDto);
     }
 
     public async Task<ResultDto<PagedResult<ReviewDto>>>
@@ -92,22 +81,5 @@ public class ReviewService(
                 return new PagedResult<ReviewDto>(
                     _mapper.Map<IReadOnlyList<ReviewDto>>(reviews), totalCount);
             });
-    }
-
-    private async Task<CreateReviewDto> CreateReview(CreateReviewDto createReviewDto)
-    {
-        createReviewDto.ImagePath =
-                            await _imageService.SaveImageAsync(
-                                createReviewDto.ImageFile,
-                                ReviewConstants.SubFolder);
-
-        var review = _mapper.Map<Review>(createReviewDto);
-
-        await _repository.CreateAsync(review);
-
-        if (!await _unitOfWork.Complete())
-            throw new Exception("Failed to create review");
-
-        return _mapper.Map<CreateReviewDto>(review);
     }
 }

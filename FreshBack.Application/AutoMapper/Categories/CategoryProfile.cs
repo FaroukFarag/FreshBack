@@ -10,19 +10,19 @@ public class CategoryProfile : Profile
     public CategoryProfile()
     {
         CreateMap<Category, CategoryDto>()
-            .ForMember(des => des.ImagePath, opt => opt
-                .MapFrom<BaseModelImageDtoUrlResolver>());
+            .ForMember(dest => dest.ImagePath, opt => opt
+                .MapFrom<ImagePathToUrlResolver<Category, CategoryDto>>());
 
         CreateMap<Category, CreateCategoryDto>()
-            .ForMember(des => des.ImagePath, opt => opt
-                .MapFrom<BaseModelImageDtoUrlResolver>());
+            .ForMember(dest => dest.ImagePath, opt => opt
+                .MapFrom<ImagePathToUrlResolver<Category, CreateCategoryDto>>());
 
         CreateMap<CategoryDto, Category>()
-            .ForMember(des => des.ImagePath, opt => opt
-                .MapFrom<BaseModelImageUrlResolver>());
+            .ForMember(dest => dest.ImagePath, opt => opt
+                .MapFrom<ImageUrlToPathResolver<CategoryDto, Category>>());
 
         CreateMap<CreateCategoryDto, Category>()
-            .ForMember(des => des.ImagePath, opt => opt
-                .MapFrom<BaseModelImageUrlResolver>());
+            .ForMember(dest => dest.ImagePath, opt => opt
+                .MapFrom<ImageUrlToPathResolver<CreateCategoryDto, Category>>());
     }
 }

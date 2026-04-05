@@ -10,20 +10,20 @@ public class ProductProfile : Profile
     public ProductProfile()
     {
         CreateMap<ProductImage, ProductImageDto>()
-            .ForMember(des => des.ImagePath, opt => opt
-                .MapFrom<BaseModelImageDtoUrlResolver>());
-
-        CreateMap<ProductImageDto, ProductImage>()
-            .ForMember(des => des.ImagePath, opt => opt
-                .MapFrom<BaseModelImageUrlResolver>());
+         .ForMember(dest => dest.ImagePath, opt => opt
+             .MapFrom<ImagePathToUrlResolver<ProductImage, ProductImageDto>>());
 
         CreateMap<ProductImage, CreateProductImageDto>()
-            .ForMember(des => des.ImagePath, opt => opt
-                .MapFrom<BaseModelImageDtoUrlResolver>());
+            .ForMember(dest => dest.ImagePath, opt => opt
+                .MapFrom<ImagePathToUrlResolver<ProductImage, CreateProductImageDto>>());
+
+        CreateMap<ProductImageDto, ProductImage>()
+            .ForMember(dest => dest.ImagePath, opt => opt
+                .MapFrom<ImageUrlToPathResolver<ProductImageDto, ProductImage>>());
 
         CreateMap<CreateProductImageDto, ProductImage>()
-            .ForMember(des => des.ImagePath, opt => opt
-                .MapFrom<BaseModelImageUrlResolver>());
+            .ForMember(dest => dest.ImagePath, opt => opt
+                .MapFrom<ImageUrlToPathResolver<CreateProductImageDto, ProductImage>>());
 
         CreateMap<Product, ProductDto>().ReverseMap();
 

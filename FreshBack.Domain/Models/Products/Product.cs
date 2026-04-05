@@ -6,7 +6,7 @@ using FreshBack.Domain.Models.ProductsOrders;
 
 namespace FreshBack.Domain.Models.Products;
 
-public class Product : BaseModel<int>
+public class Product : BaseAuditModel<int>
 {
     public string Code { get; set; } = default!;
     public string Name { get; set; } = default!;

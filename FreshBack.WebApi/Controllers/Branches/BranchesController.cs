@@ -23,6 +23,12 @@ public class BranchesController(IBranchService service) :
         return base.Create(createEntityDto);
     }
 
+    [AllowAnonymous]
+    public override Task<IActionResult> Get(int id)
+    {
+        return base.Get(id);
+    }
+
     [HttpPost("GetAllBranchesPaginated")]
     [AllowAnonymous]
     public async Task<IActionResult> GetAllBranchesPaginated(

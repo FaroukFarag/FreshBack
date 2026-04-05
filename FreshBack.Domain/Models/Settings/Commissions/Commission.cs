@@ -3,7 +3,7 @@ using FreshBack.Domain.Models.Abstraction;
 
 namespace FreshBack.Domain.Models.Settings.Commissions;
 
-public class Commission : BaseModel<int>
+public class Commission : BaseAuditModel<int>
 {
     public CommissionType Type { get; set; }
     public decimal? FixedAmount { get; set; }

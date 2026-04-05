@@ -3,6 +3,7 @@ using FreshBack.Application.Interfaces.Branches;
 using FreshBack.Domain.Models.Branches;
 using FreshBack.WebApi.Controllers.Abstraction;
 using FreshBack.WebApi.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FreshBack.WebApi.Controllers.Branches;
@@ -31,7 +32,8 @@ public class ReviewsController(IReviewService service) :
     }
 
     [HttpPost("GetReviewsForBranchPaginated")]
-    public async Task<IActionResult> Get(
+    [AllowAnonymous]
+    public async Task<IActionResult> GetReviewsForBranchPaginated(
         ReviewsForBranchPaginatedDto reviewsForBranchPaginatedDto)
     {
         return Ok(await _service
@@ -39,7 +41,8 @@ public class ReviewsController(IReviewService service) :
     }
 
     [HttpPost("GetReviewsForMerchantPaginated")]
-    public async Task<IActionResult> Get(
+    [AllowAnonymous]
+    public async Task<IActionResult> GetReviewsForMerchantPaginated(
         ReviewsForMerchantPaginatedDto reviewsForMerchantPaginatedDto)
     {
         return Ok(await _service

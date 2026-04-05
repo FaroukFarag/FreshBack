@@ -10,7 +10,7 @@ using NetTopologySuite.Geometries;
 
 namespace FreshBack.Domain.Models.Branches;
 
-public class Branch : BaseImageModel<int>
+public class Branch : BaseImageAuditModel<int>
 {
     public string Name { get; set; } = default!;
     public string NameEn { get; set; } = default!;
@@ -31,4 +31,5 @@ public class Branch : BaseImageModel<int>
     public IEnumerable<BranchProduct> BranchesProducts { get; set; } = default!;
     public IEnumerable<CustomerBranchFavorite> CustomersBranchesFavorite { get; set; } = default!;
     public IEnumerable<Review> Reviews { get; set; } = default!;
+    public IEnumerable<ReviewImage> Feedbacks { get; set; } = default!;
 }

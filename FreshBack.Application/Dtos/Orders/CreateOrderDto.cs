@@ -7,8 +7,8 @@ public class CreateOrderDto
 {
     public int Number { get; set; }
     public OrderStatus Status { get; set; }
-    public PaymentMethod PaymentMethod { get; set; }
     public decimal Discount { get; set; }
+    public int PaymentMethodId { get; set; }
     public int MerchantId { get; set; }
     public int BranchId { get; set; }
 

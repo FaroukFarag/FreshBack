@@ -82,7 +82,8 @@ public class BranchService(
                     [
                         new IncludeChain<Branch>
                         {
-                            InitialInclude = b => b.BranchesProducts,
+                            InitialInclude = b => b.BranchesProducts
+                                .Where(bp => bp.ExpiryDate > DateTime.Now),
                             ThenIncludes =
                             [
                                 bp => (bp as BranchProduct)!.Product
@@ -192,8 +193,14 @@ public class BranchService(
             Status = b.Status,
             LeastPrice = b.BranchesProducts.Any() ? b.BranchesProducts
                 .Min(p => p.Product.Price) : 0,
+
             IsFavorite = b.CustomersBranchesFavorite
                 .Any(cbf => cbf.CustomerId == customerId),
+
+            TotalReviews = b.Reviews.Count() == 0
+                ? 0
+                : (decimal)b.Reviews.Sum(r => r.Rating) / b.Reviews.Count(),
+
             ImagePath = string.IsNullOrEmpty(b.ImagePath)
                 ? null
                 : baseUrl.TrimEnd('/') + "/" +

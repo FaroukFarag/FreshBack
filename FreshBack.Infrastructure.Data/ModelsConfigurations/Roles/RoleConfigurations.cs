@@ -8,7 +8,10 @@ public class RoleConfigurations : IEntityTypeConfiguration<Role>
 {
     public void Configure(EntityTypeBuilder<Role> builder)
     {
-
         builder.Property(r => r.Id).ValueGeneratedNever();
+
+        builder.HasMany(r => r.RoleUsers)
+              .WithOne(ur => ur.Role)
+              .HasForeignKey(ur => ur.RoleId);
     }
 }

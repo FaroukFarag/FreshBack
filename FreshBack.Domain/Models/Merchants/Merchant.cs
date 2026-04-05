@@ -6,7 +6,7 @@ using FreshBack.Domain.Models.Settings.Areas;
 
 namespace FreshBack.Domain.Models.Merchants;
 
-public class Merchant : BaseModel<int>
+public class Merchant : BaseAuditModel<int>
 {
     public string Name { get; set; } = default!;
     public string NameEn { get; set; } = default!;

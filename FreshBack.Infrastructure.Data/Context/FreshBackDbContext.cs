@@ -1,4 +1,7 @@
-﻿using FreshBack.Domain.Models.Addresses;
+﻿using FreshBack.Common.Interfaces.Merchants;
+using FreshBack.Common.Interfaces.Settings.Users;
+using FreshBack.Domain.Models.Abstraction;
+using FreshBack.Domain.Models.Addresses;
 using FreshBack.Domain.Models.Branches;
 using FreshBack.Domain.Models.BranchesFavorites;
 using FreshBack.Domain.Models.BranchesProducts;
@@ -14,6 +17,7 @@ using FreshBack.Domain.Models.ProductsOrders;
 using FreshBack.Domain.Models.Roles;
 using FreshBack.Domain.Models.Settings.Areas;
 using FreshBack.Domain.Models.Settings.Commissions;
+using FreshBack.Domain.Models.Settings.PaymentMethods;
 using FreshBack.Domain.Models.Settings.Users;
 using FreshBack.Infrastructure.Data.ModelsConfigurations.Addresses;
 using FreshBack.Infrastructure.Data.ModelsConfigurations.Branches;
@@ -31,14 +35,21 @@ using FreshBack.Infrastructure.Data.ModelsConfigurations.ProductsOrders;
 using FreshBack.Infrastructure.Data.ModelsConfigurations.Roles;
 using FreshBack.Infrastructure.Data.ModelsConfigurations.Settings.Areas;
 using FreshBack.Infrastructure.Data.ModelsConfigurations.Settings.Commissions;
+using FreshBack.Infrastructure.Data.ModelsConfigurations.Settings.PaymentMethods;
 using FreshBack.Infrastructure.Data.ModelsConfigurations.Settings.Users;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using System.Reflection;
 
 namespace FreshBack.Infrastructure.Data.Context;
 
-public class FreshBackDbContext(DbContextOptions options) : IdentityDbContext<User, Role, int>(options)
+public class FreshBackDbContext(
+    DbContextOptions options,
+    IUserContextService userContextService) : IdentityDbContext<User, Role, int>(options)
 {
+    private readonly IUserContextService _userContextService = userContextService;
+
     public DbSet<Area> Areas { get; set; }
     public DbSet<Review> Reviews { get; set; }
     public DbSet<Category> Categories { get; set; }
@@ -50,6 +61,7 @@ public class FreshBackDbContext(DbContextOptions options) : IdentityDbContext<Us
     public DbSet<CartItem> CartItems { get; set; }
     public DbSet<Order> Orders { get; set; }
     public DbSet<ProductOrder> ProductsOrders { get; set; }
+    public DbSet<ReviewImage> Feedbacks { get; set; }
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<Address> Addresses { get; set; }
     public DbSet<Customer> Customers { get; set; }
@@ -57,6 +69,7 @@ public class FreshBackDbContext(DbContextOptions options) : IdentityDbContext<Us
     public DbSet<CustomerBranchFavorite> CustomersBranchesFavorite { get; set; }
     public DbSet<Commission> Commissions { get; set; }
     public DbSet<CategoryCommission> CategoryCommissions { get; set; }
+    public DbSet<PaymentMethod> PaymentMethods { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -82,5 +95,124 @@ public class FreshBackDbContext(DbContextOptions options) : IdentityDbContext<Us
         modelBuilder.ApplyConfiguration(new CustomerBranchFavoriteConfigurations());
         modelBuilder.ApplyConfiguration(new CommissionConfigurations());
         modelBuilder.ApplyConfiguration(new CategoryCommissionConfigurations());
+        modelBuilder.ApplyConfiguration(new PaymentMethodConfigurations());
+
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            var clrType = entityType.ClrType;
+
+            if (typeof(IMerchantEntity).IsAssignableFrom(clrType))
+            {
+                var method = typeof(FreshBackDbContext)
+                    .GetMethod(nameof(SetMerchantFilter), BindingFlags.NonPublic |
+                        BindingFlags.Instance)
+                    ?.MakeGenericMethod(clrType);
+
+                method?.Invoke(this, [modelBuilder]);
+            }
+        }
+    }
+
+    public override async Task<int> SaveChangesAsync(
+        CancellationToken cancellationToken = default)
+    {
+        SetAuditFields();
+
+        return await base.SaveChangesAsync(cancellationToken);
+    }
+
+    public override int SaveChanges()
+    {
+        SetAuditFields();
+
+        return base.SaveChanges();
+    }
+
+    private void SetAuditFields()
+    {
+        var entries = ChangeTracker.Entries()
+            .Where(e => e.State == EntityState.Added || e.State ==
+                EntityState.Modified);
+
+        var userId = _userContextService.GetUserId();
+        var now = DateTime.Now;
+
+        foreach (var entry in entries)
+        {
+            if (!IsAuditableEntity(entry.Entity))
+                continue;
+
+            var primaryKeyType = GetPrimaryKeyType(entry.Entity);
+
+            if (primaryKeyType == null)
+                continue;
+
+            var convertedUserId = Convert.ChangeType(userId, primaryKeyType);
+
+            if (entry.State == EntityState.Added)
+            {
+                SetPropertyValue(entry, "CreatedBy", convertedUserId);
+                SetPropertyValue(entry, "CreatedAt", now);
+            }
+
+            SetPropertyValue(entry, "LastModifiedBy", convertedUserId);
+            SetPropertyValue(entry, "LastModifiedAt", now);
+        }
+    }
+
+    private static bool IsAuditableEntity<TEntity>(TEntity entity)
+    {
+        var baseType = entity!.GetType().BaseType;
+
+        while (baseType != null)
+        {
+            if (baseType.IsGenericType &&
+                baseType.GetGenericTypeDefinition() == typeof(BaseAuditModel<>))
+            {
+                return true;
+            }
+
+            baseType = baseType.BaseType;
+        }
+
+        return false;
+    }
+
+    private static Type? GetPrimaryKeyType<TEntity>(TEntity entity)
+    {
+        var baseType = entity!.GetType().BaseType;
+
+        while (baseType != null)
+        {
+            if (baseType.IsGenericType &&
+                baseType.GetGenericTypeDefinition() == typeof(BaseAuditModel<>))
+            {
+                return baseType.GetGenericArguments()[0];
+            }
+
+            baseType = baseType.BaseType;
+        }
+
+        return null;
+    }
+
+    private static void SetPropertyValue(EntityEntry entry, string propertyName, object? value)
+    {
+        var property = entry.Property(propertyName);
+
+        if (property != null)
+        {
+            property.CurrentValue = value;
+        }
+    }
+
+    private void SetMerchantFilter<TEntity>(ModelBuilder builder) where TEntity : class,
+        IMerchantEntity
+    {
+        builder.Entity<TEntity>().HasQueryFilter(e =>
+            _userContextService.IsAdmin() ||
+            !_userContextService.IsAuthenticated() ||
+            !_userContextService.HasMerchantId() ||
+            e.MerchantId == _userContextService.GetMerchantId());
     }
 }

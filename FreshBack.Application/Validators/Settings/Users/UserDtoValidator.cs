@@ -23,5 +23,11 @@ public class UserDtoValidator : AbstractValidator<UserDto>
 
         RuleFor(u => u.PhoneNumber)
             .MaximumLength(15);
+
+        RuleFor(u => u.Status)
+            .NotNull();
+
+        RuleFor(u => u.RoleId)
+            .NotNull();
     }
 }

@@ -3,7 +3,7 @@ using FreshBack.Domain.Models.Customers;
 
 namespace FreshBack.Domain.Models.Carts;
 
-public class Cart : BaseModel<int>
+public class Cart : BaseAuditModel<int>
 {
     public int CustomerId { get; set; }
 

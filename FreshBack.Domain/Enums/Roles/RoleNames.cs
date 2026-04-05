@@ -4,5 +4,6 @@ public enum RoleNames
 {
     Admin,
     Merchant,
+    BranchManager,
     Customer
 }

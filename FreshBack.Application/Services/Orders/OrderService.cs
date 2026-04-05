@@ -4,11 +4,11 @@ using FreshBack.Application.Dtos.Shared;
 using FreshBack.Application.Interfaces.Orders;
 using FreshBack.Application.Services.Abstraction;
 using FreshBack.Common.Extensions;
+using FreshBack.Domain.Interfaces.Repositories.BranchesProducts;
 using FreshBack.Domain.Interfaces.Repositories.Orders;
-using FreshBack.Domain.Interfaces.Repositories.Products;
 using FreshBack.Domain.Interfaces.UnitOfWork;
+using FreshBack.Domain.Models.BranchesProducts;
 using FreshBack.Domain.Models.Orders;
-using FreshBack.Domain.Models.Products;
 using FreshBack.Domain.Models.ProductsOrders;
 using FreshBack.Domain.Models.Shared;
 using FreshBack.Domain.Specifications.Absraction;
@@ -20,36 +20,48 @@ public class OrderService(
     IOrderRepository repository,
     IUnitOfWork unitOfWork,
     IMapper mapper,
-    IProductRepository productRepository) : BaseService<
-    CreateOrderDto,
-    OrderDto,
-    OrderDto,
-    OrderDto,
-    Order,
-    int>(repository, unitOfWork, mapper), IOrderService
+    IBranchProductRepository branchProductRepository)
+    : BaseService<
+        CreateOrderDto,
+        OrderDto,
+        OrderDto,
+        OrderDto,
+        Order,
+        int>(repository, unitOfWork, mapper), IOrderService
 {
     private readonly IOrderRepository _repository = repository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _mapper = mapper;
-    private readonly IProductRepository _productRepository = productRepository;
+    private readonly IBranchProductRepository _branchProductRepository = branchProductRepository;
 
     public async Task<ResultDto<CreateOrderDto>> CreateAsync(
-     CreateOrderDto createOrderDto,
-     int customerId)
+        CreateOrderDto createOrderDto,
+        int customerId)
     {
         return await ExecuteServiceCallAsync(
             operationName: "Create Order",
             action: async () =>
             {
                 var orderProducts = BuildOrderProductsDictionary(createOrderDto);
-                var products = await GetAndValidateProducts(orderProducts.Keys);
+                var branchesProducts = await GetAndValidateProducts(
+                    orderProducts.Keys, createOrderDto.BranchId);
 
-                ValidateSameMerchant(products);
-                ValidateProductAvailability(products, orderProducts, createOrderDto.BranchId);
+                ValidateSameBranch(branchesProducts);
+                ValidateProductExpiration(branchesProducts);
+                ValidateProductAvailability(branchesProducts, orderProducts);
 
                 var order = await CreateOrder(createOrderDto, customerId);
 
-                return _mapper.Map<CreateOrderDto>(createOrderDto);
+                UpdateProductQuantities(branchesProducts, orderProducts);
+
+                _branchProductRepository.UpdateRange(branchesProducts);
+
+                var orderCreated = await _unitOfWork.Complete();
+
+                if (!orderCreated)
+                    throw new Exception("Failed to create order");
+
+                return createOrderDto;
             });
     }
 
@@ -61,12 +73,18 @@ public class OrderService(
             {
                 var spec = new BaseSpecification<Order>
                 {
+                    Includes =
+                    [
+                        o => o.Branch,
+                        o => o.Merchant
+                    ],
                     IncludeChains =
                     [
                         new IncludeChain<Order>
                         {
                             InitialInclude = o => o.ProductsOrders,
-                            ThenIncludes = [
+                            ThenIncludes =
+                            [
                                 po => (po as ProductOrder)!.Product
                             ]
                         }
@@ -90,15 +108,18 @@ public class OrderService(
                 {
                     Includes =
                     [
+                        o => o.Branch,
                         o => o.Merchant
                     ]
                 };
 
                 var (orders, totalCount) = await _repository.GetAllPaginatedAsync(
-                    _mapper.Map<PaginatedModel>(paginatedModelDto), spec);
+                    _mapper.Map<PaginatedModel>(paginatedModelDto),
+                    spec);
 
                 return new PagedResult<OrderDto>(
-                    _mapper.Map<IReadOnlyList<OrderDto>>(orders), totalCount);
+                    _mapper.Map<IEnumerable<OrderDto>>(orders),
+                    totalCount);
             });
     }
 
@@ -115,16 +136,15 @@ public class OrderService(
                     getCustomerPreviousOrdersDto.Status,
                     getCustomerPreviousOrdersDto.SortBy,
                     getCustomerPreviousOrdersDto.SortDirection);
-                var paginatedModel =
-                    _mapper.Map<PaginatedModel>(getCustomerPreviousOrdersDto);
 
-                var (orders, totalCount) =
-                    await _repository.GetAllPaginatedAsync(
-                        paginatedModel,
-                        spec);
+                var paginatedModel = _mapper.Map<PaginatedModel>(getCustomerPreviousOrdersDto);
+
+                var (orders, totalCount) = await _repository.GetAllPaginatedAsync(
+                    paginatedModel,
+                    spec);
 
                 return new PagedResult<OrderDto>(
-                    _mapper.Map<IReadOnlyList<OrderDto>>(orders),
+                    _mapper.Map<IEnumerable<OrderDto>>(orders),
                     totalCount);
             });
     }
@@ -134,66 +154,94 @@ public class OrderService(
         return dto.ProductsOrders!.ToDictionary(x => x.ProductId, x => x.Quantity);
     }
 
-    private async Task<List<Product>> GetAndValidateProducts(IEnumerable<int> productIds)
+    private async Task<IEnumerable<BranchProduct>> GetAndValidateProducts(
+        IEnumerable<int> productIds, int branchId)
     {
-        var productIdList = productIds.ToList();
-        var spec = new BaseSpecification<Product>
+        var spec = new BaseSpecification<BranchProduct>
         {
-            Criteria = p => productIdList.Contains(p.Id)
+            Criteria = bp => productIds.Contains(bp.ProductId) && bp.BranchId == branchId,
+            Includes =
+            [
+                p => p.Product
+            ]
         };
 
-        var products = (await _productRepository.GetAllAsync(spec)).ToList();
+        var branchesProducts = (await _branchProductRepository.GetAllAsync(spec));
 
-        if (products.Count != productIdList.Count)
+        if (branchesProducts.Count() != productIds.Count())
             throw new Exception("One or more products do not exist.");
 
-        return products;
+        return branchesProducts;
     }
 
-    private void ValidateSameMerchant(List<Product> products)
+    private void ValidateSameBranch(IEnumerable<BranchProduct> branchesProducts)
     {
-        var merchantId = products.First().MerchantId;
-        var hasMultipleMerchants = products.Any(p => p.MerchantId != merchantId);
+        var branchId = branchesProducts.First().BranchId;
+        var hasMultipleMerchants = branchesProducts.Any(p => p.BranchId != branchId);
 
         if (hasMultipleMerchants)
-            throw new Exception("All products in an order must belong to the same merchant.");
+            throw new Exception("All products in an order must belong to the same branch.");
+    }
+
+    private void ValidateProductExpiration(IEnumerable<BranchProduct> branchesProducts)
+    {
+        var expiredProducts = branchesProducts
+            .Where(p => p.ExpiryDate < DateTime.Now);
+
+        if (expiredProducts.Any())
+        {
+            var errorMessage = BuildExpiredProductsMessage(expiredProducts);
+
+            throw new Exception(errorMessage);
+        }
     }
 
     private void ValidateProductAvailability(
-        List<Product> products,
-        Dictionary<int, int> orderProducts,
-        int branchId)
+        IEnumerable<BranchProduct> products,
+        Dictionary<int, int> orderProducts)
     {
         var insufficientProducts = products
-            .Where(p => GetBranchQuantity(p, branchId) < orderProducts[p.Id])
-            .ToList();
+            .Where(p => p.Quantity < orderProducts[p.ProductId]);
 
         if (insufficientProducts.Any())
         {
             var errorMessage = BuildInsufficientStockMessage(
                 insufficientProducts,
-                orderProducts,
-                branchId);
+                orderProducts);
+
             throw new Exception(errorMessage);
         }
     }
 
-    private int GetBranchQuantity(Product product, int branchId)
+    private void UpdateProductQuantities(
+        IEnumerable<BranchProduct> branchesProducts,
+        Dictionary<int, int> orderProducts)
     {
-        return product.ProductsBranches
-            .FirstOrDefault(bp => bp.BranchId == branchId)?.Quantity ?? 0;
+        foreach (var branchProduct in branchesProducts)
+        {
+            var orderedQuantity = orderProducts[branchProduct.ProductId];
+
+            branchProduct.Quantity -= orderedQuantity;
+        }
+    }
+
+    private string BuildExpiredProductsMessage(IEnumerable<BranchProduct> expiredProducts)
+    {
+        var messages = expiredProducts.Select(p =>
+            $"Product '{p.Product.Name}' expired on {p.ExpiryDate:yyyy-MM-dd}.");
+
+        return string.Join(" | ", messages);
     }
 
     private string BuildInsufficientStockMessage(
-        List<Product> insufficientProducts,
-        Dictionary<int, int> orderProducts,
-        int branchId)
+        IEnumerable<BranchProduct> insufficientProducts,
+        Dictionary<int, int> orderProducts)
     {
         var messages = insufficientProducts.Select(p =>
         {
-            var available = GetBranchQuantity(p, branchId);
-            var requested = orderProducts[p.Id];
-            return $"Product '{p.Name}' has {available} available, but {requested} was requested.";
+            var available = p.Quantity;
+            var requested = orderProducts[p.ProductId];
+            return $"Product '{p.Product.Name}' has {available} available, but {requested} was requested.";
         });
 
         return string.Join(" | ", messages);
@@ -202,14 +250,9 @@ public class OrderService(
     private async Task<Order> CreateOrder(CreateOrderDto dto, int customerId)
     {
         var order = _mapper.Map<Order>(dto);
+
         order.CustomerId = customerId;
 
-        await _repository.CreateAsync(order);
-
-        var orderCreated = await _unitOfWork.Complete();
-        if (!orderCreated)
-            throw new Exception("Failed to create order");
-
-        return order;
+        return await _repository.CreateAsync(order);
     }
 }

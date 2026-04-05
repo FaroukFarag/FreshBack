@@ -18,9 +18,6 @@ public class OrderConfigurations : IEntityTypeConfiguration<Order>
         builder.Property(o => o.Status)
             .IsRequired();
 
-        builder.Property(o => o.PaymentMethod)
-            .IsRequired();
-
         builder.Property(o => o.Price)
             .IsRequired()
             .HasPrecision(18, 2);
@@ -33,6 +30,9 @@ public class OrderConfigurations : IEntityTypeConfiguration<Order>
             .IsRequired()
             .HasPrecision(18, 2);
 
+        builder.Property(o => o.PaymentMethodId)
+            .IsRequired();
+
         builder.Property(o => o.MerchantId)
             .IsRequired();
 
@@ -41,6 +41,11 @@ public class OrderConfigurations : IEntityTypeConfiguration<Order>
 
         builder.Property(o => o.CustomerId)
             .IsRequired();
+
+
+        builder.HasOne(o => o.PaymentMethod)
+            .WithMany(pm => pm.Orders)
+            .HasForeignKey(o => o.PaymentMethodId);
 
         builder.HasOne(o => o.Merchant)
             .WithMany(m => m.Orders)

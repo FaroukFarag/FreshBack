@@ -8,8 +8,11 @@ public class UserConfigurations : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)
     {
+        builder.Property(u => u.Status)
+              .IsRequired();
+
         builder.HasMany(u => u.UserRoles)
-              .WithOne()
+              .WithOne(ur => ur.User)
               .HasForeignKey(ur => ur.UserId);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using FreshBack.Application.Dtos.BranchesProducts;
+using FreshBack.Application.Dtos.Shared;
 using FreshBack.Application.Interfaces.BranchesProducts;
 using FreshBack.Domain.Models.BranchesProducts;
 using FreshBack.WebApi.Controllers.Abstraction;
@@ -10,9 +11,11 @@ namespace FreshBack.WebApi.Controllers.BranchesProducts;
 [ApiController]
 public class BranchesProductsController(IBranchProductService service) :
     BaseController<IBranchProductService, CreateBranchProductDto,
-        BranchProductDto, BranchProductDto, BranchProductDto, BranchProduct,
+        BranchProductDto, BranchProductDto, CreateBranchProductDto, BranchProduct,
         (int BranchId, int ProductId)>(service)
 {
+    private readonly IBranchProductService _service = service;
+
     [HttpGet("Get")]
     public async Task<IActionResult> Get(int branchId, int productId)
     {
@@ -26,5 +29,13 @@ public class BranchesProductsController(IBranchProductService service) :
     public override async Task<IActionResult> Get((int, int) id)
     {
         return await base.Get(id);
+    }
+
+    [HttpPost("GetBranchesRemainingProductsPaginated")]
+    public async Task<IActionResult> GetBranchRemainingProductsPaginated(
+        PaginatedModelDto paginatedModelDto)
+    {
+        return Ok(await _service
+            .GetBranchesRemainingProductsPaginatedAsync(paginatedModelDto));
     }
 }

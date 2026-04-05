@@ -6,7 +6,7 @@ using FreshBack.Domain.Models.Orders;
 
 namespace FreshBack.Domain.Models.Customers;
 
-public class Customer : BaseModel<int>
+public class Customer : BaseAuditModel<int>
 {
     public string PhoneNumber { get; set; } = default!;
     public string? Name { get; set; }

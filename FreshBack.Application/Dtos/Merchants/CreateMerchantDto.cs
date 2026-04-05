@@ -10,7 +10,9 @@ public class CreateMerchantDto
     public string DescriptionEn { get; set; } = default!;
     public string Story { get; set; } = default!;
     public string StoryEn { get; set; } = default!;
+    public string Username { get; set; } = default!;
     public string PhoneNumber { get; set; } = default!;
+    public string Password { get; set; } = default!;
     public MerchantStatus Status { get; set; }
     public int AreaId { get; set; }
 }

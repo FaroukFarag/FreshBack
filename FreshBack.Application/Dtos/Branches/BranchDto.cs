@@ -1,6 +1,6 @@
 ﻿using FreshBack.Application.Dtos.Abstraction;
+using FreshBack.Application.Dtos.BranchesProducts;
 using FreshBack.Application.Dtos.Merchants;
-using FreshBack.Application.Dtos.Products;
 using FreshBack.Application.Dtos.Settings.Areas;
 using FreshBack.Domain.Enums.Branches;
 
@@ -20,11 +20,13 @@ public class BranchDto : BaseImageModelDto<int>
     public BranchStatus Status { get; set; }
     public decimal LeastPrice { get; set; }
     public bool IsFavorite { get; set; }
+    public decimal TotalReviews { get; set; }
     public int AreaId { get; set; }
     public int MerchantId { get; set; }
 
     public AreaDto Area { get; set; } = default!;
     public MerchantDto Merchant { get; set; } = default!;
-    public IEnumerable<ProductDto> Products { get; set; } = default!;
+    public IEnumerable<BranchProductDto> BranchesProducts { get; set; } = default!;
     public IEnumerable<ReviewDto> Reviews { get; set; } = default!;
+    public IEnumerable<ReviewImageDto> Feedbacks { get; set; } = default!;
 }

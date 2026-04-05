@@ -8,9 +8,6 @@ public class ReviewConfigurations : IEntityTypeConfiguration<Review>
 {
     public void Configure(EntityTypeBuilder<Review> builder)
     {
-        builder.Property(r => r.Rating)
-            .IsRequired();
-
         builder.Property(r => r.Date)
             .IsRequired();
 
@@ -21,9 +18,6 @@ public class ReviewConfigurations : IEntityTypeConfiguration<Review>
             .IsRequired();
 
         builder.Property(r => r.BranchId)
-            .IsRequired();
-
-        builder.Property(r => r.OrderId)
             .IsRequired();
 
         builder.ToTable(t =>
@@ -38,10 +32,6 @@ public class ReviewConfigurations : IEntityTypeConfiguration<Review>
         builder.HasOne(r => r.Merchant)
             .WithMany(m => m.Reviews)
             .HasForeignKey(r => r.MerchantId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasOne(r => r.Order)
-            .WithOne(m => m.Review)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

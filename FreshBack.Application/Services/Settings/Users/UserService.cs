@@ -212,7 +212,10 @@ public class UserService(
         {
             new("userId", user.Id.ToString()),
             new("userName", user.UserName ?? string.Empty),
-            new("email", user.Email ?? string.Empty)
+            new("email", user.Email ?? string.Empty),
+            new("merchantId", user.MerchantId.HasValue ?
+                user.MerchantId.Value.ToString() :
+                string.Empty)
         };
 
         var userRoles = await _userManager.GetRolesAsync(user);

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace FreshBack.Application.Common.Utilities;
+namespace FreshBack.Application.Helpers;
 
 public static class EnumHelper
 {

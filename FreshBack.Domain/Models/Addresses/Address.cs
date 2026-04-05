@@ -3,7 +3,7 @@ using FreshBack.Domain.Models.Customers;
 
 namespace FreshBack.Domain.Models.Addresses;
 
-public class Address : BaseModel<int>
+public class Address : BaseAuditModel<int>
 {
     public string Country { get; set; } = default!;
     public string City { get; set; } = default!;

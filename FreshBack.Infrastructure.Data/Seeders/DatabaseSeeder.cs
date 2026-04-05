@@ -1,6 +1,7 @@
 ﻿using FreshBack.Domain.Enums.Roles;
 using FreshBack.Domain.Interfaces.Seeders;
 using FreshBack.Domain.Models.Roles;
+using FreshBack.Domain.Models.Settings.PaymentMethods;
 using FreshBack.Domain.Models.Settings.Users;
 using FreshBack.Infrastructure.Data.Context;
 using Microsoft.AspNetCore.Identity;
@@ -13,14 +14,12 @@ public class DatabaseSeeder(
     FreshBackDbContext context,
     UserManager<User> userManager,
     RoleManager<Role> roleManager,
-    ILogger<DatabaseSeeder> logger,
-    IServiceProvider serviceProvider) : IDatabaseSeeder
+    ILogger<DatabaseSeeder> logger) : IDatabaseSeeder
 {
     private readonly FreshBackDbContext _context = context;
     private readonly UserManager<User> _userManager = userManager;
     private readonly RoleManager<Role> _roleManager = roleManager;
     private readonly ILogger<DatabaseSeeder> _logger = logger;
-    private readonly IServiceProvider _serviceProvider = serviceProvider;
 
     public async Task SeedAsync()
     {
@@ -38,6 +37,13 @@ public class DatabaseSeeder(
                 _logger.LogInformation("Seeding default users...");
 
                 await SeedUsersAsync();
+            }
+
+            if (!await _context.PaymentMethods.AnyAsync())
+            {
+                _logger.LogInformation("Seeding default payment methods...");
+
+                await SeedPaymentMethodsAsync();
             }
 
             _logger.LogInformation("Database seeding completed successfully.");
@@ -97,6 +103,49 @@ public class DatabaseSeeder(
                 _logger.LogError("User creation error: {Error}", error.Description);
             }
         }
+    }
+
+    private async Task SeedPaymentMethodsAsync()
+    {
+        List<PaymentMethod> paymentMethods =
+        [
+            new() {
+                NameAr = "بطاقات الإئتمان",
+                NameEn = "Vis / Master Card",
+                IsActive = false
+            },
+            new() {
+                NameAr = "أبل باى",
+                NameEn = "Apple Pay",
+                IsActive = false
+            },
+            new() {
+                NameAr = "أس تى سى باى",
+                NameEn = "STC Pay",
+                IsActive = false
+            },
+            new() {
+                NameAr = "مدى",
+                NameEn = "Saudi Payment",
+                IsActive = false
+            },
+            new() {
+                NameAr = "الدفع عند الإستلام",
+                NameEn = "Cash",
+                IsActive = true
+            }
+        ];
+
+        await _context.AddRangeAsync(paymentMethods);
+
+        var paymentMethodsCreated = await _context.SaveChangesAsync() > 0;
+
+        if (!paymentMethodsCreated)
+        {
+            _logger.LogError("Payment methods creation error");
+        }
+
+        _logger.LogInformation("Admin user created successfully.");
     }
 }
 
