@@ -13,6 +13,9 @@ public class ProductOrderConfigurations : IEntityTypeConfiguration<ProductOrder>
         builder.Property(po => po.Quantity)
             .IsRequired();
 
+        builder.Property(po => po.Price)
+            .IsRequired();
+
         builder.HasOne(po => po.Product)
             .WithMany(p => p.ProductsOrders)
             .HasForeignKey(po => po.ProductId);

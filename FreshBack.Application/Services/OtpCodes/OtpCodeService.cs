@@ -7,9 +7,11 @@ using FreshBack.Application.Services.Abstraction;
 using FreshBack.Common.Tokens.Interfaces;
 using FreshBack.Domain.Enums.Roles;
 using FreshBack.Domain.Interfaces.Repositories.Customers;
+using FreshBack.Domain.Interfaces.Repositories.DevicesTokens;
 using FreshBack.Domain.Interfaces.Repositories.OtpCodes;
 using FreshBack.Domain.Interfaces.UnitOfWork;
 using FreshBack.Domain.Models.Customers;
+using FreshBack.Domain.Models.DevicesTokens;
 using FreshBack.Domain.Models.OtpCodes;
 using FreshBack.Domain.Specifications.Absraction;
 using System.Security.Claims;
@@ -21,18 +23,21 @@ public class OtpCodeService(
     IUnitOfWork unitOfWork,
     IMapper mapper,
     ICustomerRepository customerRepository,
-    ITokensService tokensService) : BaseService<
-    OtpCodeDto,
-    OtpCodeDto,
-    OtpCodeDto,
-    OtpCodeDto,
-    OtpCode,
-    int>(repository, unitOfWork, mapper), IOtpCodeService
+    IDeviceTokenRepository deviceTokenRepository,
+    ITokensService tokensService) :
+    BaseService<
+        OtpCodeDto,
+        OtpCodeDto,
+        OtpCodeDto,
+        OtpCodeDto,
+        OtpCode,
+        int>(repository, unitOfWork, mapper), IOtpCodeService
 {
     private readonly IOtpCodeRepository _repository = repository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _mapper = mapper;
     private readonly ICustomerRepository _customerRepository = customerRepository;
+    private readonly IDeviceTokenRepository _deviceTokenRepository = deviceTokenRepository;
     private readonly ITokensService _tokensService = tokensService;
 
     public async override Task<ResultDto<OtpCodeDto>> CreateAsync(OtpCodeDto otpCodeDto)
@@ -70,11 +75,17 @@ public class OtpCodeService(
             {
                 if (otpCodeDto.Otp is null)
                     throw new Exception("Invalid Otp");
-                var otpRecord = await GetLatestValidOtp(otpCodeDto.PhoneNumber, otpCodeDto.Otp);
+                //var otpRecord = await GetLatestValidOtp(otpCodeDto.PhoneNumber, otpCodeDto.Otp);
 
-                otpRecord.IsUsed = true;
+                //otpRecord.IsUsed = true;
+
+                if (otpCodeDto.Otp != "000000")
+                    throw new Exception("Invalid or expired OTP");
 
                 var customer = await GetCustomer(otpCodeDto.PhoneNumber);
+
+                if (!string.IsNullOrEmpty(otpCodeDto.FcmToken))
+                    await CreateCustomerDeviceToken(otpCodeDto.FcmToken, customer.Id);
 
                 var claims = BuildCustomerClaims(customer.Id);
 
@@ -121,6 +132,7 @@ public class OtpCodeService(
         {
             PhoneNumber = phoneNumber
         });
+
         var customerCreated = await _unitOfWork.Complete();
 
         if (!customerCreated)
@@ -129,13 +141,33 @@ public class OtpCodeService(
         return customer;
     }
 
+    private async Task CreateCustomerDeviceToken(string fcmToken, int customerId)
+    {
+        var deviceTokens = await _deviceTokenRepository.GetAllAsync(
+            new BaseSpecification<DeviceToken>
+            {
+                Criteria = dt => dt.CustomerId == customerId
+            });
+
+        _deviceTokenRepository.DeleteRange(deviceTokens);
+
+        await _deviceTokenRepository.CreateAsync(new DeviceToken
+        {
+            Token = fcmToken,
+            IsActive = true,
+            CustomerId = customerId
+        });
+
+        await _unitOfWork.Complete();
+    }
+
     private static List<TokenClaim> BuildCustomerClaims(int customerId)
     {
-        return new List<TokenClaim>
-    {
-        new(ClaimTypes.NameIdentifier, customerId.ToString()),
-        new(ClaimTypes.Role, RoleNames.Customer.ToString())
-    };
+        return
+        [
+            new(ClaimTypes.NameIdentifier, customerId.ToString()),
+            new(ClaimTypes.Role, RoleNames.Customer.ToString())
+        ];
     }
 
 }

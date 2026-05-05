@@ -21,7 +21,7 @@ public class BranchProfile : Profile
             .ForMember(d => d.TotalReviews,
                 opt => opt.MapFrom(src =>
                     src.Reviews != null && src.Reviews.Any()
-                        ? src.Reviews.Average(r => (decimal)r.Rating)
+                        ? src.Reviews.Average(r => r.Rating)
                         : 0));
 
 

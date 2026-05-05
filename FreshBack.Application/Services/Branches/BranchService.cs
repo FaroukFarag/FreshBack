@@ -31,7 +31,7 @@ public class BranchService(
         CreateBranchDto,
         BranchDto,
         BranchDto,
-        BranchDto,
+        CreateBranchDto,
         Branch,
         int>(repository, unitOfWork, mapper),
       IBranchService
@@ -172,6 +172,33 @@ public class BranchService(
             });
     }
 
+    public override async Task<ResultDto<CreateBranchDto>> UpdateAsync(
+        CreateBranchDto createBranchDto)
+    {
+        return await ExecuteServiceCallAsync(
+            "Update Branch",
+            async () =>
+            {
+                var branch = await _repository.GetAsync(createBranchDto.Id) ??
+                    throw new Exception("Branch not found");
+
+                createBranchDto.ImagePath =
+                    await _imageService.SaveImageAsync(
+                        createBranchDto.ImageFile,
+                        BranchConstants.SubFolder);
+
+                _imageService.DeleteImage(branch.ImagePath);
+
+                _mapper.Map(createBranchDto, branch);
+                _repository.Update(branch);
+
+                if (!await _unitOfWork.Complete())
+                    throw new Exception("Failed to update branch");
+
+                return _mapper.Map<CreateBranchDto>(branch);
+            });
+    }
+
     private static Point CreateUserLocation(BranchPaginatedModelDto dto)
         => new(dto.Longitude, dto.Latitude) { SRID = 4326 };
 
@@ -199,7 +226,7 @@ public class BranchService(
 
             TotalReviews = b.Reviews.Count() == 0
                 ? 0
-                : (decimal)b.Reviews.Sum(r => r.Rating) / b.Reviews.Count(),
+                : (decimal)b.Reviews.Sum(r => r.Rating)! / b.Reviews.Count(),
 
             ImagePath = string.IsNullOrEmpty(b.ImagePath)
                 ? null

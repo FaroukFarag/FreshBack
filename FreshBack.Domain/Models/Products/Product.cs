@@ -1,4 +1,5 @@
-﻿using FreshBack.Domain.Models.Abstraction;
+﻿using FreshBack.Common.Interfaces.Merchants;
+using FreshBack.Domain.Models.Abstraction;
 using FreshBack.Domain.Models.BranchesProducts;
 using FreshBack.Domain.Models.Carts;
 using FreshBack.Domain.Models.Merchants;
@@ -6,7 +7,7 @@ using FreshBack.Domain.Models.ProductsOrders;
 
 namespace FreshBack.Domain.Models.Products;
 
-public class Product : BaseAuditModel<int>
+public class Product : BaseAuditModel<int>, IMerchantEntity
 {
     public string Code { get; set; } = default!;
     public string Name { get; set; } = default!;
@@ -15,8 +16,6 @@ public class Product : BaseAuditModel<int>
     public string DescriptionEn { get; set; } = default!;
     public string Allergens { get; set; } = default!;
     public string AllergensEn { get; set; } = default!;
-    public string Warnings { get; set; } = default!;
-    public string WarningsEn { get; set; } = default!;
     public decimal Price { get; set; }
     public decimal WeightInKg { get; set; }
     public int MerchantId { get; set; }

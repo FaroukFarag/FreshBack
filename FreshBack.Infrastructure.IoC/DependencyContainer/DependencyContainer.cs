@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using FreshBack.Application.AutoMapper.Abstraction;
 using FreshBack.Application.Configurations;
+using FreshBack.Application.Firebase.Notifications;
 using FreshBack.Application.Interfaces.Abstraction;
 using FreshBack.Application.Interfaces.Addresses;
 using FreshBack.Application.Interfaces.Branches;
@@ -10,6 +11,7 @@ using FreshBack.Application.Interfaces.Categories;
 using FreshBack.Application.Interfaces.Customers;
 using FreshBack.Application.Interfaces.CustomersBranchesFavorite;
 using FreshBack.Application.Interfaces.Dashboard;
+using FreshBack.Application.Interfaces.DevicesTokens;
 using FreshBack.Application.Interfaces.FinanceManagement;
 using FreshBack.Application.Interfaces.Merchants;
 using FreshBack.Application.Interfaces.Notifications;
@@ -33,6 +35,7 @@ using FreshBack.Application.Services.Categories;
 using FreshBack.Application.Services.Customers;
 using FreshBack.Application.Services.CustomersBranchesFavorite;
 using FreshBack.Application.Services.Dashboard;
+using FreshBack.Application.Services.DevicesTokens;
 using FreshBack.Application.Services.FinanceManagement;
 using FreshBack.Application.Services.Merchants;
 using FreshBack.Application.Services.Notifications;
@@ -62,6 +65,7 @@ using FreshBack.Domain.Interfaces.Repositories.Carts;
 using FreshBack.Domain.Interfaces.Repositories.Categories;
 using FreshBack.Domain.Interfaces.Repositories.Customers;
 using FreshBack.Domain.Interfaces.Repositories.CustomersBranchesFavorite;
+using FreshBack.Domain.Interfaces.Repositories.DevicesTokens;
 using FreshBack.Domain.Interfaces.Repositories.Merchants;
 using FreshBack.Domain.Interfaces.Repositories.Notifications;
 using FreshBack.Domain.Interfaces.Repositories.Orders;
@@ -88,6 +92,7 @@ using FreshBack.Infrastructure.Data.Repositories.Carts;
 using FreshBack.Infrastructure.Data.Repositories.Categories;
 using FreshBack.Infrastructure.Data.Repositories.Customers;
 using FreshBack.Infrastructure.Data.Repositories.CustomersBranchesFavorite;
+using FreshBack.Infrastructure.Data.Repositories.DevicesTokens;
 using FreshBack.Infrastructure.Data.Repositories.Merchants;
 using FreshBack.Infrastructure.Data.Repositories.Notifications;
 using FreshBack.Infrastructure.Data.Repositories.Orders;
@@ -119,6 +124,8 @@ public static class DependencyContainer
         services.Configure<JwtTokenSettings>(configuration.GetSection(JwtTokenSettings.SectionName));
 
         services.Configure<ImageSettings>(configuration.GetSection(ImageSettings.SectionName));
+
+        services.Configure<FirebaseSettings>(configuration.GetSection(FirebaseSettings.SectionName));
     }
 
     public static void RegisterServices(this IServiceCollection services)
@@ -141,6 +148,7 @@ public static class DependencyContainer
             .AddScoped<INotificationService, NotificationService>()
             .AddScoped<IAddressService, AddressService>()
             .AddScoped<ICustomerService, CustomerService>()
+            .AddScoped<IDeviceTokenService, DeviceTokenService>()
             .AddScoped<IOtpCodeService, OtpCodeService>()
             .AddScoped<ICategoryService, CategoryService>()
             .AddScoped<ICustomerBranchFavoriteService, CustomerBranchFavoriteService>()
@@ -174,6 +182,7 @@ public static class DependencyContainer
             .AddScoped<IMerchantRepository, MerchantRepository>()
             .AddScoped<IBranchRepository, BranchRepository>()
             .AddScoped<IProductRepository, ProductRepository>()
+            .AddScoped<IProductImageRepository, ProductImageRepository>()
             .AddScoped<IBranchProductRepository, BranchProductRepository>()
             .AddScoped<ICartItemRepository, CartItemRepository>()
             .AddScoped<ICartRepository, CartRepository>()
@@ -184,6 +193,7 @@ public static class DependencyContainer
             .AddScoped<IOtpCodeRepository, OtpCodeRepository>()
             .AddScoped<IAddressRepository, AddressRepository>()
             .AddScoped<ICustomerRepository, CustomerRepository>()
+            .AddScoped<IDeviceTokenRepository, DeviceTokenRepository>()
             .AddScoped<ICustomerBranchFavoriteRepository,
                 CustomerBranchFavoriteRepository>()
             .AddScoped<ICommissionRepository, CommissionRepository>()
@@ -282,7 +292,12 @@ public static class DependencyContainer
     {
         services.AddSignalR();
 
-        services.AddScoped<INotificationSender, SignalRNotificationSender>();
+        services.AddScoped<SignalRNotificationSender>();
+    }
+
+    public static void RegisterFirebase(this IServiceCollection services)
+    {
+        services.AddScoped<FirebaseNotificationSender>();
     }
 
     public static async Task SeedDatabaseAsync(this IServiceProvider serviceProvider)

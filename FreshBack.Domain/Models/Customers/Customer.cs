@@ -2,6 +2,7 @@
 using FreshBack.Domain.Models.Addresses;
 using FreshBack.Domain.Models.BranchesFavorites;
 using FreshBack.Domain.Models.Carts;
+using FreshBack.Domain.Models.DevicesTokens;
 using FreshBack.Domain.Models.Orders;
 
 namespace FreshBack.Domain.Models.Customers;
@@ -15,6 +16,7 @@ public class Customer : BaseAuditModel<int>
 
     public IEnumerable<Address> Addresses { get; set; } = default!;
     public IEnumerable<Cart> Carts { get; set; } = default!;
+    public IEnumerable<DeviceToken> DevicesTokens { get; set; } = default!;
     public IEnumerable<Order> Orders { get; set; } = default!;
     public IEnumerable<CustomerBranchFavorite> CustomersBranchesFavorite { get; set; } = default!;
 }

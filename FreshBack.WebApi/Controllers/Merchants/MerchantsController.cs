@@ -12,4 +12,16 @@ public class MerchantsController(IMerchantService service) :
     BaseController<IMerchantService, CreateMerchantDto, MerchantDto, MerchantDto,
         MerchantDto, Merchant, int>(service)
 {
+    private readonly IMerchantService _service = service;
+
+    public override Task<IActionResult> Create([FromForm] CreateMerchantDto createEntityDto)
+    {
+        return base.Create(createEntityDto);
+    }
+
+    [HttpPatch("UpdateStatus")]
+    public async Task<IActionResult> UpdateStatus([FromBody] UpdateStatusDto updateStatusDto)
+    {
+        return Ok(await _service.UpdateStatus(updateStatusDto));
+    }
 }

@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
 using FreshBack.Application.Dtos.Notifications;
 using FreshBack.Application.Dtos.Shared;
+using FreshBack.Application.Firebase.Notifications;
 using FreshBack.Application.Interfaces.Notifications;
 using FreshBack.Application.Services.Abstraction;
+using FreshBack.Application.SignalR.Notifications;
+using FreshBack.Domain.Enums.Notifications;
 using FreshBack.Domain.Interfaces.Repositories.Notifications;
 using FreshBack.Domain.Interfaces.UnitOfWork;
 using FreshBack.Domain.Models.Notifications;
@@ -13,7 +16,8 @@ public class NotificationService(
     INotificationRepository repository,
     IUnitOfWork unitOfWork,
     IMapper mapper,
-    INotificationSender sender) : BaseService<
+    SignalRNotificationSender signalRNotificationSender,
+    FirebaseNotificationSender firebaseNotificationSender) : BaseService<
     NotificationDto,
     NotificationDto,
     NotificationDto,
@@ -24,7 +28,8 @@ public class NotificationService(
     private readonly INotificationRepository _repository = repository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _mapper = mapper;
-    private readonly INotificationSender _sender = sender;
+    private readonly SignalRNotificationSender _signalRNotificationSender = signalRNotificationSender;
+    private readonly FirebaseNotificationSender _firebaseNotificationSender = firebaseNotificationSender;
 
     public async override Task<ResultDto<NotificationDto>> CreateAsync(NotificationDto notificationDto)
     {
@@ -39,7 +44,11 @@ public class NotificationService(
                 if (!savedSuccessfully)
                     throw new Exception($"Failed to create notification");
 
-                await _sender.SendAsync(notificationDto);
+                if (notification.Receiver.HasFlag(NotificationReceiver.Merchant))
+                    await _signalRNotificationSender.SendAsync(notificationDto);
+
+                if (notification.Receiver.HasFlag(NotificationReceiver.Customer))
+                    await _firebaseNotificationSender.SendAsync(notificationDto);
 
                 return _mapper.Map<NotificationDto>(notification);
             });

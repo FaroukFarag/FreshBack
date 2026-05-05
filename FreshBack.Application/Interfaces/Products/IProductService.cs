@@ -8,7 +8,7 @@ public interface IProductService : IBaseService<
     CreateProductDto,
     ProductDto,
     ProductDto,
-    ProductDto,
+    CreateProductDto,
     Product,
     int>
 {

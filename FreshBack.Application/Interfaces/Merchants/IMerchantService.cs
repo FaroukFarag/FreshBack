@@ -1,4 +1,5 @@
 ﻿using FreshBack.Application.Dtos.Merchants;
+using FreshBack.Application.Dtos.Shared;
 using FreshBack.Application.Interfaces.Abstraction;
 using FreshBack.Domain.Models.Merchants;
 
@@ -12,4 +13,5 @@ public interface IMerchantService : IBaseService<
     Merchant,
     int>
 {
+    Task<ResultDto<MerchantDto>> UpdateStatus(UpdateStatusDto updateStatusDto);
 }

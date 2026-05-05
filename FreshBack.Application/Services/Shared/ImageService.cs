@@ -41,7 +41,7 @@ public class ImageService(ILogger<ImageService> logger) : IImageService
         }
     }
 
-    public void DeleteImageAsync(string imagePath)
+    public void DeleteImage(string imagePath)
     {
         if (string.IsNullOrEmpty(imagePath))
         {

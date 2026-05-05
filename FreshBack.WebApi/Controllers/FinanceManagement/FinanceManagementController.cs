@@ -22,12 +22,6 @@ public class FinanceManagementController(
         return Ok(await _service.GetOrderAverageValue());
     }
 
-    [HttpGet("GetTotalRevenuesByArea")]
-    public async Task<IActionResult> GetTotalRevenuesByArea(int? month = null)
-    {
-        return Ok(await _service.GetTotalRevenuesByArea(month));
-    }
-
     [HttpGet("GetTotalRevenuesByMerchant")]
     public async Task<IActionResult> GetTotalRevenuesByMerchant()
     {

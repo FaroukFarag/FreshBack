@@ -30,4 +30,10 @@ public class OrdersController(IOrderService service) :
             getCustomerPreviousOrdersDto,
             User.GetUserId()));
     }
+
+    [HttpPatch("UpdateOrderStatus")]
+    public async Task<IActionResult> UpdateOrderStatus(UpdateOrderStatusDto updateOrderStatusDto)
+    {
+        return Ok(await _service.UpdateOrderStatus(updateOrderStatusDto));
+    }
 }

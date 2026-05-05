@@ -1,16 +1,15 @@
-﻿using FreshBack.Domain.Enums.Branches;
+﻿using FreshBack.Common.Interfaces.Merchants;
+using FreshBack.Domain.Enums.Branches;
 using FreshBack.Domain.Models.Abstraction;
 using FreshBack.Domain.Models.BranchesFavorites;
 using FreshBack.Domain.Models.BranchesProducts;
-using FreshBack.Domain.Models.Categories;
 using FreshBack.Domain.Models.Merchants;
 using FreshBack.Domain.Models.Orders;
-using FreshBack.Domain.Models.Settings.Areas;
 using NetTopologySuite.Geometries;
 
 namespace FreshBack.Domain.Models.Branches;
 
-public class Branch : BaseImageAuditModel<int>
+public class Branch : BaseImageAuditModel<int>, IMerchantEntity
 {
     public string Name { get; set; } = default!;
     public string NameEn { get; set; } = default!;
@@ -20,13 +19,9 @@ public class Branch : BaseImageAuditModel<int>
     public TimeOnly OpeningTime { get; set; }
     public TimeOnly ClosingTime { get; set; }
     public BranchStatus Status { get; set; }
-    public int AreaId { get; set; }
     public int MerchantId { get; set; }
-    public int CategoryId { get; set; }
 
-    public Area Area { get; set; } = default!;
     public Merchant Merchant { get; set; } = default!;
-    public Category Category { get; set; } = default!;
     public IEnumerable<Order> Orders { get; set; } = default!;
     public IEnumerable<BranchProduct> BranchesProducts { get; set; } = default!;
     public IEnumerable<CustomerBranchFavorite> CustomersBranchesFavorite { get; set; } = default!;

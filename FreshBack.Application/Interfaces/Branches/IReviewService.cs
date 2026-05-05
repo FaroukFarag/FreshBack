@@ -21,4 +21,7 @@ public interface IReviewService : IBaseService<
 
     Task<ResultDto<PagedResult<ReviewDto>>> GetReviewsForMerchantPaginatedAsync(
         ReviewsForMerchantPaginatedDto reviewsForMerchantPaginated);
+
+    Task<ResultDto<PagedResult<MerchantReviewDto>>> GetAllMerchantsReviewsPaginatedAsync(
+        PaginatedModelDto paginatedModelDto);
 }

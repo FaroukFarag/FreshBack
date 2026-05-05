@@ -2,6 +2,7 @@ using FluentValidation.AspNetCore;
 using FreshBack.Application.SignalR.Notifications;
 using FreshBack.Domain.Constants;
 using FreshBack.Infrastructure.IoC.DependencyContainer;
+using FreshBack.WebApi.Firebase;
 using FreshBack.WebApi.Middlewares.Exceptions;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.FileProviders;
@@ -89,6 +90,7 @@ builder.Services.RegisterCORS(builder.Configuration);
 builder.Services.RegisterMiddlewares();
 builder.Services.RegisterDatabaseSeeder();
 builder.Services.RegisterSignalR();
+builder.Services.RegisterFirebase();
 
 var app = builder.Build();
 
@@ -111,6 +113,8 @@ app.UseSwaggerUI();
 app.Services.ApplyMigrations();
 
 await app.Services.SeedDatabaseAsync();
+
+FirebaseInitializer.Initialize(app.Services);
 
 app.UseCors(AppSettings.AllowedOrigins);
 

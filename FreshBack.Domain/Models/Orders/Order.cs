@@ -1,4 +1,5 @@
-﻿using FreshBack.Domain.Enums.Orders;
+﻿using FreshBack.Common.Interfaces.Merchants;
+using FreshBack.Domain.Enums.Orders;
 using FreshBack.Domain.Models.Abstraction;
 using FreshBack.Domain.Models.Branches;
 using FreshBack.Domain.Models.Customers;
@@ -8,7 +9,7 @@ using FreshBack.Domain.Models.Settings.PaymentMethods;
 
 namespace FreshBack.Domain.Models.Orders;
 
-public class Order : BaseAuditModel<int>
+public class Order : BaseAuditModel<int>, IMerchantEntity
 {
     public int Number { get; set; }
     public DateTime CreationDate { get; set; } = DateTime.Now;

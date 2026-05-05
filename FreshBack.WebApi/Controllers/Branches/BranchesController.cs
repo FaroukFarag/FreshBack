@@ -11,7 +11,7 @@ namespace FreshBack.WebApi.Controllers.Branches;
 [Route("api/[controller]")]
 [ApiController]
 public class BranchesController(IBranchService service) :
-    BaseController<IBranchService, CreateBranchDto, BranchDto, BranchDto, BranchDto, Branch,
+    BaseController<IBranchService, CreateBranchDto, BranchDto, BranchDto, CreateBranchDto, Branch,
         int>(service)
 {
     private readonly IBranchService _service = service;
@@ -43,5 +43,12 @@ public class BranchesController(IBranchService service) :
         OtherBranchesPaginatedModelDto paginatedModelDto)
     {
         return Ok(await _service.GetOtherBranchesPaginatedAsync(paginatedModelDto));
+    }
+
+    [HttpPut("Update")]
+    public override Task<IActionResult> Update(
+        [FromForm] CreateBranchDto createBranchDto)
+    {
+        return base.Update(createBranchDto);
     }
 }

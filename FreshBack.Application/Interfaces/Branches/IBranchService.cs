@@ -9,7 +9,7 @@ public interface IBranchService : IBaseService<
     CreateBranchDto,
     BranchDto,
     BranchDto,
-    BranchDto,
+    CreateBranchDto,
     Branch,
     int>
 {

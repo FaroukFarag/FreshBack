@@ -16,7 +16,7 @@ public class CategoryConfigurations : IEntityTypeConfiguration<Category>
             .IsRequired()
             .HasMaxLength(250);
 
-        builder.HasMany(c => c.Branches)
+        builder.HasMany(c => c.Merchants)
             .WithOne(m => m.Category)
             .HasForeignKey(m => m.CategoryId);
     }

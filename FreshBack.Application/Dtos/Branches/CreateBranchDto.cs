@@ -14,7 +14,5 @@ public class CreateBranchDto : BaseImageModelDto<int>
     public TimeOnly OpeningTime { get; set; }
     public TimeOnly ClosingTime { get; set; }
     public BranchStatus Status { get; set; }
-    public int AreaId { get; set; }
     public int MerchantId { get; set; }
-    public int CategoryId { get; set; }
 }

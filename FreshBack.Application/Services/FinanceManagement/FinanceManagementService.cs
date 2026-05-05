@@ -98,44 +98,6 @@ public class FinanceManagementService(
         }
     }
 
-    public async Task<ResultDto<IEnumerable<TotalAreaRevenuesDto>>>
-        GetTotalRevenuesByArea(int? month)
-    {
-        try
-        {
-            var areaRevenues = await _areaRepository.GetAllAsync(a =>
-                new TotalAreaRevenuesDto
-                {
-                    AreaName = a.Name,
-                    Amount =
-                        a.Branches
-                         .SelectMany(b => b.Orders)
-                         .Where(o => !month.HasValue || o.CreationDate.Month == month.Value)
-                         .SelectMany(o => o.ProductsOrders,
-                             (o, po) => new
-                             {
-                                 Revenue =
-                                     po.Quantity * po.Product.Price
-                             })
-                         .Sum(ar => ar.Revenue)
-                        -
-                        a.Branches
-                         .SelectMany(b => b.Orders)
-                         .Where(o => !month.HasValue || o.CreationDate.Month == month.Value)
-                         .Sum(o => o.Discount)
-                });
-
-            return ResultDto<IEnumerable<TotalAreaRevenuesDto>>
-                .CreateSuccessResult(areaRevenues);
-        }
-        catch (Exception ex)
-        {
-            return ResultDto<IEnumerable<TotalAreaRevenuesDto>>
-                .CreateFailResult(ex.Message);
-        }
-    }
-
-
     public async Task<ResultDto<IEnumerable<TotalMerchantRevenuesDto>>>
         GetTotalRevenuesByMerchant()
     {

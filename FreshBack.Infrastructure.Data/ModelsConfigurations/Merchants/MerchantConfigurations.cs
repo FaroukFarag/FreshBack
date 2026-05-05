@@ -28,12 +28,16 @@ public class MerchantConfigurations : IEntityTypeConfiguration<Merchant>
         builder.Property(m => m.StoryEn)
             .IsRequired();
 
+        builder.Property(m => m.CategoryId)
+            .IsRequired();
+
         builder.Property(m => m.PhoneNumber)
             .IsRequired()
             .HasMaxLength(25);
 
-        builder.Property(m => m.AreaId)
-            .IsRequired();
+        builder.HasOne(m => m.Category)
+            .WithMany(c => c.Merchants)
+            .HasForeignKey(m => m.CategoryId);
 
         builder.HasMany(m => m.Branches)
             .WithOne(b => b.Merchant)

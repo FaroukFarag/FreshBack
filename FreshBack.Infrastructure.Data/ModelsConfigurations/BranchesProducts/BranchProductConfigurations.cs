@@ -37,10 +37,12 @@ public class BranchProductConfigurations : IEntityTypeConfiguration<BranchProduc
 
         builder.HasOne(bp => bp.Branch)
             .WithMany(b => b.BranchesProducts)
-            .HasForeignKey(bp => bp.BranchId);
+            .HasForeignKey(bp => bp.BranchId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(bp => bp.Product)
             .WithMany(p => p.ProductsBranches)
-            .HasForeignKey(bp => bp.ProductId);
+            .HasForeignKey(bp => bp.ProductId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -40,8 +40,5 @@ public class CreateMerchantDtoValidator : AbstractValidator<CreateMerchantDto>
 
         RuleFor(m => m.Status)
             .NotNull();
-
-        RuleFor(m => m.AreaId)
-            .NotNull();
     }
 }

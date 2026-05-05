@@ -19,4 +19,6 @@ public interface IOrderService : IBaseService<
 
     Task<ResultDto<PagedResult<OrderDto>>> GetCustomerOrders(
         GetCustomerPreviousOrdersDto getCustomerPreviousOrdersDto, int customerId);
+
+    Task<ResultDto<OrderDto>> UpdateOrderStatus(UpdateOrderStatusDto updateOrderStatusDto);
 }

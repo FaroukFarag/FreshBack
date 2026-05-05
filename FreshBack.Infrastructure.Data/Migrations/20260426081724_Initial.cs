@@ -158,37 +158,6 @@ namespace FreshBack.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Merchants",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
-                    NameEn = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DescriptionEn = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Story = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    StoryEn = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    AreaId = table.Column<int>(type: "int", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<int>(type: "int", nullable: false),
-                    LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastModifiedBy = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Merchants", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Merchants_Areas_AreaId",
-                        column: x => x.AreaId,
-                        principalTable: "Areas",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -205,6 +174,38 @@ namespace FreshBack.Infrastructure.Data.Migrations
                         name: "FK_AspNetRoleClaims_AspNetRoles_RoleId",
                         column: x => x.RoleId,
                         principalTable: "AspNetRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Merchants",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
+                    NameEn = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DescriptionEn = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Story = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    StoryEn = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CategoryId = table.Column<int>(type: "int", nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<int>(type: "int", nullable: false),
+                    LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModifiedBy = table.Column<int>(type: "int", nullable: false),
+                    ImagePath = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Merchants", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Merchants_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -297,6 +298,31 @@ namespace FreshBack.Infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "DevicesTokens",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Token = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    CustomerId = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<int>(type: "int", nullable: false),
+                    LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastModifiedBy = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DevicesTokens", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DevicesTokens_Customers_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "Customers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetUsers",
                 columns: table => new
                 {
@@ -343,9 +369,7 @@ namespace FreshBack.Infrastructure.Data.Migrations
                     OpeningTime = table.Column<TimeOnly>(type: "time", nullable: false),
                     ClosingTime = table.Column<TimeOnly>(type: "time", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    AreaId = table.Column<int>(type: "int", nullable: false),
                     MerchantId = table.Column<int>(type: "int", nullable: false),
-                    CategoryId = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<int>(type: "int", nullable: false),
                     LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -356,18 +380,6 @@ namespace FreshBack.Infrastructure.Data.Migrations
                 {
                     table.PrimaryKey("PK_Branches", x => x.Id);
                     table.CheckConstraint("CK_Branches_ClosingTime_After_OpeningTime", "[ClosingTime] > [OpeningTime]");
-                    table.ForeignKey(
-                        name: "FK_Branches_Areas_AreaId",
-                        column: x => x.AreaId,
-                        principalTable: "Areas",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Branches_Categories_CategoryId",
-                        column: x => x.CategoryId,
-                        principalTable: "Categories",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Branches_Merchants_MerchantId",
                         column: x => x.MerchantId,
@@ -389,8 +401,6 @@ namespace FreshBack.Infrastructure.Data.Migrations
                     DescriptionEn = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Allergens = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     AllergensEn = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Warnings = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    WarningsEn = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     WeightInKg = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     MerchantId = table.Column<int>(type: "int", nullable: false),
@@ -527,7 +537,7 @@ namespace FreshBack.Infrastructure.Data.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Number = table.Column<int>(type: "int", nullable: false),
-                    CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValue: new DateTime(2026, 4, 5, 15, 51, 8, 879, DateTimeKind.Local).AddTicks(5585)),
+                    CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValue: new DateTime(2026, 4, 26, 12, 17, 22, 764, DateTimeKind.Local).AddTicks(7148)),
                     Status = table.Column<int>(type: "int", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     Discount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
@@ -634,7 +644,7 @@ namespace FreshBack.Infrastructure.Data.Migrations
                         column: x => x.BranchId,
                         principalTable: "Branches",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_BranchesProducts_Products_ProductId",
                         column: x => x.ProductId,
@@ -697,7 +707,8 @@ namespace FreshBack.Infrastructure.Data.Migrations
                 {
                     ProductId = table.Column<int>(type: "int", nullable: false),
                     OrderId = table.Column<int>(type: "int", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false)
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -796,16 +807,6 @@ namespace FreshBack.Infrastructure.Data.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Branches_AreaId",
-                table: "Branches",
-                column: "AreaId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Branches_CategoryId",
-                table: "Branches",
-                column: "CategoryId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Branches_MerchantId",
                 table: "Branches",
                 column: "MerchantId");
@@ -847,6 +848,11 @@ namespace FreshBack.Infrastructure.Data.Migrations
                 column: "BranchId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_DevicesTokens_CustomerId",
+                table: "DevicesTokens",
+                column: "CustomerId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Feedbacks_BranchId",
                 table: "Feedbacks",
                 column: "BranchId");
@@ -857,9 +863,9 @@ namespace FreshBack.Infrastructure.Data.Migrations
                 column: "ReviewId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Merchants_AreaId",
+                name: "IX_Merchants_CategoryId",
                 table: "Merchants",
-                column: "AreaId");
+                column: "CategoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Orders_BranchId",
@@ -919,6 +925,9 @@ namespace FreshBack.Infrastructure.Data.Migrations
                 name: "Addresses");
 
             migrationBuilder.DropTable(
+                name: "Areas");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
             migrationBuilder.DropTable(
@@ -944,6 +953,9 @@ namespace FreshBack.Infrastructure.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "CustomersBranchesFavorite");
+
+            migrationBuilder.DropTable(
+                name: "DevicesTokens");
 
             migrationBuilder.DropTable(
                 name: "Feedbacks");
@@ -991,13 +1003,10 @@ namespace FreshBack.Infrastructure.Data.Migrations
                 name: "PaymentMethods");
 
             migrationBuilder.DropTable(
-                name: "Categories");
-
-            migrationBuilder.DropTable(
                 name: "Merchants");
 
             migrationBuilder.DropTable(
-                name: "Areas");
+                name: "Categories");
         }
     }
 }

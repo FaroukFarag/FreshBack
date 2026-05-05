@@ -1,4 +1,5 @@
 ﻿using FreshBack.Application.Dtos.Branches;
+using FreshBack.Application.Dtos.Shared;
 using FreshBack.Application.Interfaces.Branches;
 using FreshBack.Domain.Models.Branches;
 using FreshBack.WebApi.Controllers.Abstraction;
@@ -47,5 +48,14 @@ public class ReviewsController(IReviewService service) :
     {
         return Ok(await _service
             .GetReviewsForMerchantPaginatedAsync(reviewsForMerchantPaginatedDto));
+    }
+
+    [HttpPost("GetAllMerchantsReviewsPaginated")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetAllMerchantsReviewsPaginated(
+        PaginatedModelDto paginatedModelDto)
+    {
+        return Ok(await _service
+            .GetAllMerchantsReviewsPaginatedAsync(paginatedModelDto));
     }
 }

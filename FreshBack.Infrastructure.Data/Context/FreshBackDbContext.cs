@@ -8,6 +8,7 @@ using FreshBack.Domain.Models.BranchesProducts;
 using FreshBack.Domain.Models.Carts;
 using FreshBack.Domain.Models.Categories;
 using FreshBack.Domain.Models.Customers;
+using FreshBack.Domain.Models.DevicesTokens;
 using FreshBack.Domain.Models.Merchants;
 using FreshBack.Domain.Models.Notifications;
 using FreshBack.Domain.Models.Orders;
@@ -26,6 +27,7 @@ using FreshBack.Infrastructure.Data.ModelsConfigurations.Carts;
 using FreshBack.Infrastructure.Data.ModelsConfigurations.Categories;
 using FreshBack.Infrastructure.Data.ModelsConfigurations.Customers;
 using FreshBack.Infrastructure.Data.ModelsConfigurations.CustomersBranchesFavorite;
+using FreshBack.Infrastructure.Data.ModelsConfigurations.DevicesTokens;
 using FreshBack.Infrastructure.Data.ModelsConfigurations.Merchants;
 using FreshBack.Infrastructure.Data.ModelsConfigurations.Notifications;
 using FreshBack.Infrastructure.Data.ModelsConfigurations.Orders;
@@ -65,6 +67,7 @@ public class FreshBackDbContext(
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<Address> Addresses { get; set; }
     public DbSet<Customer> Customers { get; set; }
+    public DbSet<DeviceToken> DevicesTokens { get; set; }
     public DbSet<OtpCode> OtpCodes { get; set; }
     public DbSet<CustomerBranchFavorite> CustomersBranchesFavorite { get; set; }
     public DbSet<Commission> Commissions { get; set; }
@@ -91,6 +94,7 @@ public class FreshBackDbContext(
         modelBuilder.ApplyConfiguration(new NotificationConfigurations());
         modelBuilder.ApplyConfiguration(new AddressConfigurations());
         modelBuilder.ApplyConfiguration(new CustomerConfigurations());
+        modelBuilder.ApplyConfiguration(new DeviceTokenConfigurations());
         modelBuilder.ApplyConfiguration(new OtpCodeConfigurations());
         modelBuilder.ApplyConfiguration(new CustomerBranchFavoriteConfigurations());
         modelBuilder.ApplyConfiguration(new CommissionConfigurations());

@@ -38,8 +38,8 @@ public sealed class BranchPaginatedSpecification : BaseSpecification<Branch>
 
         if (categoryId.HasValue)
         {
-            Criteria = Criteria!.And(
-                b => b.CategoryId == categoryId);
+            Criteria = Criteria.And(
+                b => b.Merchant.CategoryId == categoryId);
         }
     }
 
@@ -68,7 +68,7 @@ public sealed class BranchPaginatedSpecification : BaseSpecification<Branch>
                 break;
 
             case BranchSortBy.Category:
-                ApplyOrder(b => b.Category.Name, direction);
+                ApplyOrder(b => b.Merchant.Category.Name, direction);
                 break;
 
             case BranchSortBy.Distance:

@@ -138,6 +138,7 @@ public class UserService(
                 return new LoggedInDto
                 {
                     UserId = user.Id,
+                    MerchantId = user.MerchantId,
                     RoleId = role.Id,
                     Token = await GetToken(user)
                 };

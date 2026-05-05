@@ -6,4 +6,5 @@ public class OtpCodeDto : BaseModelDto<int>
 {
     public string PhoneNumber { get; set; } = default!;
     public string? Otp { get; set; }
+    public string? FcmToken { get; set; }
 }

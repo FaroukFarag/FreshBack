@@ -43,9 +43,6 @@ public class BranchDtoValidator : AbstractValidator<BranchDto>
         RuleFor(b => b.Status)
            .NotNull();
 
-        RuleFor(b => b.AreaId)
-           .NotNull();
-
         RuleFor(b => b.MerchantId)
             .NotNull();
     }

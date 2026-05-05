@@ -110,13 +110,13 @@ public class CommissionService(
             .GetAllAsync(c => new TotalCategoryRevenuesDto
             {
                 CategoryId = c.Id,
-                Amount = c.Branches.SelectMany(b => b.Orders)
+                Amount = c.Merchants.SelectMany(m => m.Orders)
                             .Where(o =>
                                 (!from.HasValue || o.CreationDate >= from.Value) &&
                                 (!to.HasValue || o.CreationDate < to.Value))
                             .SelectMany(o => o.ProductsOrders)
                             .Sum(po => po.Quantity * po.Product.Price) -
-                        c.Branches.SelectMany(b => b.Orders)
+                        c.Merchants.SelectMany(m => m.Orders)
                             .Where(o =>
                                 (!from.HasValue || o.CreationDate >= from.Value) &&
                                 (!to.HasValue || o.CreationDate < to.Value))

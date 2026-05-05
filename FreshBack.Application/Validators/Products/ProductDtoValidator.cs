@@ -35,14 +35,6 @@ public class ProductDtoValidator : AbstractValidator<ProductDto>
             .NotNull()
             .NotEmpty();
 
-        RuleFor(p => p.Warnings)
-           .NotNull()
-           .NotEmpty();
-
-        RuleFor(p => p.WarningsEn)
-            .NotNull()
-            .NotEmpty();
-
         RuleFor(p => p.Price)
             .NotNull()
             .GreaterThan(0);

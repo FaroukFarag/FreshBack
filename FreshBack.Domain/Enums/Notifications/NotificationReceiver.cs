@@ -3,7 +3,7 @@
 [Flags]
 public enum NotificationReceiver
 {
-    Merchant,
+    Merchant = 1,
     Customer,
     Both = Merchant | Customer
 }

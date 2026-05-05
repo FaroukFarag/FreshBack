@@ -44,27 +44,13 @@ public class BranchConfigurations : IEntityTypeConfiguration<Branch>
         builder.Property(b => b.Status)
             .IsRequired();
 
-        builder.Property(b => b.AreaId)
-            .IsRequired();
-
         builder.Property(b => b.MerchantId)
             .IsRequired();
-
-        builder.Property(b => b.CategoryId)
-            .IsRequired();
-
-        builder.HasOne(b => b.Area)
-            .WithMany(c => c.Branches)
-            .HasForeignKey(b => b.AreaId);
 
         builder.HasOne(b => b.Merchant)
             .WithMany(m => m.Branches)
             .HasForeignKey(b => b.MerchantId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasOne(b => b.Category)
-            .WithMany(c => c.Branches)
-            .HasForeignKey(b => b.CategoryId);
 
         builder.HasMany(b => b.BranchesProducts)
             .WithOne(bp => bp.Branch)

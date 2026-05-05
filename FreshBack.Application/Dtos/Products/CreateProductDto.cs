@@ -12,8 +12,6 @@ public class CreateProductDto : BaseModelDto<int>
     public string DescriptionEn { get; set; } = default!;
     public string Allergens { get; set; } = default!;
     public string AllergensEn { get; set; } = default!;
-    public string Warnings { get; set; } = default!;
-    public string WarningsEn { get; set; } = default!;
     public decimal Price { get; set; }
     public decimal WeightInKg { get; set; }
     public int MerchantId { get; set; }

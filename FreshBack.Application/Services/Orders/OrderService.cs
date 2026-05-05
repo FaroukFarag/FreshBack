@@ -1,9 +1,13 @@
 ﻿using AutoMapper;
+using FreshBack.Application.Dtos.Notifications;
 using FreshBack.Application.Dtos.Orders;
 using FreshBack.Application.Dtos.Shared;
+using FreshBack.Application.Firebase.Notifications;
 using FreshBack.Application.Interfaces.Orders;
 using FreshBack.Application.Services.Abstraction;
 using FreshBack.Common.Extensions;
+using FreshBack.Domain.Enums.Notifications;
+using FreshBack.Domain.Enums.Orders;
 using FreshBack.Domain.Interfaces.Repositories.BranchesProducts;
 using FreshBack.Domain.Interfaces.Repositories.Orders;
 using FreshBack.Domain.Interfaces.UnitOfWork;
@@ -20,7 +24,8 @@ public class OrderService(
     IOrderRepository repository,
     IUnitOfWork unitOfWork,
     IMapper mapper,
-    IBranchProductRepository branchProductRepository)
+    IBranchProductRepository branchProductRepository,
+    FirebaseNotificationSender firebaseNotificationSender)
     : BaseService<
         CreateOrderDto,
         OrderDto,
@@ -33,6 +38,7 @@ public class OrderService(
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _mapper = mapper;
     private readonly IBranchProductRepository _branchProductRepository = branchProductRepository;
+    private readonly FirebaseNotificationSender _firebaseNotificationSender = firebaseNotificationSender;
 
     public async Task<ResultDto<CreateOrderDto>> CreateAsync(
         CreateOrderDto createOrderDto,
@@ -50,7 +56,8 @@ public class OrderService(
                 ValidateProductExpiration(branchesProducts);
                 ValidateProductAvailability(branchesProducts, orderProducts);
 
-                var order = await CreateOrder(createOrderDto, customerId);
+                var order = await CreateOrder(
+                    createOrderDto, customerId, branchesProducts, orderProducts);
 
                 UpdateProductQuantities(branchesProducts, orderProducts);
 
@@ -149,7 +156,55 @@ public class OrderService(
             });
     }
 
-    private Dictionary<int, int> BuildOrderProductsDictionary(CreateOrderDto dto)
+    public async Task<ResultDto<OrderDto>> UpdateOrderStatus(
+        UpdateOrderStatusDto updateOrderStatusDto)
+    {
+        return await ExecuteServiceCallAsync(
+            "Get All Branches Paginated",
+            async () =>
+            {
+                var order = await _repository.GetAsync(
+                    updateOrderStatusDto.Id,
+                    new BaseSpecification<Order>
+                    {
+                        Includes =
+                        [
+                            o => o.Merchant,
+                            o => o.Branch
+                        ]
+                    });
+
+                order.Status = updateOrderStatusDto.Status;
+
+                order = _repository.Update(order);
+
+                var orderUpdated = await _unitOfWork.Complete();
+
+                if (!orderUpdated)
+                    throw new Exception("Failed to update order status");
+
+                if (order.Status == OrderStatus.Confirmed)
+                    await _firebaseNotificationSender.SendToCustomerAsync(
+                        order.CustomerId,
+                        new OrderConfirmedNotificationDto
+                        {
+                            Receiver = NotificationReceiver.Customer,
+                            Title = "Review your Order",
+                            Content = "Your order has been confirmed. Please take a moment to " +
+                                "review your experience.",
+                            Order = new OrderConfirmedDto
+                            {
+                                Id = order.Id,
+                                BranchName = order.Branch.Name,
+                                MerchantName = order.Merchant.Name
+                            }
+                        });
+
+                return _mapper.Map<OrderDto>(order);
+            });
+    }
+
+    private static Dictionary<int, int> BuildOrderProductsDictionary(CreateOrderDto dto)
     {
         return dto.ProductsOrders!.ToDictionary(x => x.ProductId, x => x.Quantity);
     }
@@ -174,7 +229,7 @@ public class OrderService(
         return branchesProducts;
     }
 
-    private void ValidateSameBranch(IEnumerable<BranchProduct> branchesProducts)
+    private static void ValidateSameBranch(IEnumerable<BranchProduct> branchesProducts)
     {
         var branchId = branchesProducts.First().BranchId;
         var hasMultipleMerchants = branchesProducts.Any(p => p.BranchId != branchId);
@@ -213,7 +268,7 @@ public class OrderService(
         }
     }
 
-    private void UpdateProductQuantities(
+    private static void UpdateProductQuantities(
         IEnumerable<BranchProduct> branchesProducts,
         Dictionary<int, int> orderProducts)
     {
@@ -225,7 +280,7 @@ public class OrderService(
         }
     }
 
-    private string BuildExpiredProductsMessage(IEnumerable<BranchProduct> expiredProducts)
+    private static string BuildExpiredProductsMessage(IEnumerable<BranchProduct> expiredProducts)
     {
         var messages = expiredProducts.Select(p =>
             $"Product '{p.Product.Name}' expired on {p.ExpiryDate:yyyy-MM-dd}.");
@@ -233,7 +288,7 @@ public class OrderService(
         return string.Join(" | ", messages);
     }
 
-    private string BuildInsufficientStockMessage(
+    private static string BuildInsufficientStockMessage(
         IEnumerable<BranchProduct> insufficientProducts,
         Dictionary<int, int> orderProducts)
     {
@@ -247,11 +302,25 @@ public class OrderService(
         return string.Join(" | ", messages);
     }
 
-    private async Task<Order> CreateOrder(CreateOrderDto dto, int customerId)
+    private async Task<Order> CreateOrder(
+        CreateOrderDto dto,
+        int customerId,
+        IEnumerable<BranchProduct> branchProducts,
+        Dictionary<int, int> orderProducts)
     {
         var order = _mapper.Map<Order>(dto);
 
         order.CustomerId = customerId;
+
+        order.ProductsOrders = branchProducts
+        .Select(bp => new ProductOrder
+        {
+            ProductId = bp.ProductId,
+            Quantity = orderProducts[bp.ProductId],
+
+            Price = bp.Product.Price
+        })
+        .ToList();
 
         return await _repository.CreateAsync(order);
     }

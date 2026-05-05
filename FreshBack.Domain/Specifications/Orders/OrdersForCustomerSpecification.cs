@@ -38,7 +38,7 @@ public sealed class OrdersForCustomerSpecification : BaseSpecification<Order>
                 break;
 
             case OrderSortBy.Category:
-                ApplyOrder(o => o.Branch.Category.Name, direction);
+                ApplyOrder(o => o.Branch.Merchant.Category.Name, direction);
                 break;
 
             case OrderSortBy.Date:
