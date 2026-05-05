@@ -487,3 +487,4 @@ $RECYCLE.BIN/
 bin/
 obj/
 
+/FreshBack.WebApi/Firebase/firebase-adminsdk.json
