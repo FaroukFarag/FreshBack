@@ -379,7 +379,7 @@ namespace FreshBack.Infrastructure.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Branches", x => x.Id);
-                    table.CheckConstraint("CK_Branches_ClosingTime_After_OpeningTime", "[ClosingTime] > [OpeningTime]");
+                    table.CheckConstraint("CK_Branches_ClosingTime_NotEqual_OpeningTime", "[ClosingTime] <> [OpeningTime]");
                     table.ForeignKey(
                         name: "FK_Branches_Merchants_MerchantId",
                         column: x => x.MerchantId,
@@ -537,9 +537,9 @@ namespace FreshBack.Infrastructure.Data.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Number = table.Column<int>(type: "int", nullable: false),
-                    CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValue: new DateTime(2026, 4, 26, 12, 17, 22, 764, DateTimeKind.Local).AddTicks(7148)),
+                    CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValue: new DateTime(2026, 5, 10, 11, 57, 24, 306, DateTimeKind.Local).AddTicks(6112)),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    OrderFinalAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     Discount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     Fees = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     PaymentMethodId = table.Column<int>(type: "int", nullable: false),

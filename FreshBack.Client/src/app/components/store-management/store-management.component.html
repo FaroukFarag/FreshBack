@@ -1,0 +1,160 @@
+<div class="store-management-page">
+  <div class="content-body">
+    <div class="store-form-container">
+      <h1 class="page-title">إدارة المتجر والمظهر</h1>
+
+      <!-- Store Logo Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <h2 class="section-title">شعار المتجر</h2>
+          <p class="section-subtitle">صورة لمتجرك</p>
+        </div>
+        <div class="logo-upload-area">
+          <input
+            type="file"
+            id="logo-upload"
+            class="logo-input"
+            accept="image/*"
+            (change)="onLogoSelected($event)"
+          />
+          <label for="logo-upload" class="logo-upload-label">
+            <div *ngIf="!storeInfo.logo" class="logo-placeholder">
+              <svg width="80" height="80" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 50L60 20L100 50V100H20V50Z" fill="none" stroke="#f4a261" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M60 20L100 50H20L60 20Z" fill="#f4a261"/>
+                <rect x="45" y="65" width="30" height="35" rx="2" fill="#f4a261"/>
+                <path d="M20 50V100H100V50M60 20L100 50M60 20L20 50" stroke="#f4a261" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <img *ngIf="storeInfo.logo" [src]="storeInfo.logo" alt="Store Logo" class="logo-preview" />
+          </label>
+        </div>
+      </div>
+
+      <!-- Store Information Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <h2 class="section-title">معلومات المتجر</h2>
+        </div>
+        <div class="form-grid">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">اسم المتجر</label>
+              <input
+                type="text"
+                class="form-input"
+                [(ngModel)]="storeInfo.name"
+                placeholder="أدخل اسم المتجر"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">اسم المتجر باللغة الإنجليزية</label>
+              <input
+                type="text"
+                class="form-input"
+                [(ngModel)]="storeInfo.nameEnglish"
+                placeholder="Enter store name in English"
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">رقم التواصل</label>
+              <input
+                type="text"
+                class="form-input"
+                [(ngModel)]="storeInfo.contactNumber"
+                placeholder="أدخل رقم التواصل"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">العنوان</label>
+              <div class="address-input-wrapper">
+                <input
+                  type="text"
+                  class="form-input address-input"
+                  [(ngModel)]="storeInfo.address"
+                  placeholder="أدخل العنوان"
+                />
+                <span class="location-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2ZM12 11.5C10.62 11.5 9.5 10.38 9.5 9C9.5 7.62 10.62 6.5 12 6.5C13.38 6.5 14.5 7.62 14.5 9C14.5 10.38 13.38 11.5 12 11.5Z" fill="#999"/>
+                  </svg>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">وقت الفتح</label>
+              <input
+                type="time"
+                class="form-input"
+                [(ngModel)]="storeInfo.openingTime"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">وقت الإغلاق</label>
+              <input
+                type="time"
+                class="form-input"
+                [(ngModel)]="storeInfo.closingTime"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Store Story and Sustainability Message Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <h2 class="section-title">قصة المتجر ورسالة الإستدامة</h2>
+        </div>
+        <div class="textarea-grid">
+          <div class="form-group">
+            <label class="form-label">قصة المتجر ورسالة الإستدامة</label>
+            <textarea
+              class="form-textarea"
+              rows="6"
+              [(ngModel)]="storeInfo.storeStoryArabic"
+              placeholder="أدخل قصة المتجر ورسالة الإستدامة"
+            ></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Store Story and Sustainability Message</label>
+            <textarea
+              class="form-textarea"
+              rows="6"
+              [(ngModel)]="storeInfo.storeStoryEnglish"
+              placeholder="Enter store story and sustainability message"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Return Policy Section -->
+      <div class="form-section">
+        <div class="section-header">
+          <h2 class="section-title">سياسة الإرجاع</h2>
+        </div>
+        <div class="form-group">
+          <textarea
+            class="form-textarea"
+            rows="6"
+            [(ngModel)]="storeInfo.returnPolicy"
+            placeholder="أدخل سياسة الإرجاع"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Save Button -->
+      <div class="action-section">
+        <button class="save-btn" (click)="saveChanges()">
+          حفظ التغييرات
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

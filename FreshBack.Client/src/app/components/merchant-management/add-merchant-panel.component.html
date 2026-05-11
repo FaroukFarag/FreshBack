@@ -1,0 +1,148 @@
+<div class="panel-overlay" (click)="onOverlayClick($event)">
+  <div class="panel-content" (click)="$event.stopPropagation()">
+    <div class="panel-header">
+      <h2 class="panel-title">{{ 'addNewMerchant' | translate }}</h2>
+      <button type="button" class="close-btn" (click)="onClose()" [attr.aria-label]="'close' | translate">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="panel-body">
+      <form (ngSubmit)="onSubmit()">
+        <div *ngIf="errorMessage" class="form-error-message">{{ errorMessage }}</div>
+
+        <div class="form-field merchant-image-field">
+          <span class="field-label" id="merchant-image-label">{{ 'merchantImage' | translate }}</span>
+
+          <input #merchantImageInput id="m-merchant-image" type="file" accept="image/*"
+            class="merchant-image-file-input" aria-labelledby="merchant-image-label"
+            (change)="onImageSelected($event)" />
+
+          <ng-container *ngIf="!imagePreview">
+            <label for="m-merchant-image" class="merchant-drop-zone"
+              [class.merchant-drop-zone--active]="isImageDragOver" (dragover)="onDropZoneDragOver($event)"
+              (dragenter)="onDropZoneDragEnter($event)" (dragleave)="onDropZoneDragLeave($event)"
+              (drop)="onDropZoneDrop($event)">
+              <span class="merchant-drop-zone-glow" aria-hidden="true"></span>
+              <span class="merchant-drop-zone-inner">
+                <span class="merchant-drop-icon-wrap" aria-hidden="true">
+                  <svg class="merchant-drop-icon" width="40" height="40" viewBox="0 0 24 24" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15"
+                      stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M17 8L12 3L7 8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                    <path d="M12 3V15" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg>
+                </span>
+                <span class="merchant-drop-title">{{ 'merchantImageDropHint' | translate }}</span>
+                <span class="merchant-drop-sub">{{ 'merchantChooseImage' | translate }}</span>
+                <span class="merchant-drop-formats">{{ 'merchantImageFormatsHint' | translate }}</span>
+              </span>
+            </label>
+          </ng-container>
+
+          <div *ngIf="imagePreview" class="merchant-image-card">
+            <div class="merchant-image-card-preview">
+              <img [src]="imagePreview" alt="" class="merchant-image-card-img" />
+            </div>
+            <div class="merchant-image-card-body">
+              <div class="merchant-image-card-meta">
+                <span class="merchant-image-card-name" [title]="imageFile?.name">{{ imageFile?.name }}</span>
+                <span class="merchant-image-card-size" *ngIf="imageFile">{{ formatFileSize(imageFile.size) }}</span>
+              </div>
+              <div class="merchant-image-card-actions">
+                <button type="button" class="merchant-image-card-btn merchant-image-card-btn--secondary"
+                  (click)="triggerImagePicker()">
+                  {{ 'merchantReplaceImage' | translate }}
+                </button>
+                <button type="button" class="merchant-image-card-btn merchant-image-card-btn--danger"
+                  (click)="removeMerchantImage()">
+                  {{ 'merchantRemoveImage' | translate }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label class="field-label" for="m-name">{{ 'merchantName' | translate }}</label>
+            <input id="m-name" class="form-input" type="text" [(ngModel)]="form.name" name="name" required />
+          </div>
+          <div class="form-field">
+            <label class="field-label" for="m-nameEn">{{ 'merchantNameEnLabel' | translate }}</label>
+            <input id="m-nameEn" class="form-input" type="text" [(ngModel)]="form.nameEn" name="nameEn" />
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label class="field-label" for="m-desc">{{ 'merchantDescription' | translate }}</label>
+          <textarea id="m-desc" class="form-textarea" rows="3" [(ngModel)]="form.description"
+            name="description"></textarea>
+        </div>
+        <div class="form-field">
+          <label class="field-label" for="m-descEn">{{ 'merchantDescriptionEn' | translate }}</label>
+          <textarea id="m-descEn" class="form-textarea" rows="3" [(ngModel)]="form.descriptionEn"
+            name="descriptionEn"></textarea>
+        </div>
+
+        <div class="form-field">
+          <label class="field-label" for="m-story">{{ 'merchantStory' | translate }}</label>
+          <textarea id="m-story" class="form-textarea" rows="3" [(ngModel)]="form.story" name="story"></textarea>
+        </div>
+        <div class="form-field">
+          <label class="field-label" for="m-storyEn">{{ 'merchantStoryEn' | translate }}</label>
+          <textarea id="m-storyEn" class="form-textarea" rows="3" [(ngModel)]="form.storyEn" name="storyEn"></textarea>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label">{{ 'category' | translate }}</label>
+          <select class="form-input" [(ngModel)]="form.categoryId" name="categoryId" [disabled]="isLoadingCategories">
+            <option [ngValue]="''">{{ isLoadingCategories ? ('loadingCategories' | translate)  : ('selectCategory' | translate) }}</option>
+            <option *ngFor="let category of categories" [ngValue]="category.id">
+              {{ isArabic() ? (category.name || category.nameEn) : (category.nameEn || category.name) }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label class="field-label" for="m-user">{{ 'username' | translate }}</label>
+            <input id="m-user" class="form-input" type="text" [(ngModel)]="form.username" name="username"
+              autocomplete="username" />
+          </div>
+          <div class="form-field">
+            <label class="field-label" for="m-phone">{{ 'phoneNumber' | translate }}</label>
+            <input id="m-phone" class="form-input" type="text" [(ngModel)]="form.phoneNumber" name="phoneNumber"
+              autocomplete="tel" />
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label class="field-label" for="m-pass">{{ 'password' | translate }}</label>
+          <input id="m-pass" class="form-input" type="password" [(ngModel)]="form.password" name="password"
+            autocomplete="new-password" />
+        </div>
+
+          <div class="form-field">
+            <label class="field-label" for="m-status">{{ 'merchantStatus' | translate }}</label>
+            <select id="m-status" class="form-input" [(ngModel)]="form.status" name="status">
+              <option [ngValue]="1">{{ 'active' | translate }}</option>
+              <option [ngValue]="0">{{ 'inactive' | translate }}</option>
+            </select>
+          </div>
+
+        <button type="submit" class="submit-btn" [disabled]="isSaving || isFormValid()">
+          <span *ngIf="!isSaving">{{ 'save' | translate }}</span>
+          <span *ngIf="isSaving">{{ 'loading' | translate }}</span>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

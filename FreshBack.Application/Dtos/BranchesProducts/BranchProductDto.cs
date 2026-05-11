@@ -1,5 +1,4 @@
-﻿using FreshBack.Application.Dtos.Branches;
-using FreshBack.Application.Dtos.Products;
+﻿using FreshBack.Application.Dtos.Products;
 using FreshBack.Domain.Enums.Products;
 
 namespace FreshBack.Application.Dtos.BranchesProducts;
@@ -17,6 +16,5 @@ public class BranchProductDto
     public int Views { get; set; }
     public ProductStatus Status { get; set; }
 
-    public BranchDto Branch { get; set; } = default!;
-    public ProductDto Product { get; set; } = default!;
+    public GetProductDto Product { get; set; } = default!;
 }

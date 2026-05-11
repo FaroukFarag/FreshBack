@@ -82,8 +82,10 @@ using FreshBack.Domain.Interfaces.Specifications.Absraction;
 using FreshBack.Domain.Interfaces.UnitOfWork;
 using FreshBack.Domain.Models.Roles;
 using FreshBack.Domain.Models.Settings.Users;
+using FreshBack.Domain.Resources;
 using FreshBack.Domain.Specifications.Absraction;
 using FreshBack.Infrastructure.Data.Context;
+using FreshBack.Infrastructure.Data.Identity.Localization;
 using FreshBack.Infrastructure.Data.Repositories.Abstraction;
 using FreshBack.Infrastructure.Data.Repositories.Addresses;
 using FreshBack.Infrastructure.Data.Repositories.Branches;
@@ -112,6 +114,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -227,6 +232,7 @@ public static class DependencyContainer
     {
         services.AddIdentity<User, Role>()
             .AddEntityFrameworkStores<FreshBackDbContext>()
+            .AddErrorDescriber<LocalizedIdentityErrorDescriber>()
             .AddDefaultTokenProviders();
     }
 
@@ -264,6 +270,26 @@ public static class DependencyContainer
                                 .AllowAnyMethod()
                                 .AllowAnyHeader()
                                 .AllowCredentials());
+        });
+    }
+
+    public static void RegisterLocalization(this IServiceCollection services)
+    {
+        services.AddLocalization();
+
+        services.AddMvc()
+            .AddDataAnnotationsLocalization(options =>
+            {
+                options.DataAnnotationLocalizerProvider = (type, factory) =>
+                    factory.Create(typeof(Resource));
+            });
+
+        services.AddSingleton<IStringLocalizerFactory>(sp =>
+        {
+            var resourceAssembly = typeof(Resource).Assembly;
+            return new ResourceManagerStringLocalizerFactory(
+                sp.GetRequiredService<IOptions<LocalizationOptions>>(),
+                sp.GetRequiredService<ILoggerFactory>());
         });
     }
 

@@ -12,6 +12,7 @@ using FreshBack.Domain.Interfaces.Repositories.Branches;
 using FreshBack.Domain.Interfaces.UnitOfWork;
 using FreshBack.Domain.Models.Branches;
 using FreshBack.Domain.Models.BranchesProducts;
+using FreshBack.Domain.Models.Products;
 using FreshBack.Domain.Models.Shared;
 using FreshBack.Domain.Specifications.Absraction;
 using FreshBack.Domain.Specifications.Branches;
@@ -86,7 +87,8 @@ public class BranchService(
                                 .Where(bp => bp.ExpiryDate > DateTime.Now),
                             ThenIncludes =
                             [
-                                bp => (bp as BranchProduct)!.Product
+                                bp => (bp as BranchProduct)!.Product,
+                                p => (p as Product)!.ProductImages
                             ]
                         }
                     ]
@@ -173,7 +175,7 @@ public class BranchService(
     }
 
     public override async Task<ResultDto<CreateBranchDto>> UpdateAsync(
-        CreateBranchDto createBranchDto)
+    CreateBranchDto createBranchDto)
     {
         return await ExecuteServiceCallAsync(
             "Update Branch",
@@ -182,12 +184,21 @@ public class BranchService(
                 var branch = await _repository.GetAsync(createBranchDto.Id) ??
                     throw new Exception("Branch not found");
 
-                createBranchDto.ImagePath =
-                    await _imageService.SaveImageAsync(
+                if (createBranchDto.ImageFile != null && createBranchDto.ImageFile.Length > 0)
+                {
+                    var newImagePath = await _imageService.SaveImageAsync(
                         createBranchDto.ImageFile,
                         BranchConstants.SubFolder);
 
-                _imageService.DeleteImage(branch.ImagePath);
+                    _imageService.DeleteImage(branch.ImagePath);
+
+                    createBranchDto.ImagePath = newImagePath;
+                }
+
+                else
+                {
+                    createBranchDto.ImagePath = branch.ImagePath;
+                }
 
                 _mapper.Map(createBranchDto, branch);
                 _repository.Update(branch);

@@ -312,15 +312,24 @@ public class OrderService(
 
         order.CustomerId = customerId;
 
-        order.ProductsOrders = branchProducts
-        .Select(bp => new ProductOrder
-        {
-            ProductId = bp.ProductId,
-            Quantity = orderProducts[bp.ProductId],
+        order.ProductsOrders = [.. branchProducts
+            .Select(bp =>
+            {
+                var quantity = orderProducts[bp.ProductId];
+                var priceAfterDiscount = bp.Product.Price * (1 - bp.Discount / 100m);
+                var lineTotal = Math.Round(priceAfterDiscount * quantity, 2);
 
-            Price = bp.Product.Price
-        })
-        .ToList();
+                return new ProductOrder
+                {
+                    ProductId = bp.ProductId,
+                    Quantity = quantity,
+                    Price = lineTotal
+                };
+            })];
+
+        var subtotal = order.ProductsOrders.Sum(po => po.Price);
+
+        order.OrderFinalAmount = Math.Round(subtotal * (1 - dto.Discount / 100m), 2);
 
         return await _repository.CreateAsync(order);
     }

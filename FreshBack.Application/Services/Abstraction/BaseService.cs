@@ -176,7 +176,7 @@ public class BaseService<
 
         catch (Exception ex)
         {
-            return ResultDto<T>.CreateFailResult($"{operationName} failed: {ex.Message}");
+            return ResultDto<T>.CreateFailResult($"{ex.Message}");
         }
     }
 }

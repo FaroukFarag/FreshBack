@@ -161,7 +161,7 @@ namespace FreshBack.Infrastructure.Data.Migrations
 
                     b.ToTable("Branches", t =>
                         {
-                            t.HasCheckConstraint("CK_Branches_ClosingTime_After_OpeningTime", "[ClosingTime] > [OpeningTime]");
+                            t.HasCheckConstraint("CK_Branches_ClosingTime_NotEqual_OpeningTime", "[ClosingTime] <> [OpeningTime]");
                         });
                 });
 
@@ -614,7 +614,7 @@ namespace FreshBack.Infrastructure.Data.Migrations
                     b.Property<DateTime>("CreationDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2026, 4, 26, 12, 17, 22, 764, DateTimeKind.Local).AddTicks(7148));
+                        .HasDefaultValue(new DateTime(2026, 5, 10, 11, 57, 24, 306, DateTimeKind.Local).AddTicks(6112));
 
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
@@ -639,12 +639,12 @@ namespace FreshBack.Infrastructure.Data.Migrations
                     b.Property<int>("Number")
                         .HasColumnType("int");
 
-                    b.Property<int>("PaymentMethodId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("Price")
+                    b.Property<decimal>("OrderFinalAmount")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("PaymentMethodId")
+                        .HasColumnType("int");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");

@@ -1,0 +1,720 @@
+<div class="order-management-page">
+  <div class="content-body">
+    <!-- Page Title -->
+    <div class="page-title-section" *ngIf="isAdmin">
+      <h1 class="page-title">{{ 'ordersManagement' | translate }}</h1>
+    </div>
+
+    <!-- Filter and Search Section (Admin View) -->
+    <div class="filters-section" *ngIf="isAdmin">
+      <div class="filter-group filter-order-status">
+        <select [(ngModel)]="selectedOrderStatus" (change)="onFilterChange()" class="filter-select">
+          <option *ngFor="let opt of orderStatusFilters" [value]="opt.value">{{ opt.labelKey | translate }}</option>
+        </select>
+      </div>
+
+      <div class="search-box filter-search">
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+          <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <input
+          type="text"
+          class="search-input"
+          [placeholder]="'searchOrdersPlaceholder' | translate"
+          [(ngModel)]="searchQuery"
+          (input)="onFilterChange()"
+        />
+      </div>
+
+      <div class="filter-group filter-order-type">
+        <select [(ngModel)]="selectedOrderType" (change)="onFilterChange()" class="filter-select">
+          <option value="all">{{ 'allOrders' | translate }}</option>
+          <option value="new">{{ 'new' | translate }}</option>
+          <option value="confirmed">{{ 'confirmed' | translate }}</option>
+          <option value="delivered">{{ 'delivered' | translate }}</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Admin: loading / error / empty state or data table -->
+    <ng-container *ngIf="isAdmin">
+      <div *ngIf="isLoadingOrders" class="loading-state admin-orders-loading">
+        <div class="loading-spinner"></div>
+        <p>{{ 'loadingOrders' | translate }}</p>
+      </div>
+      <div *ngIf="!isLoadingOrders && errorMessage" class="error-state admin-orders-error">
+        <p class="error-message">{{ errorMessage }}</p>
+        <button type="button" class="retry-btn" (click)="loadOrders()">{{ 'retry' | translate }}</button>
+      </div>
+      <div *ngIf="!isLoadingOrders && !errorMessage" class="admin-orders-panel">
+        <div *ngIf="filteredOrders.length === 0" class="admin-empty-state">
+          <div class="admin-empty-illustration" aria-hidden="true">
+            <svg viewBox="0 0 200 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="24" y="28" width="152" height="104" rx="12" fill="#f7faf8" stroke="#d4e8dc" stroke-width="2"/>
+              <path d="M48 52h104M48 72h80M48 92h96" stroke="#c5ddd0" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="100" cy="118" r="28" fill="#fff5ed" stroke="#f4a261" stroke-width="2"/>
+              <path d="M100 104v20M92 114h16" stroke="#e76f51" stroke-width="2.5" stroke-linecap="round"/>
+              <rect x="136" y="44" width="36" height="28" rx="6" fill="#e8f5e9" stroke="#7cb87c" stroke-width="1.5"/>
+            </svg>
+          </div>
+          <h2 class="admin-empty-title">{{ 'noOrders' | translate }}</h2>
+          <p class="admin-empty-subtitle">{{ 'ordersEmptyHint' | translate }}</p>
+          <button type="button" class="admin-empty-action-btn" (click)="clearAdminOrderFilters()">
+            {{ 'clearFilters' | translate }}
+          </button>
+        </div>
+        <ng-container *ngIf="filteredOrders.length > 0">
+          <div class="orders-table-container admin-orders-table-wrap">
+            <table class="orders-table admin-orders-table">
+              <thead>
+                <tr>
+                  <th>{{ 'orderNumber' | translate }}</th>
+                  <th>{{ 'merchantName' | translate }}</th>
+                  <th>{{ 'customerName' | translate }}</th>
+                  <th>{{ 'totalValue' | translate }}</th>
+                  <th>{{ 'orderCreationTime' | translate }}</th>
+                  <th>{{ 'status' | translate }}</th>
+                  <th>{{ 'actions' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let order of paginatedOrders" class="admin-order-row">
+                  <td class="order-number-cell"><span class="order-num-hash">#</span>{{ order.orderNumber }}</td>
+                  <td class="merchant-name-cell">{{ order.merchantName || order.vendorName || '—' }}</td>
+                  <td class="customer-name-cell">{{ order.customerName || '—' }}</td>
+                  <td class="total-value-cell">{{ order.totalPrice | number:'1.0-2' }} {{ 'riyal' | translate }}</td>
+                  <td class="order-time-cell">{{ formatAdminOrderDateTime(order) }}</td>
+                  <td class="status-cell">
+                    <span class="status-badge admin-status-pill" [ngClass]="getStatusClass(order.statusKey)">
+                      {{ getStatusTranslationKey(order.statusKey) | translate }}
+                    </span>
+                  </td>
+                  <td class="actions-cell admin-actions-cell">
+                    <button type="button" class="action-icon-btn admin-action-square view-btn" (click)="viewOrderDetails(order)" [title]="'viewDetails' | translate">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1 12S5 4 12 4S23 12 23 12S19 20 12 20S1 12 1 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                      </svg>
+                    </button>
+                    <button type="button" class="action-icon-btn admin-action-square copy-btn" (click)="copyOrderNumber(order)" [title]="'copyOrderNumberAction' | translate">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 5H6C4.89543 5 4 5.89543 4 7V19C4 20.1046 4.89543 21 6 21H16C17.1046 21 18 20.1046 18 19V17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M16 3H10C8.89543 3 8 3.89543 8 5V15C8 16.1046 8.89543 17 10 17H18C19.1046 17 20 16.1046 20 15V9L16 3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination admin-orders-pagination">
+            <button type="button" class="pagination-btn prev-btn" (click)="previousPage()" [disabled]="currentPage === 1">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <span class="pagination-info">{{ 'table' | translate }} {{ currentPage }} {{ 'of' | translate }} {{ totalPages }}</span>
+            <button type="button" class="pagination-btn next-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        </ng-container>
+      </div>
+    </ng-container>
+
+    <!-- Branch Manager Live Orders: Title, Search, QR, Status Tabs, Card Grid -->
+    <section class="branch-manager-live-section" *ngIf="isBranchManager && isLiveOrdersRoute && !isLoadingOrders && !errorMessage">
+      <h1 class="page-title">{{ 'liveOrders' | translate }}</h1>
+      <div class="branch-live-search-row">
+        <div class="search-box filter-search branch-live-search">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+            <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <input
+            type="text"
+            class="search-input"
+            [placeholder]="'searchByOrderNumber' | translate"
+            [(ngModel)]="searchQuery"
+            (input)="onFilterChange()"
+          />
+        </div>
+        <button type="button" class="qr-scan-btn" (click)="openQRScanPanel()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 3H9V9H3V3Z" stroke="currentColor" stroke-width="2"/>
+            <path d="M15 3H21V9H15V3Z" stroke="currentColor" stroke-width="2"/>
+            <path d="M3 15H9V21H3V15Z" stroke="currentColor" stroke-width="2"/>
+            <path d="M15 15H21V21H15V15Z" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          <span>{{ 'scanQR' | translate }}</span>
+        </button>
+      </div>
+      <div class="branch-live-tabs">
+        <button
+          *ngFor="let tab of branchManagerLiveTabs"
+          class="tab-btn"
+          [class.active]="branchManagerLiveTab === tab.key"
+          (click)="switchBranchManagerLiveTab(tab.key)">
+          {{ tab.labelKey | translate }}
+          <span *ngIf="tab.count !== null" class="tab-count">({{ tab.count }})</span>
+        </button>
+      </div>
+      <div class="branch-live-cards-grid" *ngIf="filteredOrders.length > 0">
+        <div *ngFor="let order of filteredOrders" class="branch-live-card">
+          <div class="branch-live-card-header">
+            <span class="branch-live-price">$ {{ order.totalPrice | number:'1.2-2' }}</span>
+            <span class="branch-live-order-id">{{ formatDisplayOrderNumber(order) }}</span>
+          </div>
+          <div class="branch-live-status-pills">
+            <span *ngFor="let pill of getLiveOrderStatusPills(order)" class="status-pill" [ngClass]="pill.cssClass">
+              <svg *ngIf="pill.labelKey === 'paid'" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <svg *ngIf="pill.labelKey === 'notPaid'" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              {{ pill.labelKey | translate }}
+            </span>
+          </div>
+          <div class="branch-live-card-row">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" stroke-width="2"/>
+              <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span>{{ order.customerName }}</span>
+          </div>
+          <div class="branch-live-card-row">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+              <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span>{{ order.time || order.orderTime }}</span>
+          </div>
+          <div class="branch-live-card-row">
+            <svg *ngIf="order.deliveryType === 'delivery'" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 3H16V16H1V3Z" stroke="currentColor" stroke-width="2"/>
+              <path d="M16 8H20L23 11V16H16V8Z" stroke="currentColor" stroke-width="2"/>
+              <circle cx="5.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/>
+              <circle cx="18.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <svg *ngIf="order.deliveryType === 'pickup'" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.364 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke="currentColor" stroke-width="2"/>
+              <circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span *ngIf="order.deliveryType === 'delivery'">{{ 'deliveryMethodDelivery' | translate }}</span>
+            <span *ngIf="order.deliveryType === 'pickup'">{{ 'pickupFromBranch' | translate }}</span>
+            <span *ngIf="!order.deliveryType">—</span>
+          </div>
+          <button type="button" class="branch-live-view-btn" (click)="viewOrderDetails(order)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 12S5 4 12 4S23 12 23 12S19 20 12 20S1 12 1 12Z" stroke="currentColor" stroke-width="2"/>
+              <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            {{ 'viewDetails' | translate }}
+          </button>
+        </div>
+      </div>
+      <div *ngIf="filteredOrders.length === 0" class="empty-orders-state">
+        <div class="empty-icon">
+          <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 11L12 14L22 4" stroke="#999" stroke-width="2"/>
+            <path d="M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16" stroke="#999" stroke-width="2"/>
+          </svg>
+        </div>
+        <h3 class="empty-title">{{ 'noOrders' | translate }}</h3>
+        <p class="empty-description">{{ 'noOrdersToDisplay' | translate }}</p>
+      </div>
+    </section>
+
+    <!-- Merchant View (roleId 1): Orders and Sales - Order Sections, Search, Tabs -->
+    <section class="merchant-orders-section" *ngIf="isMerchant">
+      <div *ngIf="isLoadingOrders" class="loading-state merchant-orders-loading">
+        <div class="loading-spinner"></div>
+        <p>{{ 'loadingOrders' | translate }}</p>
+      </div>
+      <div *ngIf="!isLoadingOrders && errorMessage" class="error-state">
+        <p class="error-message">{{ errorMessage }}</p>
+        <button type="button" class="retry-btn" (click)="loadOrders()">{{ 'retry' | translate }}</button>
+      </div>
+      <ng-container *ngIf="!isLoadingOrders && !errorMessage">
+      <h1 class="page-title">{{ 'ordersAndSales' | translate }}</h1>
+      <h2 class="order-sections-title">{{ 'orderCategories' | translate }}</h2>
+      <div class="merchant-search-row">
+        <div class="search-box merchant-search">
+          <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+            <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <input
+            type="text"
+            class="search-input"
+            [placeholder]="'searchOrder' | translate"
+            [(ngModel)]="searchQuery"
+            (input)="onFilterChange()"
+          />
+        </div>
+      </div>
+      <div class="merchant-order-tabs">
+        <button
+          *ngFor="let tab of orderTabs"
+          class="tab-btn"
+          [class.active]="activeTab === tab.key"
+          (click)="switchTab(tab.key)">
+          {{ tab.labelKey | translate }}
+          <span *ngIf="tab.count !== null" class="tab-count">({{ tab.count }})</span>
+        </button>
+      </div>
+
+      <!-- Merchant Orders List - scrollable cards -->
+      <div class="merchant-orders-scroll" *ngIf="filteredOrders.length > 0">
+        <div *ngFor="let order of filteredOrders" class="merchant-order-card">
+          <button type="button" class="merchant-view-btn" (click)="viewOrderDetails(order)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 12S5 4 12 4S23 12 23 12S19 20 12 20S1 12 1 12Z" stroke="currentColor" stroke-width="2"/>
+              <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            {{ 'viewDetails' | translate }}
+          </button>
+          <div class="merchant-card-products">
+            <h4 class="products-label">{{ 'products' | translate }}</h4>
+            <ul class="products-list-inline">
+              <li *ngFor="let product of order.products" class="product-item-inline">{{ product.name }} {{ product.quantity }}x</li>
+            </ul>
+            <p *ngIf="!order.products || order.products.length === 0" class="no-products">{{ 'noProducts' | translate }}</p>
+          </div>
+          <div class="merchant-card-info">
+            <div class="order-number-bold">{{ 'orderNumberLabel' | translate }}: {{ formatDisplayOrderNumber(order) }}</div>
+            <span class="merchant-status-pill" [ngClass]="getMerchantOrderStatusPillClass(order)">{{ getMerchantOrderStatusLabel(order) }}</span>
+            <div class="info-row">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" stroke-width="2"/>
+                <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              <span>{{ order.customerName }}</span>
+            </div>
+            <div class="info-row">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2V22M17 5H9.5C8.57174 5 7.6815 5.36875 7.02513 6.02513C6.36875 6.6815 6 7.57174 6 8.5C6 9.42826 6.36875 10.3185 7.02513 10.9749C7.6815 11.6313 8.57174 12 9.5 12H14.5C15.4283 12 16.3185 12.3687 16.9749 13.0251C17.6313 13.6815 18 14.5717 18 15.5C18 16.4283 17.6313 17.3185 16.9749 17.9749C16.3185 18.6313 15.4283 19 14.5 19H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>{{ order.totalPrice | number:'1.2-2' }} {{ 'riyal' | translate }}</span>
+            </div>
+            <div class="info-row">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <span>{{ order.time || order.orderTime }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="filteredOrders.length === 0" class="empty-orders-state">
+        <div class="empty-icon">
+          <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 11L12 14L22 4" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h3 class="empty-title">{{ 'noOrders' | translate }}</h3>
+        <p class="empty-description">{{ 'noOrdersInSection' | translate }}</p>
+      </div>
+      </ng-container>
+    </section>
+
+    <!-- Branch Manager Order History -->
+    <div *ngIf="isBranchManager && !isLiveOrdersRoute && isLoadingOrders" class="loading-state branch-history-loading">
+      <div class="loading-spinner"></div>
+      <p>{{ 'loadingOrders' | translate }}</p>
+    </div>
+    <div *ngIf="isBranchManager && !isLiveOrdersRoute && !isLoadingOrders && errorMessage" class="error-state branch-history-error">
+      <p class="error-message">{{ errorMessage }}</p>
+      <button type="button" class="retry-btn" (click)="loadOrders()">{{ 'retry' | translate }}</button>
+    </div>
+    <section class="branch-manager-order-history" *ngIf="isBranchManager && !isLiveOrdersRoute && !isLoadingOrders && !errorMessage">
+      <h1 class="page-title">{{ 'orderHistory' | translate }}</h1>
+      <div class="branch-history-search-row">
+        <div class="search-box filter-search branch-history-search">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+            <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <input
+            type="text"
+            class="search-input"
+            [placeholder]="'searchHere' | translate"
+            [(ngModel)]="searchQuery"
+            (input)="onFilterChange()"
+          />
+        </div>
+        <button type="button" class="sort-by-order-btn" (click)="toggleSortByOrder()">
+          {{ 'sortByOrder' | translate }}
+        </button>
+      </div>
+      <div class="orders-table-container branch-manager-table">
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <th>{{ 'orderNumber' | translate }}</th>
+            <th>{{ 'customerName' | translate }}</th>
+            <th>{{ 'mobileNumber' | translate }}</th>
+            <th>{{ 'deliveryType' | translate }}</th>
+            <th>{{ 'date' | translate }}</th>
+            <th>{{ 'store' | translate }}</th>
+            <th>{{ 'totalValue' | translate }}</th>
+            <th>{{ 'actions' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="paginatedOrders.length === 0">
+            <td colspan="8" class="empty-table-cell">
+              <div class="empty-orders-state">
+                <div class="empty-icon">
+                  <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 11L12 14L22 4" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <h3 class="empty-title">{{ 'noOrders' | translate }}</h3>
+                <p class="empty-description">{{ 'noOrdersToDisplay' | translate }}</p>
+              </div>
+            </td>
+          </tr>
+          <tr *ngFor="let order of paginatedOrders">
+            <td class="order-number-cell">#{{ order.orderNumber }}</td>
+            <td class="customer-name-cell">{{ order.customerName }}</td>
+            <td class="mobile-cell">{{ order.customerPhone || '—' }}</td>
+            <td class="delivery-type-cell">
+              <span *ngIf="order.deliveryType === 'pickup'">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-left: 4px;">
+                  <path d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.364 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke="currentColor" stroke-width="2"/>
+                  <circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                {{ 'pickup' | translate }}
+              </span>
+              <span *ngIf="order.deliveryType === 'delivery'">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-left: 4px;">
+                  <path d="M1 3H16V16H1V3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M16 8H20L23 11V16H16V8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="5.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/>
+                  <circle cx="18.5" cy="18.5" r="2.5" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                {{ 'deliveryMethodDelivery' | translate }}
+              </span>
+              <span *ngIf="!order.deliveryType">—</span>
+            </td>
+            <td class="order-time-cell">{{ order.orderDate || order.receiptDate || '—' }}</td>
+            <td class="store-cell">{{ order.merchantName || order.vendorName || '—' }}</td>
+            <td class="total-value-cell">{{ order.totalPrice }} {{ 'riyal' | translate }}</td>
+            <td class="actions-cell">
+              <button type="button" class="action-icon-btn view-btn" (click)="viewOrderDetails(order)" [title]="'viewDetails' | translate">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 12S5 4 12 4S23 12 23 12S19 20 12 20S1 12 1 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination" *ngIf="filteredOrders.length > 0">
+        <button type="button" class="pagination-btn prev-btn" (click)="previousPage()" [disabled]="currentPage === 1">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <span class="pagination-info">{{ 'page' | translate }} {{ currentPage }} {{ 'of' | translate }} {{ totalPages }}</span>
+        <button type="button" class="pagination-btn next-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- QR Scan Slide Panel -->
+  <div *ngIf="showQRScanPanel" class="qr-scan-overlay" (click)="closeQRScanPanel()">
+    <div class="qr-scan-panel" (click)="$event.stopPropagation()">
+      <div class="qr-scan-header">
+        <h2 class="qr-scan-title">{{ 'scanQRForCustomer' | translate }}</h2>
+        <button type="button" class="qr-scan-close-btn" (click)="closeQRScanPanel()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="qr-scan-content">
+        <div class="qr-scan-camera-area" (click)="activateCamera()">
+          <svg class="qr-scan-camera-icon" width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M23 19C23 19.5304 22.7893 20.0391 22.4142 20.4142C22.0391 20.7893 21.5304 21 21 21H3C2.46957 21 1.96086 20.7893 1.58579 20.4142C1.21071 20.0391 1 19.5304 1 19V8C1 7.46957 1.21071 6.96086 1.58579 6.58579C1.96086 6.21071 2.46957 6 3 6H7L9 3H15L17 6H21C21.5304 6 22.0391 6.21071 22.4142 6.58579C22.7893 6.96086 23 7.46957 23 8V19Z" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 17C14.2091 17 16 15.2091 16 13C16 10.7909 14.2091 9 12 9C9.79086 9 8 10.7909 8 13C8 15.2091 9.79086 17 12 17Z" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <p class="qr-scan-hint">{{ 'clickToStartScanning' | translate }}</p>
+          <button type="button" class="qr-scan-activate-btn" (click)="activateCamera(); $event.stopPropagation()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M23 19C23 19.5304 22.7893 20.0391 22.4142 20.4142C22.0391 20.7893 21.5304 21 21 21H3C2.46957 21 1.96086 20.7893 1.58579 20.4142C1.21071 20.0391 1 19.5304 1 19V8C1 7.46957 1.21071 6.96086 1.58579 6.58579C1.96086 6.21071 2.46957 6 3 6H7L9 3H15L17 6H21C21.5304 6 22.0391 6.21071 22.4142 6.58579C22.7893 6.96086 23 7.46957 23 8V19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M12 17C14.2091 17 16 15.2091 16 13C16 10.7909 14.2091 9 12 9C9.79086 9 8 10.7909 8 13C8 15.2091 9.79086 17 12 17Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            {{ 'activateCamera' | translate }}
+          </button>
+        </div>
+        <div class="qr-scan-separator">
+          <span>{{ 'or' | translate }}</span>
+        </div>
+        <div class="qr-scan-manual">
+          <label class="qr-scan-manual-label">{{ 'enterQRCodeManually' | translate }}</label>
+          <div class="qr-scan-manual-row">
+            <input
+              type="text"
+              class="qr-scan-input"
+              [(ngModel)]="qrCodeManualInput"
+              [placeholder]="'enterQRCodePlaceholder' | translate"
+            />
+            <button type="button" class="qr-scan-confirm-btn" (click)="confirmQRCode()">
+              {{ 'confirm' | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Details Slide Panel -->
+  <div *ngIf="showOrderDetailsPanel" class="order-details-overlay" (click)="closeOrderDetailsPanel()">
+    <div class="order-details-panel" (click)="$event.stopPropagation()">
+      <!-- Header -->
+      <div class="order-details-header">
+        <h2 class="order-details-title">{{ 'orderDetails' | translate }}</h2>
+        <button class="close-panel-btn" (click)="closeOrderDetailsPanel()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="isLoadingOrderDetails" class="order-details-loading">
+        <div class="loading-spinner"></div>
+        <p>{{ 'loadingOrders' | translate }}</p>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="orderDetailsError && !isLoadingOrderDetails" class="order-details-error">
+        <p>{{ orderDetailsError }}</p>
+        <button type="button" class="retry-btn" (click)="selectedOrder && loadOrderDetails(selectedOrder.orderNumber)">
+          {{ 'retry' | translate }}
+        </button>
+      </div>
+
+      <!-- Order Details Content -->
+      <div *ngIf="selectedOrder && !isLoadingOrderDetails && !orderDetailsError" class="order-details-content">
+        <p class="order-details-subtitle">{{ 'orderDetailsFor' | translate }} {{ formatDisplayOrderNumber(selectedOrder) }}</p>
+
+        <!-- QR Code -->
+        <div class="order-details-qr">
+          <div class="qr-code-placeholder">
+            <svg width="120" height="120" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3" y="3" width="7" height="7" fill="#2c3e50"/>
+              <rect x="14" y="3" width="7" height="7" fill="#2c3e50"/>
+              <rect x="3" y="14" width="7" height="7" fill="#2c3e50"/>
+              <rect x="8" y="8" width="2" height="2" fill="#2c3e50"/>
+              <rect x="14" y="8" width="2" height="2" fill="#2c3e50"/>
+              <rect x="16" y="14" width="2" height="2" fill="#2c3e50"/>
+              <rect x="18" y="16" width="2" height="2" fill="#2c3e50"/>
+              <rect x="20" y="18" width="1" height="1" fill="#2c3e50"/>
+              <rect x="8" y="14" width="1" height="1" fill="#2c3e50"/>
+              <rect x="10" y="16" width="1" height="1" fill="#2c3e50"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Order Details Section -->
+        <div class="order-details-section">
+          <h3 class="section-title">{{ 'orderDetails' | translate }}</h3>
+          <div class="details-grid">
+            <div class="detail-row">
+              <span class="detail-label">{{ 'receiptTime' | translate }}</span>
+              <span class="detail-value">{{ selectedOrder.orderTime || selectedOrder.time }} {{ selectedOrder.orderDate || selectedOrder.receiptDate }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">{{ 'orderStatus' | translate }}</span>
+              <span class="detail-value">
+                <span class="detail-badge status-badge" [ngClass]="getStatusClass(selectedOrder.statusKey)">
+                  {{ getStatusTranslationKey(selectedOrder.statusKey) | translate }}
+                </span>
+              </span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">{{ 'customerName' | translate }}</span>
+              <span class="detail-value">{{ selectedOrder.customerName }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">{{ 'phone' | translate }}</span>
+              <span class="detail-value">{{ selectedOrder.customerPhone || '—' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Product List Section -->
+        <div class="order-details-section">
+          <h3 class="section-title">{{ 'productList' | translate }}</h3>
+          <div class="order-details-products">
+            <div *ngFor="let product of (selectedOrder.products || [])" class="order-detail-product-row">
+              <div class="product-info">
+                <span class="product-name">{{ product.name }}</span>
+                <span class="product-quantity">{{ 'quantity' | translate }}: {{ product.quantity }}</span>
+              </div>
+              <span class="product-price">{{ (product.price * product.quantity) | number:'1.2-2' }} {{ 'riyal' | translate }}</span>
+            </div>
+            <div class="order-details-total-row">
+              <span class="total-label">{{ 'totalAmount' | translate }}</span>
+              <span class="total-value">{{ selectedOrder.totalPrice | number:'1.2-2' }} {{ 'riyal' | translate }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <button type="button" class="order-ready-btn" (click)="markOrderReadyAwaitingCustomer()">
+          {{ 'orderReadyAwaitingCustomer' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Details Modal -->
+  <div *ngIf="isModalOpen && selectedOrder" class="modal-overlay" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <!-- QR Code Section -->
+      <div class="qr-section">
+        <div class="qr-code-placeholder">
+          <svg width="120" height="120" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="3" width="7" height="7" fill="#2c3e50"/>
+            <rect x="14" y="3" width="7" height="7" fill="#2c3e50"/>
+            <rect x="3" y="14" width="7" height="7" fill="#2c3e50"/>
+            <rect x="8" y="8" width="2" height="2" fill="#2c3e50"/>
+            <rect x="14" y="8" width="2" height="2" fill="#2c3e50"/>
+            <rect x="16" y="14" width="2" height="2" fill="#2c3e50"/>
+            <rect x="18" y="16" width="2" height="2" fill="#2c3e50"/>
+            <rect x="20" y="18" width="1" height="1" fill="#2c3e50"/>
+            <rect x="8" y="14" width="1" height="1" fill="#2c3e50"/>
+            <rect x="10" y="16" width="1" height="1" fill="#2c3e50"/>
+          </svg>
+        </div>
+        <div class="order-number-modal">#{{ selectedOrder.orderNumber }}</div>
+      </div>
+
+      <!-- Order Status Badge -->
+      <div class="modal-status-badge">
+        <span class="order-status-modal" 
+              [class.status-new]="selectedOrder.status === 'new'"
+              [class.status-confirmed]="selectedOrder.status === 'confirmed'"
+              [class.status-delivered]="selectedOrder.status === 'delivered'">
+          {{ selectedOrder.statusLabel }}
+        </span>
+      </div>
+
+      <!-- Order Details Section -->
+      <div class="modal-section">
+        <h3 class="section-title-modal">{{ 'orderDetails' | translate }}</h3>
+        <div class="details-list">
+          <div class="detail-item">
+            <span class="detail-label">{{ 'receiptTime' | translate }}:</span>
+            <span class="detail-value">{{ selectedOrder.receiptTime }} {{ selectedOrder.receiptDate }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">{{ 'customerName' | translate }}:</span>
+            <span class="detail-value">{{ selectedOrder.customerName }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product List Section -->
+      <div class="modal-section">
+        <h3 class="section-title-modal">{{ 'productList' | translate }}</h3>
+        <div class="products-list-modal">
+          <div *ngFor="let product of selectedOrder.products" class="product-item-modal">
+            <div class="product-info">
+              <span class="product-name-modal">{{ product.name }}</span>
+              <span class="product-quantity">{{ 'quantity' | translate }}: {{ product.quantity }}</span>
+            </div>
+            <span class="product-price">{{ (product.price * product.quantity).toFixed(2) }} {{ 'riyal' | translate }}</span>
+          </div>
+          <div class="total-row">
+            <span class="total-label">{{ 'totalAmount' | translate }}:</span>
+            <span class="total-amount">{{ selectedOrder.totalPrice.toFixed(2) }} {{ 'riyal' | translate }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons Section -->
+      <div class="modal-actions" *ngIf="selectedOrder.status !== 'delivered'">
+        <!-- New Order Buttons -->
+        <div *ngIf="selectedOrder.status === 'new'" class="action-buttons">
+          <button class="action-btn confirm-btn" (click)="confirmOrder()">
+            {{ 'confirmOrder' | translate }}
+          </button>
+          <button class="action-btn reject-btn" (click)="rejectOrder()">
+            {{ 'rejectOrder' | translate }}
+          </button>
+        </div>
+
+        <!-- Confirmed Order Button -->
+        <div *ngIf="selectedOrder.status === 'confirmed'" class="action-buttons">
+          <button class="action-btn confirm-delivery-btn" (click)="confirmDelivery()">
+            {{ 'confirmDelivery' | translate }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Close Button -->
+      <button class="close-modal-btn" (click)="closeModal()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Reject Order Confirmation Modal -->
+  <div *ngIf="isRejectModalOpen && selectedOrder" class="reject-modal-overlay" (click)="cancelRejection()">
+    <div class="reject-modal-content" (click)="$event.stopPropagation()">
+      <!-- Warning Icon -->
+      <div class="warning-icon-container">
+        <div class="warning-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Title -->
+      <h2 class="reject-modal-title">{{ 'rejectReasonTitle' | translate }} "{{ selectedOrder.orderNumber }}"</h2>
+
+      <!-- Instruction Text -->
+      <p class="reject-modal-instruction">{{ 'selectRejectReason' | translate }}</p>
+
+      <!-- Rejection Reason Dropdown -->
+      <div class="reject-reason-field">
+        <select class="reject-reason-select" [(ngModel)]="selectedRejectionReason">
+          <option value="" disabled selected>{{ 'rejectionReason' | translate }}</option>
+          <option *ngFor="let key of rejectReasonKeys" [value]="key">{{ key | translate }}</option>
+        </select>
+        <svg class="dropdown-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="reject-modal-actions">
+        <button class="reject-cancel-btn" (click)="cancelRejection()">{{ 'cancel' | translate }}</button>
+        <button class="reject-confirm-btn" (click)="confirmRejection()" [disabled]="!selectedRejectionReason">
+          {{ 'confirmRejection' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

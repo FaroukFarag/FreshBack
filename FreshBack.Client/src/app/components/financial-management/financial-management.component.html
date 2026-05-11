@@ -1,0 +1,313 @@
+<div class="financial-page">
+  <div class="content-body">
+    <!-- Loading State -->
+    <div *ngIf="isLoadingFinancialData" class="loading-state">
+      <div class="spinner"></div>
+      <p>{{ 'loading' | translate }}</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="errorMessage && !isLoadingFinancialData" class="error-state">
+      <p class="error-message">{{ errorMessage }}</p>
+      <button class="retry-btn" (click)="isAdmin ? loadAdminFinancialData() : loadMerchantFinancialData()">
+        {{ 'retry' | translate }}
+      </button>
+    </div>
+
+    <!-- Admin Key Metrics Cards -->
+    <div class="metrics-section" *ngIf="isAdmin && !isLoadingFinancialData && !errorMessage">
+      <!-- Total Revenues - First Card -->
+      <div class="metric-card">
+        <div class="metric-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 3V21H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M7 16L12 11L16 15L21 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M21 10H15V16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="metric-content">
+          <h3 class="metric-title">{{ 'totalRevenues' | translate }}</h3>
+          <p class="metric-value">{{ financialMetrics.totalRevenue | number }} {{ 'riyal' | translate }}</p>
+          <div class="metric-change positive">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>{{ financialMetrics.revenueChange }}% {{ 'comparedToPreviousMonth' | translate }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Average Order Value - Second Card -->
+      <div class="metric-card">
+        <div class="metric-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 3H21L19 12H7L5 3H3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M7 12L5 21H19L17 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="metric-content">
+          <h3 class="metric-title">{{ 'averageOrderValue' | translate }}</h3>
+          <p class="metric-value">{{ financialMetrics.averageOrderValue }} {{ 'riyal' | translate }}</p>
+          <div class="metric-change negative">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>{{ getAbsoluteValue(financialMetrics.averageOrderChange) }}% {{ 'comparedToPreviousMonth' | translate }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total Commissions - Third Card -->
+      <div class="metric-card">
+        <div class="metric-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="metric-content">
+          <h3 class="metric-title">{{ 'totalCommissions' | translate }}</h3>
+          <p class="metric-value">{{ financialMetrics.totalCommissions | number }} {{ 'riyal' | translate }}</p>
+          <div class="metric-change positive">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>{{ financialMetrics.commissionsChange }}% {{ 'comparedToPreviousMonth' | translate }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pending Payments - Fourth Card -->
+      <div class="metric-card">
+        <div class="metric-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+            <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="metric-content">
+          <h3 class="metric-title">{{ 'pendingPayments' | translate }}</h3>
+          <p class="metric-value">{{ financialMetrics.pendingPayments | number }} {{ 'riyal' | translate }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Financial Analytics Section -->
+    <div class="analytics-section" *ngIf="isAdmin && !isLoadingFinancialData && !errorMessage">
+      <div class="analytics-header">
+        <h2 class="analytics-title">{{ 'financialAnalytics' | translate }}</h2>
+        <select [(ngModel)]="selectedMonth" class="month-select">
+          <option *ngFor="let m of monthKeys" [value]="m.value">{{ m.labelKey | translate }}</option>
+        </select>
+      </div>
+
+      <div class="export-buttons">
+        <button class="export-btn pdf-btn" (click)="exportToPDF()">
+          <img src="assets/icons/pdf.png" [alt]="'exportReportPdf' | translate" class="export-icon" />
+          <span>{{ 'exportReportPdf' | translate }}</span>
+        </button>
+        <button class="export-btn excel-btn" (click)="exportToExcel()">
+          <img src="assets/icons/excel.png" [alt]="'exportReportExcel' | translate" class="export-icon" />
+          <span>{{ 'exportReportExcel' | translate }}</span>
+        </button>
+      </div>
+
+      <div class="charts-container">
+        <div class="chart-card">
+          <h3 class="chart-title">{{ 'revenueByMerchantType' | translate }}</h3>
+          <div class="echart-canvas" #merchantTypeChartEl></div>
+        </div>
+
+        <div class="chart-card">
+          <h3 class="chart-title">{{ 'revenueByRegion' | translate }}</h3>
+          <div class="echart-canvas" #regionRevenueChartEl></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Withdrawal Requests Table -->
+    <div class="withdrawal-section" *ngIf="isAdmin && !isLoadingFinancialData && !errorMessage">
+      <h2 class="section-title">{{ 'withdrawalRequests' | translate }}</h2>
+      <div class="withdrawal-table-container">
+        <table class="withdrawal-table">
+          <thead>
+            <tr>
+              <th>{{ 'orderNumber' | translate }}</th>
+              <th>{{ 'merchant' | translate }}</th>
+              <th>{{ 'value' | translate }}</th>
+              <th>{{ 'date' | translate }}</th>
+              <th>{{ 'status' | translate }}</th>
+              <th>{{ 'actions' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let request of withdrawalRequests">
+              <td class="request-id">{{ request.id }}</td>
+              <td class="merchant-name">{{ request.merchant }}</td>
+              <td class="request-value">{{ request.value }} {{ 'riyal' | translate }}</td>
+              <td class="request-date">{{ request.date }}</td>
+              <td class="request-status">
+                <span class="status-badge" [ngClass]="getStatusClass(request.status)">
+                  {{ (request.statusKey || 'withdrawStatusPending') | translate }}
+                </span>
+              </td>
+              <td class="request-actions">
+                <button class="action-btn view-btn" (click)="viewWithdrawalDetails(request)" [title]="'viewDetails' | translate">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 12S5 4 12 4S23 12 23 12S19 20 12 20S1 12 1 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </button>
+                <button class="action-btn approve-btn" (click)="approveWithdrawal(request)" [title]="'approve' | translate">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span>{{ 'approve' | translate }}</span>
+                </button>
+                <button class="action-btn reject-btn" (click)="rejectWithdrawal(request)" [title]="'reject' | translate">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span>{{ 'reject' | translate }}</span>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Merchant Financial View -->
+    <div *ngIf="isMerchant && !isLoadingFinancialData && !errorMessage" class="merchant-financial-view">
+      <!-- Merchant Summary Cards -->
+      <div class="merchant-metrics-section">
+        <div class="merchant-metric-card balance-card">
+          <div class="merchant-metric-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M21 4H3C1.89543 4 1 4.89543 1 6V18C1 19.1046 1.89543 20 3 20H21C22.1046 20 23 19.1046 23 18V6C23 4.89543 22.1046 4 21 4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M1 10H23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="merchant-metric-content">
+            <h3 class="merchant-metric-label">{{ 'currentBalance' | translate }}</h3>
+            <p class="merchant-metric-value">{{ merchantMetrics.currentBalance | number }} {{ 'riyal' | translate }}</p>
+            <p class="merchant-metric-subtitle">{{ 'netProfits' | translate }}</p>
+          </div>
+        </div>
+
+        <div class="merchant-metric-card">
+          <div class="merchant-metric-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 3V21H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M7 16L12 11L16 15L21 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M21 10H15V16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="merchant-metric-content">
+            <h3 class="merchant-metric-label">{{ 'totalSales' | translate }}</h3>
+            <p class="merchant-metric-value">{{ merchantMetrics.totalSales | number }} {{ 'riyal' | translate }}</p>
+            <p class="merchant-metric-subtitle">{{ 'beforeCommission' | translate }}</p>
+          </div>
+        </div>
+
+        <div class="merchant-metric-card">
+          <div class="merchant-metric-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="merchant-metric-content">
+            <h3 class="merchant-metric-label">{{ 'totalCommissions' | translate }}</h3>
+            <p class="merchant-metric-value">{{ merchantMetrics.commissions | number }} {{ 'riyal' | translate }}</p>
+            <p class="merchant-metric-subtitle">{{ 'commissionPercentage' | translate }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Withdraw Profits Section -->
+      <div class="withdraw-section">
+        <div class="withdraw-content">
+          <h3 class="withdraw-title">{{ 'withdrawProfits' | translate }}</h3>
+          <p class="withdraw-description">{{ 'withdrawProfitsDescription' | translate }}</p>
+        </div>
+        <button class="withdraw-btn" (click)="withdrawProfits()">
+          {{ 'withdrawProfits' | translate }}
+        </button>
+      </div>
+
+      <!-- Transaction Log Section -->
+      <div class="merchant-transaction-section">
+        <div class="transaction-header">
+          <h2 class="transaction-title">{{ 'transactionLog' | translate }}</h2>
+          <div class="export-buttons">
+            <button class="export-btn excel-btn" (click)="exportToExcel()">
+              <img src="assets/icons/excel.png" [alt]="'exportReportExcel' | translate" class="export-icon" />
+              <span>{{ 'exportReportExcel' | translate }}</span>
+            </button>
+            <button class="export-btn pdf-btn" (click)="exportToPDF()">
+              <img src="assets/icons/pdf.png" [alt]="'exportReportPdf' | translate" class="export-icon" />
+              <span>{{ 'exportReportPdf' | translate }}</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="transaction-table-container">
+          <table class="transaction-table">
+            <thead>
+              <tr>
+                <th>{{ 'transactionNumber' | translate }}</th>
+                <th>{{ 'product' | translate }}</th>
+                <th>{{ 'quantity' | translate }}</th>
+                <th>{{ 'price' | translate }}</th>
+                <th>{{ 'commission' | translate }}</th>
+                <th>{{ 'net' | translate }}</th>
+                <th>{{ 'date' | translate }}</th>
+                <th>{{ 'time' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let transaction of transactions">
+                <td class="transaction-id">{{ transaction.id }}</td>
+                <td class="transaction-product">{{ transaction.product }}</td>
+                <td class="transaction-quantity">{{ transaction.quantity }}</td>
+                <td class="transaction-price">{{ transaction.price }} {{ 'riyal' | translate }}</td>
+                <td class="transaction-commission">{{ transaction.commission }} {{ 'riyal' | translate }}</td>
+                <td class="transaction-net">{{ transaction.net }} {{ 'riyal' | translate }}</td>
+                <td class="transaction-date">{{ transaction.date }}</td>
+                <td class="transaction-time">{{ transaction.time }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Information Cards -->
+      <div class="info-cards-section">
+        <div class="info-card tip-card">
+          <div class="info-card-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z" fill="currentColor"/>
+            </svg>
+          </div>
+          <div class="info-card-content">
+            <h3 class="info-card-title">{{ 'financialTip' | translate }}</h3>
+            <p class="info-card-text">{{ 'financialTipText' | translate }}</p>
+          </div>
+        </div>
+
+        <div class="info-card performance-card">
+          <div class="info-card-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 3V21H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M7 16L12 11L16 15L21 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M21 10H15V16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="info-card-content">
+            <h3 class="info-card-title">{{ 'performanceAnalysis' | translate }}</h3>
+            <p class="info-card-text">{{ 'performanceAnalysisText' | translate }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

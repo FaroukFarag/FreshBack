@@ -1,0 +1,303 @@
+<div class="system-settings-page">
+  <div *ngIf="!isAdmin" class="access-denied">
+    <p>{{ 'noAccess' | translate }}</p>
+  </div>
+  <ng-container *ngIf="isAdmin">
+  <div class="content-body">
+    <h1 class="page-title">{{ 'systemSettings' | translate }}</h1>
+
+    <!-- Two-column: Payment Methods (left) + Commission Settings (right) -->
+    <div class="two-panels-row">
+      <!-- Available Payment Methods -->
+      <div class="settings-panel payment-panel">
+        <h2 class="panel-title">{{ 'availablePaymentMethods' | translate }}</h2>
+        <div class="payment-methods-list">
+          <div class="payment-method-row" *ngFor="let pm of paymentMethods">
+            <span class="payment-name">{{ pm.nameKey | translate }}</span>
+            <div class="payment-toggle-wrapper">
+              <button
+                class="toggle-switch"
+                [class.active]="pm.enabled"
+                (click)="togglePaymentMethod(pm)"
+                [disabled]="true"
+                [attr.aria-label]="pm.enabled ? ('enabled' | translate) : ('disabled' | translate)"
+              >
+                <span class="toggle-slider"></span>
+              </button>
+              <span class="payment-status" [class.enabled]="pm.enabled">{{ (pm.enabled ? 'enabled' : 'disabled') | translate }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Commission Settings -->
+      <div class="settings-panel commission-panel">
+        <h2 class="panel-title">{{ 'commissionSettings' | translate }}</h2>
+        <div *ngIf="isLoadingCommissions" class="commission-loading">
+          <div class="loading-spinner"></div>
+          <span>{{ 'loading' | translate }}</span>
+        </div>
+        <div *ngIf="commissionsError && !isLoadingCommissions" class="commission-error">
+          <p>{{ commissionsError }}</p>
+          <button class="retry-btn orange-btn" (click)="loadCommissions()">{{ 'retry' | translate }}</button>
+        </div>
+        <div *ngIf="!isLoadingCommissions && !commissionsError" class="commission-form">
+          <div class="radio-group">
+            <label class="radio-label">{{ 'commissionTypeRatio' | translate }}</label>
+            <div class="radio-options">
+              <label class="radio-option">
+                <input type="radio" name="commissionType" [(ngModel)]="commissionType" value="fixed" />
+                <span>{{ 'commissionTypeFixed' | translate }}</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="commissionType" [(ngModel)]="commissionType" value="variable" />
+                <span>{{ 'commissionTypeVariable' | translate }}</span>
+              </label>
+            </div>
+          </div>
+          <div class="input-row">
+            <label class="input-label">{{ 'fixedCommissionRate' | translate }}</label>
+            <div class="input-with-prefix">
+              <span class="input-prefix">%</span>
+              <input type="number" class="form-input" [(ngModel)]="fixedCommissionRate" min="0" max="100" />
+            </div>
+          </div>
+          <div class="input-row">
+            <label class="input-label">{{ 'bakeriesCommission' | translate }}</label>
+            <div class="input-with-prefix">
+              <span class="input-prefix">%</span>
+              <input type="number" class="form-input" [(ngModel)]="bakeriesCommission" [disabled]="commissionType === 'fixed'" min="0" max="100" />
+            </div>
+          </div>
+          <div class="input-row">
+            <label class="input-label">{{ 'restaurantsCommission' | translate }}</label>
+            <div class="input-with-prefix">
+              <span class="input-prefix">%</span>
+              <input type="number" class="form-input" [(ngModel)]="restaurantsCommission" [disabled]="commissionType === 'fixed'" min="0" max="100" />
+            </div>
+          </div>
+          <div class="input-row">
+            <label class="input-label">{{ 'storesCommission' | translate }}</label>
+            <div class="input-with-prefix">
+              <span class="input-prefix">%</span>
+              <input type="number" class="form-input" [(ngModel)]="storesCommission" [disabled]="commissionType === 'fixed'" min="0" max="100" />
+            </div>
+          </div>
+          <button class="save-btn orange-btn" (click)="saveCommissionSettings()">
+            {{ 'saveCommissionSettings' | translate }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Permissions -->
+    <div class="settings-panel">
+      <div class="panel-header-row">
+        <h2 class="panel-title">{{ 'userPermissions' | translate }}</h2>
+        <button class="add-btn orange-btn" (click)="addNewUser()">
+          <span class="plus-icon">+</span>
+          {{ 'addNewUser' | translate }}
+        </button>
+      </div>
+      <div *ngIf="isLoadingUsers" class="commission-loading">
+        <div class="loading-spinner"></div>
+        <span>{{ 'loading' | translate }}</span>
+      </div>
+      <div *ngIf="usersError && !isLoadingUsers" class="commission-error">
+        <p>{{ usersError }}</p>
+        <button class="retry-btn orange-btn" (click)="loadUsers()">{{ 'retry' | translate }}</button>
+      </div>
+      <div class="table-container" *ngIf="!isLoadingUsers && !usersError">
+        <table class="settings-table">
+          <thead>
+            <tr>
+              <th>{{ 'actions' | translate }}</th>
+              <th>{{ 'status' | translate }}</th>
+              <th>{{ 'email' | translate }}</th>
+              <th>{{ 'jobRole' | translate }}</th>
+              <th>{{ 'name' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of users">
+              <td>
+                <div class="actions-cell">
+                  <button class="action-btn edit-btn" (click)="editUser(user)" [title]="'edit' | translate">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M18.5 2.5C18.8978 2.10218 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10218 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10218 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+              <td>
+                <span class="status-badge" [ngClass]="user.active ? 'status-active' : 'status-inactive'">
+                  {{ (user.active ? 'active' : 'inactive') | translate }}
+                </span>
+              </td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.jobRole }}</td>
+              <td>{{ user.name }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Geographic Region Management -->
+    <div class="settings-panel">
+      <div class="panel-header-row">
+        <h2 class="panel-title">{{ 'geographicRegionManagement' | translate }}</h2>
+        <button class="add-btn orange-btn" (click)="addNewRegion()">
+          <span class="plus-icon">+</span>
+          {{ 'addNewRegion' | translate }}
+        </button>
+      </div>
+      <div *ngIf="isLoadingRegions" class="commission-loading">
+        <div class="loading-spinner"></div>
+        <span>{{ 'loading' | translate }}</span>
+      </div>
+      <div *ngIf="regionsError && !isLoadingRegions" class="commission-error">
+        <p>{{ regionsError }}</p>
+        <button class="retry-btn orange-btn" (click)="loadRegions()">{{ 'retry' | translate }}</button>
+      </div>
+      <div class="table-container" *ngIf="!isLoadingRegions && !regionsError">
+        <table class="settings-table">
+          <thead>
+            <tr>
+              <th>{{ 'actions' | translate }}</th>
+              <th>{{ 'status' | translate }}</th>
+              <th>{{ 'deliveryFees' | translate }}</th>
+              <th>{{ 'region' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let region of regions">
+              <td>
+                <div class="actions-cell">
+                  <button class="action-btn edit-btn" (click)="editRegion(region)" [title]="'edit' | translate">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M18.5 2.5C18.8978 2.10218 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10218 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10218 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                  <button
+                    class="toggle-switch"
+                    [class.active]="region.active"
+                    (click)="toggleRegionStatus(region)"
+                  >
+                    <span class="toggle-slider"></span>
+                  </button>
+                </div>
+              </td>
+              <td>
+                <span class="status-badge" [ngClass]="region.active ? 'status-active' : 'status-inactive'">
+                  {{ (region.active ? 'active' : 'inactive') | translate }}
+                </span>
+              </td>
+              <td>{{ region.deliveryFees }} {{ 'riyal' | translate }}</td>
+              <td>{{ region.name }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  </ng-container>
+
+  <div class="add-region-overlay" [class.open]="isAddUserPanelOpen" (click)="closeAddUserPanel()"></div>
+  <aside class="add-region-panel add-user-panel" [class.open]="isAddUserPanelOpen" (click)="$event.stopPropagation()">
+    <button class="close-panel-btn" (click)="closeAddUserPanel()" aria-label="Close">×</button>
+    <h3 class="add-region-title">
+      {{ isEditingUser ? (('edit' | translate) + ' — ' + ('addNewUser' | translate)) : ('addNewUser' | translate) }}
+    </h3>
+
+    <div class="add-region-form">
+      <p class="add-user-error" *ngIf="addUserError">{{ addUserError }}</p>
+
+      <label class="form-label">Username</label>
+      <input class="form-input-text" type="text" [(ngModel)]="newUserUserName" autocomplete="username" />
+
+      <label class="form-label">{{ 'email' | translate }}</label>
+      <input class="form-input-text" type="email" [(ngModel)]="newUserEmail" autocomplete="email" />
+
+      <label class="form-label">Password</label>
+      <input class="form-input-text" type="password" [(ngModel)]="newUserPassword" autocomplete="new-password" />
+
+      <label class="form-label">{{ 'mobileNumber' | translate }}</label>
+      <input class="form-input-text" type="tel" [(ngModel)]="newUserPhoneNumber" autocomplete="tel" />
+
+      <label class="form-label">{{ 'jobRole' | translate }}</label>
+      <select
+        class="form-input-text role-select"
+        [(ngModel)]="newUserRoleId"
+        [disabled]="isLoadingRoles"
+      >
+        <option [ngValue]="null" disabled>
+          {{ isLoadingRoles ? (('loading' | translate) + '...') : ('jobRole' | translate) }}
+        </option>
+        <option *ngFor="let r of roles" [ngValue]="r.id">{{ r.name }}</option>
+      </select>
+
+      <div class="user-active-field" *ngIf="isEditingUser">
+        <span class="user-active-label">{{ 'status' | translate }}</span>
+        <div class="user-active-toggle-wrap">
+          <button
+            type="button"
+            class="toggle-switch"
+            [class.active]="editUserActive"
+            (click)="toggleEditUserActive()"
+            [attr.aria-label]="editUserActive ? ('active' | translate) : ('inactive' | translate)"
+          >
+            <span class="toggle-slider"></span>
+          </button>
+          <span class="user-active-status" [class.on]="editUserActive">
+            {{ (editUserActive ? 'active' : 'inactive') | translate }}
+          </span>
+        </div>
+      </div>
+
+      <button class="orange-btn add-row-btn" (click)="submitNewUserFromPanel()">
+        <span *ngIf="!isEditingUser" class="plus-icon">+</span>
+        {{ isEditingUser ? ('save' | translate) : ('addNewUser' | translate) }}
+      </button>
+    </div>
+
+    <div class="existing-regions-list">
+      <h4>{{ 'userPermissions' | translate }}</h4>
+      <div class="existing-region-item" *ngFor="let user of users">
+        <div class="existing-region-name">{{ user.name }}</div>
+        <div class="existing-region-fee">{{ user.email }}</div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="add-region-overlay" [class.open]="isAddRegionPanelOpen" (click)="closeAddRegionPanel()"></div>
+  <aside class="add-region-panel" [class.open]="isAddRegionPanelOpen" (click)="$event.stopPropagation()">
+    <button class="close-panel-btn" (click)="closeAddRegionPanel()" aria-label="Close">×</button>
+    <h3 class="add-region-title">{{ isEditingRegion ? ('editRegion' | translate) : ('addNewRegion' | translate) }}</h3>
+
+    <div class="add-region-form">
+      <label class="form-label">{{ 'regionNameLabel' | translate }}</label>
+      <input class="form-input-text" type="text" [(ngModel)]="newRegionName" />
+
+      <label class="form-label">{{ 'regionNameEnglishLabel' | translate }}</label>
+      <input class="form-input-text" type="text" [(ngModel)]="newRegionNameEn" />
+
+      <label class="form-label">{{ 'deliveryFees' | translate }}:</label>
+      <input class="form-input-text" type="number" [(ngModel)]="newRegionDeliveryFees" min="0" />
+
+      <button class="orange-btn add-row-btn" (click)="addRegionFromPanel()">
+        {{ isEditingRegion ? ('saveRegionChanges' | translate) : ('addRegionWithPlus' | translate) }}
+      </button>
+    </div>
+
+    <div class="existing-regions-list">
+      <h4>{{ 'currentRegions' | translate }}</h4>
+      <div class="existing-region-item" *ngFor="let region of regions">
+        <div class="existing-region-name">{{ region.name }}</div>
+        <div class="existing-region-fee">{{ region.deliveryFees }} {{ 'riyal' | translate }}</div>
+      </div>
+    </div>
+  </aside>
+</div>

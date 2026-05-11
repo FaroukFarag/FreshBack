@@ -1,0 +1,194 @@
+<div class="inventory-page">
+  <!-- Slide-in panel overlay -->
+  <div class="surplus-panel-overlay" [class.open]="surplusPanelOpen" (click)="closeSurplusPanel()"></div>
+  <!-- Slide-from-left panel -->
+  <aside class="surplus-panel" [class.open]="surplusPanelOpen">
+    <div class="surplus-panel-header">
+      <h3 class="surplus-panel-title">{{ t.panelTitle }}</h3>
+      <button type="button" class="surplus-panel-close" (click)="closeSurplusPanel()" [attr.aria-label]="t.close">&times;</button>
+    </div>
+    <div class="surplus-panel-form" *ngIf="selectedProduct">
+      <div class="surplus-product-name">{{ selectedProduct.productName }}</div>
+      <h4 class="surplus-section-title">{{ t.branchesAndQuantities }}</h4>
+
+      <div *ngIf="isLoadingBranches" class="surplus-loading">{{ t.loading }}</div>
+
+      <div *ngIf="!isLoadingBranches && branchQuantities.length > 0" class="branch-quantities-list">
+        <div class="branch-quantities-header">
+          <span class="branch-name">{{ t.branchName }}</span>
+          <span class="quantity-label">{{ t.quantity }}</span>
+        </div>
+        <div *ngFor="let row of branchQuantities" class="branch-quantity-row">
+          <span class="branch-name">{{ row.branchName }}</span>
+          <input
+            type="number"
+            class="branch-quantity-input"
+            [(ngModel)]="row.quantity"
+            [name]="'qty_' + row.branchId"
+            min="0"
+          />
+        </div>
+      </div>
+
+      <div *ngIf="!isLoadingBranches && branchQuantities.length === 0" class="surplus-empty">
+        {{ t.noBranches }}
+      </div>
+
+      <h4 class="surplus-section-title surplus-section-margin">{{ t.productDetails }}</h4>
+      <div class="form-group">
+        <label>{{ t.discount }}</label>
+        <input type="number" [(ngModel)]="surplusForm.discount" name="discount" min="0" />
+      </div>
+      <div class="form-group">
+        <label>{{ t.creationDate }}</label>
+        <input type="datetime-local" [(ngModel)]="surplusForm.creationDate" name="creationDate" />
+      </div>
+      <div class="form-group">
+        <label>{{ t.expiryDate }}</label>
+        <input type="datetime-local" [(ngModel)]="surplusForm.expiryDate" name="expiryDate" />
+      </div>
+      <div class="form-group">
+        <label>{{ t.startDeliveryDate }}</label>
+        <input type="datetime-local" [(ngModel)]="surplusForm.startDeliveryDate" name="startDeliveryDate" />
+      </div>
+      <div class="form-group">
+        <label>{{ t.endDeliveryDate }}</label>
+        <input type="datetime-local" [(ngModel)]="surplusForm.endDeliveryDate" name="endDeliveryDate" />
+      </div>
+
+      <p *ngIf="surplusSubmitError" class="surplus-form-error">{{ surplusSubmitError }}</p>
+      <div class="surplus-panel-actions">
+        <button type="button" class="btn-cancel" (click)="closeSurplusPanel()">{{ t.cancel }}</button>
+        <button type="button" class="btn-submit" [disabled]="isSubmittingSurplus || branchQuantities.length === 0" (click)="submitSurplusUpdate()">
+          {{ isSubmittingSurplus ? t.saving : t.update }}
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="content-body">
+    <!-- Header Section -->
+    <div class="page-header-section">
+      <h1 class="main-title">{{ t.pageTitle }}</h1>
+      <div class="header-filters">
+        <div class="filter-group">
+          <svg class="filter-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 6H21M7 12H17M10 18H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <select class="filter-select" [(ngModel)]="selectedFilter">
+            <option value="today">{{ t.today }}</option>
+            <option value="week">{{ t.moreThan7Days }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Daily Surplus Forecast Section -->
+    <section class="excess-inventory-section">
+      <div class="section-header">
+        <h2 class="section-title">{{ t.dailyForecast }}</h2>
+        <p class="section-subtitle">{{ t.basedOnPos }}</p>
+      </div>
+
+      <div class="forecast-table" *ngIf="!forecastError">
+        <div class="table-row header-row">
+          <div class="table-cell">{{ t.productName }}</div>
+          <div class="table-cell">{{ t.currentInventory }}</div>
+          <div class="table-cell">{{ t.expectedSurplus }}</div>
+          <div class="table-cell">{{ t.expiryTime }}</div>
+          <div class="table-cell">{{ t.suggestedAction }}</div>
+        </div>
+
+        <div *ngIf="isLoadingForecast" class="loading-row">
+          <span>{{ t.loading }}</span>
+        </div>
+        <div *ngFor="let item of excessInventoryItems" class="table-row">
+          <div class="table-cell">
+            <span class="product-name">{{ item.productName }}</span>
+          </div>
+          <div class="table-cell">
+            <span class="inventory-value">{{ item.currentStock }}</span>
+          </div>
+          <div class="table-cell">
+            <span class="inventory-value">{{ item.expectedSurplus }}</span>
+          </div>
+          <div class="table-cell">
+            <span class="expiration-time" [class.urgent]="item.isUrgent">
+              <svg class="hourglass-icon" [class.urgent-icon]="item.isUrgent" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 2V6M6 6C6 7.10457 6.89543 8 8 8H16C17.1046 8 18 7.10457 18 6M18 2V6M6 18V22M6 18C6 16.8954 6.89543 16 8 16H16C17.1046 16 18 16.8954 18 18M18 18V22M6 6L6 12L18 12L18 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              {{ item.expirationTime }}
+            </span>
+          </div>
+          <div class="table-cell">
+            <button class="action-btn" (click)="openAddToSurplus(item)">
+              <svg class="plus-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              {{ t.addToSurplus }}
+            </button>
+          </div>
+        </div>
+        <div *ngIf="excessInventoryItems.length > 0 && totalPages > 1" class="pagination-row">
+          <button type="button" class="pagination-btn" (click)="previousPage()" [disabled]="pageNumber <= 1">‹</button>
+          <span class="pagination-info">{{ pageNumber }} / {{ totalPages }}</span>
+          <button type="button" class="pagination-btn" (click)="nextPage()" [disabled]="pageNumber >= totalPages">›</button>
+        </div>
+      </div>
+      <div *ngIf="forecastError" class="forecast-error">
+        {{ forecastError }}
+      </div>
+    </section>
+
+    <!-- Smart Pricing Engine Section -->
+    <section class="smart-pricing-section">
+      <div class="section-header">
+        <h2 class="section-title">{{ t.smartPricingTitle }}</h2>
+        <p class="section-subtitle">{{ t.smartPricingSubtitle }}</p>
+      </div>
+
+      <div class="pricing-cards">
+        <div *ngFor="let recommendation of pricingRecommendations" class="pricing-card">
+          <h3 class="pricing-product-name">{{ recommendation.productName }}</h3>
+          
+          <div class="pricing-details">
+            <div class="price-row">
+              <span class="price-label">{{ t.originalPrice }}</span>
+              <span class="original-price">{{ recommendation.originalPrice }} {{ t.currency }}</span>
+            </div>
+            <div class="price-row">
+              <span class="price-label">{{ t.suggestedPrice }}</span>
+              <span class="suggested-price">{{ recommendation.suggestedPrice }} {{ t.currency }}</span>
+            </div>
+            <div class="discount-badge">
+              <span class="discount-text">{{ recommendation.discount }}</span>
+            </div>
+          </div>
+
+          <div class="recommendation-box">
+            <p class="recommendation-text">{{ t.recommendationText }}</p>
+          </div>
+
+          <button class="apply-price-btn" (click)="applySuggestedPrice(recommendation)">
+            {{ t.applySuggestedPrice }}
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Smart Tips Section -->
+    <section class="smart-tips-section">
+      <div class="tips-cards">
+        <div *ngFor="let tip of smartTips" class="tip-card">
+          <div class="tip-header">
+            <h3 class="tip-title">{{ t[tip.titleKey] }}</h3>
+            <div class="tip-icon">
+              <img [src]="tip.iconPath" [alt]="t[tip.titleKey]" />
+            </div>
+          </div>
+          <p class="tip-content">{{ t[tip.contentKey] }}</p>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

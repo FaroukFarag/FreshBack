@@ -1,0 +1,161 @@
+<div class="products-page">
+  <!-- Loading State -->
+  <div *ngIf="isLoadingProducts" class="loading-state">
+    <div class="loading-spinner"></div>
+    <p>{{ 'loadingProducts' | translate }}</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="errorMessage && !isLoadingProducts" class="error-state">
+    <p class="error-message">{{ errorMessage }}</p>
+  </div>
+
+  <!-- Products list: toolbar always visible when data loaded; table or empty message below -->
+  <div class="table-container" *ngIf="!isLoadingProducts && !errorMessage">
+    <!-- Page Title Inside Container -->
+    <div class="page-title-section" [class.english-layout]="currentLanguage === 'en'">
+      <h1 class="page-title">{{ translations.productList || (currentLanguage === 'ar' ? 'قائمة المنتجات' : 'Products List') }}</h1>
+    </div>
+
+    <!-- Controls Section (Button, Filters, Search) -->
+    <div class="table-controls">
+      <button *ngIf="!isAdmin" class="add-button" (click)="addNewProduct()">
+        <span class="add-icon">+</span>
+        <span class="btn-text">{{ translations.addNewExcessProduct || 'Add New Excess Product' }}</span>
+      </button>
+      
+      <div class="filter-group">
+        <select [(ngModel)]="selectedStatus" (change)="onFilterChange()" class="filter-select">
+          <option value="">{{ translations.productStatus || 'Product Status' }}</option>
+          <option value="active">{{ translations.active || 'Active' }}</option>
+          <option value="sold">{{ translations.sold || 'Sold' }}</option>
+          <option value="expired">{{ translations.expired || 'Expired' }}</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <select [(ngModel)]="selectedPriceRange" (change)="onFilterChange()" class="filter-select">
+          <option value="">{{ translations.productPrice || 'Product Price' }}</option>
+          <option value="0-25">0-25 {{ currentLanguage === 'ar' ? 'ريال' : 'SAR' }}</option>
+          <option value="25-50">25-50 {{ currentLanguage === 'ar' ? 'ريال' : 'SAR' }}</option>
+          <option value="50-100">50-100 {{ currentLanguage === 'ar' ? 'ريال' : 'SAR' }}</option>
+          <option value="100+">100+ {{ currentLanguage === 'ar' ? 'ريال' : 'SAR' }}</option>
+        </select>
+      </div>
+
+      <div class="search-box">
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (input)="onFilterChange()"
+          [placeholder]="translations.searchProduct || 'Search for product'"
+          class="search-input"
+        />
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+          <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Empty (no rows for current filters / no products) — still under toolbar -->
+    <div *ngIf="filteredProducts.length === 0" class="empty-state empty-state--in-panel">
+      <div class="empty-icon">
+        <svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="18" height="18" rx="2" stroke="#999" stroke-width="2"/>
+          <path d="M9 9H7C6.46957 9 5.96086 9.21071 5.58579 9.58579C5.21071 9.96086 5 10.4696 5 11V17C5 17.5304 5.21071 18.0391 5.58579 18.4142C5.96086 18.7893 6.46957 19 7 19H13C13.5304 19 14.0391 18.7893 14.4142 18.4142C14.7893 18.0391 15 17.5304 15 17V15" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M19 5L14 10M14 10L13 11M14 10L19 15L21 13L16 8M14 10L16 8" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h3 class="empty-title">{{ 'noProducts' | translate }}</h3>
+      <p class="empty-description">{{ 'noProductsDescription' | translate }}</p>
+    </div>
+
+    <!-- Products Table -->
+    <table *ngIf="filteredProducts.length > 0" class="products-table">
+      <thead>
+        <tr>
+          <th>{{ translations.productName || 'Product Name' }}</th>
+          <th>{{ translations.price || 'Price' }}</th>
+          <th>{{ translations.quantity || 'Quantity' }}</th>
+          <th>{{ translations.views || 'Views' }}</th>
+          <th>{{ translations.salesPercentage || 'Sales Percentage' }}</th>
+          <th>{{ translations.status || 'Status' }}</th>
+          <th>{{ translations.actions || 'Actions' }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let product of paginatedProducts">
+          <td class="product-name">{{ product.name }}</td>
+          <td class="price-cell">{{ product.price }} <span class="currency">{{ currentLanguage === 'ar' ? 'ريال' : 'SAR' }}</span></td>
+          <td class="quantity-cell">{{ product.quantity }}</td>
+          <td class="views-cell">
+            <svg class="views-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span class="views-count">{{ product.views }}</span>
+          </td>
+          <td class="sales-cell">
+            <div class="sales-progress">
+              <div class="progress-bar-container">
+                <div class="progress-bar-fill" [style.width.%]="product.salesPercentage"></div>
+              </div>
+              <span class="percentage-text">%{{ product.salesPercentage }}</span>
+            </div>
+          </td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(product.status)">
+              {{ product.statusLabel }}
+            </span>
+          </td>
+          <td class="actions-cell">
+            <button class="action-btn duplicate-btn" (click)="duplicateProduct(product)" [title]="translations.refresh || 'Refresh'">
+              <img src="assets/icons/reload.png" alt="Reload" width="18" height="18" />
+            </button>
+            <button *ngIf="!isAdmin" class="action-btn edit-btn" (click)="editProduct(product)" [title]="translations.edit || 'Edit'">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination" *ngIf="!isLoadingProducts && filteredProducts.length > 0">
+    <button class="pagination-btn prev-btn" (click)="previousPage()" [disabled]="currentPage === 1">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <span class="pagination-info">{{ translations.table || 'Table' }} {{ currentPage }} {{ translations.of || 'of' }} {{ totalPages }}</span>
+    <button class="pagination-btn next-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <app-add-product-panel
+    *ngIf="showAddPanel"
+    (close)="closeAddPanel()"
+    (save)="saveProduct($event)"
+  ></app-add-product-panel>
+
+  <!-- Loading product details for edit -->
+  <div *ngIf="isLoadingProductDetails" class="loading-product-details">
+    <div class="loading-spinner"></div>
+    <p>{{ 'loading' | translate }}...</p>
+  </div>
+
+  <app-edit-product-panel
+    *ngIf="showEditPanel && selectedProduct"
+    [product]="selectedProduct"
+    (close)="closeEditPanel()"
+    (save)="updateProduct($event)"
+  ></app-edit-product-panel>
+</div>

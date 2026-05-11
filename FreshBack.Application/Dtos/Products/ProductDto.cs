@@ -1,6 +1,6 @@
 ﻿using FreshBack.Application.Dtos.Abstraction;
+using FreshBack.Application.Dtos.BranchesProducts;
 using FreshBack.Application.Dtos.Merchants;
-using FreshBack.Domain.Models.BranchesProducts;
 
 namespace FreshBack.Application.Dtos.Products;
 
@@ -19,5 +19,5 @@ public class ProductDto : BaseModelDto<int>
 
     public MerchantDto Merchant { get; set; } = default!;
     public IEnumerable<ProductImageDto> ProductImages { get; set; } = default!;
-    public IEnumerable<BranchProduct> ProductsBranches { get; set; } = default!;
+    public IEnumerable<BranchProductDto> ProductsBranches { get; set; } = default!;
 }

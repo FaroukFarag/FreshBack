@@ -1,0 +1,259 @@
+<div class="statistics-page">
+  <div class="content-body">
+    <!-- Merchant View (roleId 1): Statistics and Performance Dashboard -->
+    <div class="merchant-stats-section" *ngIf="isMerchant">
+      <!-- Row 1: Peak Hours + Top 5 Products -->
+      <div class="merchant-row-1">
+        <div class="merchant-peak-hours-widget">
+          <h3 class="merchant-widget-title">ساعات الذروة</h3>
+          <div class="merchant-chart-container">
+            <canvas #merchantPeakChart width="600" height="280"></canvas>
+          </div>
+        </div>
+        <div class="merchant-top-products-widget">
+          <h3 class="merchant-widget-title">أفضل 5 منتجات هذا الشهر</h3>
+          <div class="top-products-list">
+            <div *ngFor="let product of topProducts; let i = index" class="top-product-item">
+              <span class="product-rank">{{ i + 1 }}</span>
+              <div class="product-info">
+                <span class="product-name">{{ product.name }}</span>
+                <span class="product-sales">{{ product.sales | number:'1.0-0' }} ر | {{ product.quantity }} قطعة مباعة</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 2: Week's Tip Banner -->
+      <div class="merchant-week-tip">
+        <div class="tip-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 18H15M9 14H15M12 2C10.3431 2 9 3.34315 9 5C9 6.30622 9.83481 7.41746 11 7.82929V9C11 9.55228 11.4477 10 12 10C12.5523 10 13 9.55228 13 9V7.82929C14.1652 7.41746 15 6.30622 15 5C15 3.34315 13.6569 2 12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M12 22C16.9706 22 21 17.9706 21 13C21 8.02944 16.9706 4 12 4C7.02944 4 3 8.02944 3 13C3 17.9706 7.02944 22 12 22Z" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="tip-content">
+          <h4 class="tip-title">نصيحة الأسبوع</h4>
+          <p class="tip-text">{{ weekTip }}</p>
+        </div>
+      </div>
+
+      <!-- Row 3: Market Comparison + Customer Reviews -->
+      <div class="merchant-row-3">
+        <div class="merchant-market-widget">
+          <h3 class="merchant-widget-title">مقارنة السوق</h3>
+          <p class="market-subtitle">أدرك مقارنة بالمتاجر الأخرى</p>
+          <div class="market-bars">
+            <div *ngFor="let metric of marketMetrics" class="market-bar-item">
+              <span class="bar-label">{{ metric.label }}</span>
+              <div class="bar-track">
+                <div class="bar-fill" [ngClass]="'bar-' + metric.color" [style.width.%]="metric.value"></div>
+              </div>
+              <span class="bar-text">{{ metric.text }}</span>
+            </div>
+          </div>
+          <div class="improvement-box">
+            <span class="improvement-label">فرصة للتحسن</span>
+            <p class="improvement-text">{{ improvementMessage }}</p>
+          </div>
+        </div>
+        <div class="merchant-reviews-widget">
+          <h3 class="merchant-widget-title">تقييمات العملاء</h3>
+          <div class="overall-rating">
+            <span class="rating-value">{{ overallRating }}</span>
+            <span class="rating-count">({{ reviewsCount }} تقييم)</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#FBBF24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+            </svg>
+          </div>
+          <div class="reviews-list">
+            <div *ngFor="let review of customerReviews" class="review-item">
+              <div class="review-header">
+                <span class="review-date">{{ review.date }}</span>
+                <span class="review-name">{{ review.name }}</span>
+              </div>
+              <div class="review-stars">
+                <span *ngFor="let s of [1,2,3,4,5]" class="star" [class.filled]="s <= review.rating">★</span>
+              </div>
+              <p class="review-text">{{ review.text }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- First Section: KPIs and Top Merchants -->
+    <div class="first-section" *ngIf="isAdmin">
+      <!-- Left Sidebar: KPIs -->
+      <div class="kpis-section">
+        <div class="kpi-card">
+          <div class="kpi-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 3H21L19 12H7L5 3H3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M7 12L5 21H19L17 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="kpi-content">
+            <h3 class="kpi-title">نسبة إعادة الطلب</h3>
+            <p class="kpi-value">%{{ reorderRate }}</p>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+              <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="kpi-content">
+            <h3 class="kpi-title">متوسط وقت بيع الطلب</h3>
+            <p class="kpi-value">{{ averageFulfillmentTime }} ساعة</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Section: Top 10 Merchants -->
+      <div class="top-merchants-widget">
+        <h3 class="widget-title">أفضل 10 تجار حسب المبيعات</h3>
+        <div class="merchants-grid">
+          <div class="merchants-column">
+            <div *ngFor="let merchant of getTopMerchantsLeft(); let i = index" class="merchant-item">
+              <span class="merchant-rank">{{ i + 1 }}</span>
+              <span class="merchant-name">{{ merchant.name }}</span>
+              <span class="merchant-sales">{{ merchant.sales | number }}</span>
+            </div>
+          </div>
+          <div class="merchants-column">
+            <div *ngFor="let merchant of getTopMerchantsRight(); let i = index" class="merchant-item">
+              <span class="merchant-rank">{{ i + 6 }}</span>
+              <span class="merchant-name">{{ merchant.name }}</span>
+              <span class="merchant-sales">{{ merchant.sales | number }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Middle Section: Geographic Focus and Most Requested Products -->
+    <div class="middle-section" *ngIf="isAdmin">
+      <!-- Geographic Focus Areas -->
+      <div class="geographic-widget">
+        <h3 class="widget-title">مناطق التركيز الجغرافية</h3>
+        <div class="map-container">
+          <div class="saudi-map">
+            <!-- Simplified Saudi Arabia map representation -->
+            <svg viewBox="0 0 400 500" class="map-svg">
+              <!-- Regions with different colors based on concentration -->
+              <path d="M150 100 L250 100 L280 150 L250 200 L150 200 Z" fill="#10B981" opacity="0.8"/>
+              <path d="M100 200 L200 200 L220 250 L200 300 L100 300 Z" fill="#34D399" opacity="0.6"/>
+              <path d="M200 200 L300 200 L320 250 L300 300 L200 300 Z" fill="#FCD34D" opacity="0.7"/>
+              <path d="M150 300 L250 300 L280 350 L250 400 L150 400 Z" fill="#FBBF24" opacity="0.8"/>
+              <path d="M250 100 L350 100 L380 150 L350 200 L250 200 Z" fill="#F59E0B" opacity="0.9"/>
+              <!-- City labels -->
+              <text x="200" y="130" font-size="12" fill="#333" text-anchor="middle">الرياض</text>
+              <text x="150" y="250" font-size="12" fill="#333" text-anchor="middle">جدة</text>
+              <text x="300" y="250" font-size="12" fill="#333" text-anchor="middle">الدمام</text>
+              <text x="200" y="350" font-size="12" fill="#333" text-anchor="middle">مكة</text>
+              <text x="100" y="200" font-size="12" fill="#333" text-anchor="middle">أبها</text>
+              <text x="320" y="150" font-size="12" fill="#333" text-anchor="middle">الخبر</text>
+              <text x="200" y="450" font-size="12" fill="#333" text-anchor="middle">القصيم</text>
+            </svg>
+          </div>
+          <div class="map-legend">
+            <div class="legend-gradient">
+              <span class="legend-label">اقل تركيز</span>
+              <div class="gradient-bar"></div>
+              <span class="legend-label">اكثر تركيز</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Most Requested Products -->
+      <div class="products-widget">
+        <h3 class="widget-title">المنتجات الأكثر طلبا</h3>
+        <div class="donut-chart-container">
+          <div class="donut-chart-visual">
+            <svg class="donut-svg" viewBox="0 0 200 200">
+              <circle cx="100" cy="100" r="80" fill="none" stroke="#f0f0f0" stroke-width="30"/>
+              <circle *ngFor="let item of getDonutChartData()" 
+                cx="100" cy="100" r="80" fill="none" 
+                [attr.stroke]="item.color" 
+                stroke-width="30" 
+                [attr.stroke-dasharray]="item.strokeDasharray"
+                [attr.stroke-dashoffset]="item.strokeDashoffset"
+                transform="rotate(-90 100 100)"/>
+            </svg>
+            <div class="donut-center">
+              <div class="donut-label">{{ productCategories[0]?.name || '' }}</div>
+              <div class="donut-percentage">{{ productCategories[0]?.percentage || 0 }}%</div>
+            </div>
+          </div>
+          <div class="donut-legend">
+            <div *ngFor="let category of productCategories" class="legend-item">
+              <span class="legend-color" [style.background-color]="category.color"></span>
+              <span>{{ category.name }} {{ category.percentage }}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Section: Environmental Impact and Peak Hours -->
+    <div class="bottom-section" *ngIf="isAdmin">
+      <!-- Environmental Impact Cards -->
+      <div class="environmental-cards">
+        <div class="env-card">
+          <div class="env-header">
+            <div class="env-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM8 8C8.55 8 9 8.45 9 9C9 9.55 8.55 10 8 10C7.45 10 7 9.55 7 9C7 8.45 7.45 8 8 8ZM16 8C16.55 8 17 8.45 17 9C17 9.55 16.55 10 16 10C15.45 10 15 9.55 15 9C15 8.45 15.45 8 16 8ZM12 18C9.24 18 7 15.76 7 13C7 12.45 7.45 12 8 12C8.55 12 9 12.45 9 13C9 14.66 10.34 16 12 16C13.66 16 15 14.66 15 13C15 12.45 15.45 12 16 12C16.55 12 17 12.45 17 13C17 15.76 14.76 18 12 18Z" fill="currentColor"/>
+              </svg>
+            </div>
+            <h3 class="env-title">إجمالي الطعام الموفر</h3>
+          </div>
+          <p class="env-value">{{ totalFoodSaved | number:'1.2-2' }} كجم</p>
+          <button class="download-btn" (click)="downloadReport('food')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>تحميل التقرير</span>
+          </button>
+        </div>
+
+        <div class="env-card">
+          <div class="env-header">
+            <div class="env-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h3 class="env-title">تقليل البصمة الكربونية</h3>
+          </div>
+          <p class="env-value">{{ carbonFootprintReduction | number:'1.2-2' }} كجم CO2</p>
+          <button class="download-btn" (click)="downloadReport('carbon')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>تحميل التقرير</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Peak Order Times -->
+      <div class="peak-hours-widget">
+        <h3 class="widget-title">أوقات الذروة للطلبات</h3>
+        <div class="chart-container">
+          <canvas #peakHoursChart width="700" height="350"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

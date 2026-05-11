@@ -18,7 +18,7 @@ public class OrderConfigurations : IEntityTypeConfiguration<Order>
         builder.Property(o => o.Status)
             .IsRequired();
 
-        builder.Property(o => o.Price)
+        builder.Property(o => o.OrderFinalAmount)
             .IsRequired()
             .HasPrecision(18, 2);
 

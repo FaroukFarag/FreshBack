@@ -1,0 +1,60 @@
+<div class="layout">
+  <aside class="sidebar">
+    <div class="logo-container">
+      <div class="logo">
+        <img src="assets/images/logo (4).png" alt="Fresh Back" class="logo-image" />
+      </div>
+      <p class="tagline">{{ isBranchManagerRole ? t.branchManagerDashboard : t.merchantsControlPanel }}</p>
+    </div>
+
+    <nav class="nav-menu">
+      <a *ngFor="let item of menuItems"
+         [routerLink]="item.route"
+         routerLinkActive="active"
+         [routerLinkActiveOptions]="{exact: item.route === '/dashboard'}"
+         class="nav-item">
+        <span class="nav-label">{{ item.label }}</span>
+        <img [src]="item.icon" [alt]="item.label" class="nav-icon" />
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="logout-btn" (click)="logout()" [title]="translations?.logout">
+        <span class="nav-label">{{ translations?.logout }}</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="nav-icon">
+          <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M16 17L21 12L16 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="header">
+      <h1 class="page-title">{{ pageTitle }}</h1>
+      <div class="header-controls">
+        <div class="dropdown-wrapper">
+          <button class="dropdown-btn" (click)="toggleLanguageDropdown()">
+            <span class="dropdown-icon-left">🌐</span>
+            <span class="dropdown-text">{{ currentLanguage }}</span>
+            <span class="dropdown-icon-right">▼</span>
+          </button>
+          <div class="dropdown-menu" *ngIf="languageDropdownOpen">
+            <button 
+              class="dropdown-item" 
+              *ngFor="let lang of languages" 
+              (click)="selectLanguage(lang)"
+              [class.active]="currentLanguage === lang.label">
+              {{ lang.label }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

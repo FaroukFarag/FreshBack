@@ -1,0 +1,104 @@
+<div class="login-container">
+  <div class="login-lang-bar">
+    <button type="button" class="lang-toggle-btn" (click)="switchLanguage()" [attr.aria-label]="t.language">
+      <svg class="lang-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+        <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" stroke="currentColor" stroke-width="2"/>
+      </svg>
+      <span class="lang-label">{{ languageLabel }}</span>
+    </button>
+  </div>
+
+  <div class="login-content">
+    <div class="login-left">
+      <div class="login-form-wrapper">
+        <div class="form-header">
+          <h2 class="form-title">{{ t.title }}</h2>
+          <p class="form-subtitle">{{ t.subtitle }}</p>
+        </div>
+
+        <form class="login-form" (ngSubmit)="onLogin()">
+          <div class="form-group">
+            <label for="username">{{ t.username }}</label>
+            <div class="input-wrapper">
+              <input
+                type="text"
+                id="username"
+                name="username"
+                [(ngModel)]="username"
+                [placeholder]="t.usernamePlaceholder"
+                autocomplete="username"
+                required
+              />
+              <img src="assets/icons/user.svg" alt="" class="input-icon" width="20" height="20" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="password">{{ t.password }}</label>
+            <div class="input-wrapper">
+              <input
+                [type]="showPassword ? 'text' : 'password'"
+                id="password"
+                name="password"
+                [(ngModel)]="password"
+                [placeholder]="t.passwordPlaceholder"
+                required
+              />
+              <img src="assets/icons/lock.svg" alt="lock" class="input-icon" />
+              <button 
+                type="button" 
+                class="password-toggle-btn"
+                (click)="togglePasswordVisibility()"
+                [attr.aria-label]="showPassword ? t.hidePassword : t.showPassword"
+              >
+                <svg *ngIf="!showPassword" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <svg *ngIf="showPassword" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M17.94 17.94C16.2306 19.243 14.1491 19.9649 12 20C5 20 1 12 1 12C2.24389 9.68192 3.96914 7.65661 6.06 6.06M9.9 4.24C10.5883 4.0789 11.2931 3.99836 12 4C19 4 23 12 23 12C22.393 13.1356 21.6691 14.2048 20.84 15.19M14.12 14.12C13.8454 14.4148 13.5141 14.6512 13.1462 14.8151C12.7782 14.9791 12.3809 15.0673 11.9781 15.0744C11.5753 15.0815 11.1747 15.0074 10.8016 14.8565C10.4286 14.7056 10.0887 14.4806 9.80385 14.1958C9.51897 13.9109 9.29398 13.571 9.14308 13.198C8.99218 12.8249 8.91808 12.4243 8.92519 12.0215C8.9323 11.6187 9.02049 11.2214 9.18446 10.8534C9.34843 10.4855 9.58482 10.1541 9.88 9.88" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M1 1L23 23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="remember-me">
+            <input type="checkbox" id="remember" name="remember" [(ngModel)]="rememberMe" />
+            <label for="remember">{{ t.rememberMe }}</label>
+          </div>
+
+          <div *ngIf="errorMessage" class="error-message">
+            {{ errorMessage }}
+          </div>
+          <button type="submit" class="login-button" [disabled]="isLoading">
+            <span *ngIf="!isLoading">{{ t.loginButton }}</span>
+            <span *ngIf="isLoading">{{ t.loggingIn }}</span>
+          </button>
+
+          <div class="form-footer">
+            <span class="or-separator">{{ t.or }}</span>
+            <div class="support-link-wrapper">
+              <span class="support-text">{{ t.needHelp }}</span>
+              <a href="#" class="support-link">{{ t.contactSupport }}</a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="login-right" [style.background-image]="'url(' + backgroundImage + ')'">
+        <p> <img src="assets/login-logo.png"></p>
+      <h1 class="brand-title">{{ t.panelTitle }}</h1>
+      <p class="brand-description">
+        {{ t.panelDescription }}
+      </p>
+      <div class="action-buttons">
+        <button class="action-btn primary">{{ t.manageMerchants }}</button>
+        <button class="action-btn secondary">{{ t.trackOrders }}</button>
+        <button class="action-btn secondary">{{ t.advancedStats }}</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -5,7 +5,11 @@ namespace FreshBack.Application.Interfaces.Dashboard;
 
 public interface IDashboardService
 {
-    Task<ResultDto<RevenueDto>> TotalRevenueAsync();
+    Task<ResultDto<ActiveCustomersDto>> ActiveCustomersAsync();
+    Task<ResultDto<RegisteredMerchantsDto>> RegisteredMerchantsAsync();
+    Task<ResultDto<RevenueDto>> TotalRevenueAsync(int? merchantId = null);
+    Task<ResultDto<ActiveOrdersDto>> ActiveOrdersAsync();
+    Task<ResultDto<IEnumerable<LatestOrderDto>>> LatestOrdersAsync(int count = 10);
     Task<ResultDto<OccupancyRateDto>> OccupancyRateAsync();
     Task<ResultDto<HourlySalesDto>> HourlySalesAsync();
     Task<ResultDto<WeeklySalesDto>> WeeklySalesAsync();

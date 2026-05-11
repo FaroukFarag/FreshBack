@@ -1,0 +1,380 @@
+<div class="dashboard">
+  <!-- Admin View -->
+  <div *ngIf="isAdmin" class="admin-dashboard">
+    <!-- First section (top summary cards) -->
+    <section class="admin-top-summary" aria-label="Admin Summary">
+      <div class="admin-stats-row">
+        <div class="admin-stat-card">
+          <div class="stat-card-icon">
+            <img src="assets/icons/user.svg" alt="" class="stat-icon-img" />
+          </div>
+          <div class="stat-title">{{ 'activeCustomersCount' | translate }}</div>
+          <div class="stat-main-value">
+            {{ adminStats.activeCustomers }}
+            <span class="stat-unit">{{ 'customerUnit' | translate }}</span>
+          </div>
+          <div class="stat-sub-text">{{ 'ofThem' | translate }} {{ adminStats.activeCustomersThisWeek }} {{ 'thisWeek' |
+            translate }}</div>
+        </div>
+
+        <div class="admin-stat-card">
+          <div class="stat-card-icon">
+            <img src="assets/icons/branches.svg" alt="" class="stat-icon-img" />
+          </div>
+          <div class="stat-title">{{ 'registeredMerchantsCount' | translate }}</div>
+          <div class="stat-main-value">
+            {{ adminStats.registeredMerchants }}
+            <span class="stat-unit">{{ 'merchant' | translate }}</span>
+          </div>
+          <div class="stat-sub-text">{{ 'ofThem' | translate }} {{ adminStats.activeMerchants }} {{ 'active' | translate
+            }}</div>
+        </div>
+
+        <div class="admin-stat-card">
+          <div class="stat-card-icon">
+            <img src="assets/icons/performance.svg" alt="" class="stat-icon-img" />
+          </div>
+          <div class="stat-title">{{ 'monthlyGrowthRate' | translate }}</div>
+          <div class="stat-main-value">
+            <ng-container *ngIf="!isLoadingDashboardKpis; else kpiGrowthLoading">{{ adminStats.monthlyGrowthRate |
+              number:'1.0-2' }}%</ng-container>
+            <ng-template #kpiGrowthLoading><span class="kpi-value-loading">…</span></ng-template>
+          </div>
+          <div class="stat-sub-text">{{ 'comparedToPreviousMonth' | translate }}</div>
+        </div>
+
+        <div class="admin-stat-card">
+          <div class="stat-card-icon">
+            <img src="assets/icons/3.svg" alt="" class="stat-icon-img" />
+          </div>
+          <div class="stat-title">{{ 'wasteSavedAmount' | translate }}</div>
+          <div class="stat-main-value">
+            <ng-container *ngIf="!isLoadingDashboardKpis; else kpiWeightLoading">
+              {{ adminStats.wasteSaved | number }}
+              <span class="stat-unit">{{ 'kg' | translate }}</span>
+            </ng-container>
+            <ng-template #kpiWeightLoading><span class="kpi-value-loading">…</span></ng-template>
+          </div>
+          <div class="stat-sub-text">{{ 'thisMonth' | translate }}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Middle Row: Active Orders, Total Sales, Map -->
+    <div class="admin-metrics-row">
+      <div class="admin-metric-card orders-card">
+        <h4 class="metric-title">{{ 'activeOrdersCount' | translate }}</h4>
+        <p class="metric-subtitle">{{ 'averageDailyOrders' | translate }}</p>
+        <div class="metric-main-value">{{ adminStats.activeOrders | number }} <span class="metric-unit">{{ 'orderUnit' |
+            translate }}</span></div>
+        <div class="metric-growth-text">+{{ adminStats.ordersSinceHour }} {{ 'sinceHour' | translate }}</div>
+      </div>
+
+      <div class="admin-metric-card sales-card">
+        <h4 class="metric-title">{{ 'totalSales' | translate }}</h4>
+        <div class="sales-period-tabs">
+          <button class="period-tab" [class.active]="salesPeriod === 'daily'" (click)="setSalesPeriod('daily')">{{
+            'daily' | translate }}</button>
+          <button class="period-tab" [class.active]="salesPeriod === 'weekly'" (click)="setSalesPeriod('weekly')">{{
+            'weekly' | translate }}</button>
+          <button class="period-tab" [class.active]="salesPeriod === 'monthly'" (click)="setSalesPeriod('monthly')">{{
+            'monthly' | translate }}</button>
+        </div>
+        <div class="metric-main-value sales-value">
+          <span class="currency-symbol">₺</span>{{ adminStats.totalSales | number }}
+        </div>
+        <div class="metric-growth-text sales-growth">
+          <img src="assets/icons/arrow.svg" alt="arrow" class="growth-arrow" />
+          <span>{{ adminStats.salesGrowthPercentage }}%+ {{ 'percentFromLastWeek' | translate }}</span>
+        </div>
+      </div>
+
+      <!-- <div class="admin-metric-card map-card">
+        <h4 class="metric-title">{{ 'regionActivityMap' | translate }}</h4>
+        <div class="map-container">
+          <div class="map-placeholder">
+            <google-map *ngIf="isGoogleMapsLoaded" class="google-map" [center]="mapCenter" [zoom]="mapZoom"
+              [options]="mapOptions"></google-map>
+            <div *ngIf="!isGoogleMapsLoaded" class="map-error">
+              <p>{{ 'mapApiKeyMessage' | translate }}</p>
+              <p class="map-error-sub">{{ 'mapApiKeySub' | translate }}</p>
+            </div>
+          </div>
+          <div class="map-legend">
+            <div class="legend-item">
+              <span class="legend-color" style="background: #22c55e;"></span>
+              <span>{{ 'activityVeryHigh' | translate }}</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color" style="background: #4ade80;"></span>
+              <span>{{ 'activityMedium' | translate }}</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color" style="background: #86efac;"></span>
+              <span>{{ 'activityLow' | translate }}</span>
+            </div>
+          </div>
+        </div>
+      </div> -->
+    </div>
+
+    <!-- Latest Orders Table -->
+    <div class="admin-orders-section">
+      <h3 class="orders-section-title">{{ 'latestOrdersAndActivities' | translate }}</h3>
+      <div class="orders-table-wrapper">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>{{ 'orderNumber' | translate }}</th>
+              <th>{{ 'merchant' | translate }}</th>
+              <th>{{ 'customerName' | translate }}</th>
+              <th>{{ 'value' | translate }}</th>
+              <th>{{ 'status' | translate }}</th>
+              <th>{{ 'time' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let order of latestOrders">
+              <td class="order-number-cell">#{{ order.orderId }}</td>
+              <td class="merchant-cell">{{ order.merchantName }}</td>
+              <td class="customer-cell">{{ order.customerName }}</td>
+              <td class="value-cell">{{ order.value | number }} {{ 'riyal' | translate }}</td>
+              <td class="status-cell">
+                <span class="status-badge" [ngClass]="getStatusClass(order.status)">
+                  {{ order.status | translate }}
+                </span>
+              </td>
+              <td class="time-cell">{{ order.creationDate }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="table-pagination">
+          <button class="pagination-btn prev-btn" [disabled]="currentPage === 1" [class.disabled]="currentPage === 1">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </button>
+          <span class="pagination-info">{{ 'table' | translate }} {{ currentPage }} {{ 'of' | translate }} {{ totalPages
+            }}</span>
+          <button class="pagination-btn next-btn" [disabled]="currentPage === totalPages"
+            [class.disabled]="currentPage === totalPages">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Regular User View -->
+  <div *ngIf="!isAdmin" class="dashboard-grid">
+    <div class="card revenue-card">
+      <div class="card-icon">
+        <img src="assets/icons/money.svg" [alt]="'revenue' | translate" class="icon-image" />
+      </div>
+      <h3 class="card-title">{{ 'revenue' | translate }}</h3>
+      <div class="revenue-stats">
+        <div class="stat-item">
+          <div class="stat-value">{{ revenueStats.today }} <span class="currency">{{ 'egp' | translate }}</span></div>
+          <div class="stat-label">{{ 'today' | translate }}</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-value">{{ revenueStats.thisWeek }} <span class="currency">{{ 'egp' | translate }}</span>
+          </div>
+          <div class="stat-label">{{ 'thisWeek' | translate }}</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-value">{{ revenueStats.thisMonth }} <span class="currency">{{ 'egp' | translate }}</span>
+          </div>
+          <div class="stat-label">{{ 'thisMonth' | translate }}</div>
+        </div>
+      </div>
+      <div class="growth-indicator">
+        <span class="growth-text">{{ 'comparedToPreviousMonth' | translate }}</span>
+        <span class="growth-value">{{ revenueStats.growth }}% +</span>
+      </div>
+    </div>
+
+    <div class="card occupancy-card">
+      <div class="card-icon">
+        <img src="assets/icons/performance.svg" [alt]="'occupancyRate' | translate" class="icon-image" />
+      </div>
+      <h3 class="card-title">{{ 'occupancyRate' | translate }}</h3>
+      <div class="percentage-value">{{ occupancyRate.percentage }}%</div>
+      <div class="occupancy-description">{{ 'comparedToPreviousMonth' | translate }}</div>
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="occupancyRate.percentage"></div>
+      </div>
+      <div class="occupancy-note">{{ soldPiecesNoteText }}</div>
+    </div>
+
+    <div class="card chart-card hourly-sales">
+      <h3 class="chart-title">{{ 'hourlySalesRate' | translate }}</h3>
+
+      <!-- Loading state -->
+      <div *ngIf="isLoadingHourlySales" class="chart-loading">
+        <span class="kpi-value-loading">…</span>
+      </div>
+
+      <!-- Chart -->
+      <div *ngIf="!isLoadingHourlySales" class="chart-container">
+
+        <!-- Time indicator top-left (live clock) -->
+        <div class="time-indicator">
+          <span>{{ currentTime }}</span>
+          <span>{{ 'date' | translate }}</span>
+        </div>
+
+        <!--
+          viewBox is 800 × 320:
+            y  0–250  → plot area
+            y 250–270 → gap between baseline and labels
+            y 270–320 → x-axis label row
+        -->
+        <svg class="chart" viewBox="0 0 800 320" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#f4a261;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#e76f51;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+
+          <!-- Horizontal grid lines -->
+          <g class="grid">
+            <line *ngFor="let line of [0, 50, 100, 150, 200]"
+                  x1="30" x2="780"
+                  [attr.y1]="250 - line"
+                  [attr.y2]="250 - line"
+                  stroke="#f0f0f0" stroke-width="1" />
+          </g>
+
+          <!-- Line (only when data available) -->
+          <polyline *ngIf="hasHourlyData"
+                    [attr.points]="getHourlyPoints()"
+                    fill="none"
+                    stroke="url(#lineGradient)"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round" />
+
+          <!-- Dashed baseline shown only when every hour is zero -->
+          <line *ngIf="!hasHourlyData"
+                x1="30" y1="135" x2="780" y2="135"
+                stroke="#e0e0e0" stroke-width="2" stroke-dasharray="6" />
+
+          <!-- Dots with tooltip -->
+          <g class="dots">
+            <circle *ngFor="let dot of getHourlyDots()"
+                    [attr.cx]="dot.cx"
+                    [attr.cy]="dot.cy"
+                    r="4"
+                    fill="#f4a261"
+                    stroke="#fff"
+                    stroke-width="1.5">
+              <title>{{ dot.hour }}:00 — {{ dot.revenue | number:'1.0-2' }} {{ 'egp' | translate }}</title>
+            </circle>
+          </g>
+
+          <!-- X-axis labels inside SVG — every 3rd hour (00, 03, 06 … 21) -->
+          <g class="x-labels">
+            <ng-container *ngFor="let dot of getHourlyDots(); let i = index">
+              <text *ngIf="i % 3 === 0"
+                    [attr.x]="dot.cx"
+                    y="275"
+                    text-anchor="middle"
+                    font-size="11"
+                    fill="#aaa">{{ dot.hour.toString().padStart(2,'0') }}:00</text>
+            </ng-container>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <div class="card chart-card weekly-sales">
+      <h3 class="chart-title">{{ 'weeklySales' | translate }}</h3>
+
+      <!-- Loading state -->
+      <div *ngIf="isLoadingWeeklySales" class="chart-loading">
+        <span class="kpi-value-loading">…</span>
+      </div>
+
+      <!-- Chart -->
+      <div *ngIf="!isLoadingWeeklySales" class="chart-container">
+
+        <!-- Day + date indicator (top-left, matches screenshot) -->
+        <div class="week-indicator">
+          <span class="week-day-name">{{ todayDayName }}</span>
+          <span class="week-date" style="color: #f4a261;">
+            {{ 'date' | translate }} {{ todayDayNumber }}
+          </span>
+        </div>
+
+        <svg class="chart" viewBox="0 0 600 300" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="weeklyLineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#f4a261;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#e76f51;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+
+          <!-- Horizontal grid lines -->
+          <g class="grid">
+            <line *ngFor="let line of [0, 60, 120, 180, 240]" x1="50" x2="550" [attr.y1]="250 - line"
+              [attr.y2]="250 - line" stroke="#f0f0f0" stroke-width="1" />
+          </g>
+
+          <polyline *ngIf="weeklySalesPoints.length" [attr.points]="getWeeklyPoints()" fill="none"
+            stroke="url(#weeklyLineGradient)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+
+          <line *ngIf="!weeklySalesPoints.length" x1="50" y1="250" x2="550" y2="250" stroke="#f0f0f0" stroke-width="2"
+            stroke-dasharray="6" />
+
+          <g class="dots">
+            <circle *ngFor="let dot of getWeeklyDots()" [attr.cx]="dot.cx" [attr.cy]="dot.cy" r="5" fill="#f4a261"
+              stroke="#fff" stroke-width="1.5">
+              <title>{{ dot.label }} — {{ dot.revenue | number:'1.0-2' }} {{ 'egp' | translate }}</title>
+            </circle>
+          </g>
+
+          <g class="labels">
+            <text *ngFor="let dot of getWeeklyDots()" [attr.x]="dot.cx" y="285" text-anchor="middle" font-size="13"
+              fill="#888">{{ dot.label }}</text>
+          </g>
+        </svg>
+
+      </div>
+    </div>
+
+    <div class="card stat-card orange">
+      <div class="stat-icon">
+        <img src="assets/icons/productsManagment.svg" [alt]="'productsSoldCount' | translate" class="stat-icon-image" />
+      </div>
+      <h4 class="stat-card-title">{{ 'productsSoldCount' | translate }}</h4>
+      <div class="stat-card-value">{{ stats.productsSold }} <span class="unit">{{ 'productUnit' | translate }}</span>
+      </div>
+    </div>
+
+    <div class="card stat-card red">
+      <div class="stat-icon">
+        <img src="assets/icons/user.svg" [alt]="'productsRemainingCount' | translate" class="stat-icon-image" />
+      </div>
+      <h4 class="stat-card-title">{{ 'productsRemainingCount' | translate }}</h4>
+      <div class="stat-card-value">{{ stats.productsRemaining }} <span class="unit">{{ 'productUnit' | translate
+          }}</span></div>
+    </div>
+
+    <div class="card stat-card green">
+      <div class="stat-icon">
+        <img src="assets/icons/3.svg" [alt]="'savedWeightAmount' | translate" class="stat-icon-image" />
+      </div>
+      <h4 class="stat-card-title">{{ 'savedWeightAmount' | translate }}</h4>
+      <div class="stat-card-value">{{ stats.savedWeightAmount }} <span class="unit">{{ 'kilogram' | translate }}</span>
+      </div>
+    </div>
+  </div>
+</div>

@@ -14,7 +14,7 @@ public class Order : BaseAuditModel<int>, IMerchantEntity
     public int Number { get; set; }
     public DateTime CreationDate { get; set; } = DateTime.Now;
     public OrderStatus Status { get; set; }
-    public decimal Price { get; set; }
+    public decimal OrderFinalAmount { get; set; }
     public decimal Discount { get; set; }
     public decimal Fees { get; set; }
     public int PaymentMethodId { get; set; }

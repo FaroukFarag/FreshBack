@@ -36,8 +36,8 @@ public class BranchConfigurations : IEntityTypeConfiguration<Branch>
         builder.ToTable(t =>
         {
             t.HasCheckConstraint(
-                "CK_Branches_ClosingTime_After_OpeningTime",
-                "[ClosingTime] > [OpeningTime]"
+                "CK_Branches_ClosingTime_NotEqual_OpeningTime",
+                "[ClosingTime] <> [OpeningTime]"
             );
         });
 

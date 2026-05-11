@@ -30,7 +30,7 @@ public static class QueryableExtensions
         List<Expression<Func<TEntity, object>>>? includes)
         where TEntity : class
     {
-        if (includes == null)
+        if (includes == null || includes.Count == 0)
             return query;
 
         return includes.Aggregate(query, (current, include) => current.Include(include));

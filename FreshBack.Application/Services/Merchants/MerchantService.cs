@@ -3,7 +3,6 @@ using FreshBack.Application.Dtos.Merchants;
 using FreshBack.Application.Dtos.Settings.Users;
 using FreshBack.Application.Dtos.Shared;
 using FreshBack.Application.Interfaces.Merchants;
-using FreshBack.Application.Interfaces.Settings.Users;
 using FreshBack.Application.Interfaces.Shared;
 using FreshBack.Application.Services.Abstraction;
 using FreshBack.Domain.Constants.Merchants;
@@ -11,7 +10,11 @@ using FreshBack.Domain.Interfaces.Repositories.Merchants;
 using FreshBack.Domain.Interfaces.UnitOfWork;
 using FreshBack.Domain.Models.Branches;
 using FreshBack.Domain.Models.Merchants;
+using FreshBack.Domain.Models.Roles;
+using FreshBack.Domain.Models.Settings.Users;
 using FreshBack.Domain.Specifications.Absraction;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Localization;
 
 namespace FreshBack.Application.Services.Merchants;
 
@@ -20,48 +23,78 @@ public class MerchantService(
     IUnitOfWork unitOfWork,
     IMapper mapper,
     IImageService imageService,
-    IUserService userService) : BaseService<CreateMerchantDto, MerchantDto, MerchantDto,
+    UserManager<User> userManager,
+    RoleManager<Role> roleManager,
+    IStringLocalizer<Domain.Resources.Merchants.Merchant> localizer) : BaseService<CreateMerchantDto, MerchantDto, MerchantDto,
         MerchantDto, Merchant, int>(repository, unitOfWork, mapper), IMerchantService
 {
     private readonly IMerchantRepository _repository = repository;
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IMapper _mapper = mapper;
     private readonly IImageService _imageService = imageService;
-    private readonly IUserService _userService = userService;
+    private readonly UserManager<User> _userManager = userManager;
+    private readonly RoleManager<Role> _roleManager = roleManager;
+    private readonly IStringLocalizer<Domain.Resources.Merchants.Merchant> _localizer = localizer;
 
     public override async Task<ResultDto<CreateMerchantDto>> CreateAsync(
-        CreateMerchantDto createMerchantDto)
+    CreateMerchantDto createMerchantDto)
     {
         return await ExecuteServiceCallAsync(
             operationName: "Create Merchant",
             action: async () =>
             {
-                createMerchantDto.ImagePath =
-                    await _imageService.SaveImageAsync(
-                        createMerchantDto.ImageFile,
-                        MerchantConstants.SubFolder);
+                createMerchantDto.ImagePath = await _imageService.SaveImageAsync(
+                    createMerchantDto.ImageFile,
+                    MerchantConstants.SubFolder);
 
-                var merchant = _mapper.Map<Merchant>(createMerchantDto);
+                await using var transaction = await _unitOfWork.BeginTransactionAsync();
 
-                merchant = await _repository.CreateAsync(merchant);
+                try
+                {
+                    var merchant = _mapper.Map<Merchant>(createMerchantDto);
 
-                var merchantCreated = await _unitOfWork.Complete();
+                    merchant = await _repository.CreateAsync(merchant);
 
-                if (!merchantCreated)
-                    throw new InvalidOperationException(
-                        $"An error occurred while creating the merchant");
+                    var merchantCreated = await _unitOfWork.Complete();
 
-                var userDto = _mapper.Map<UserDto>(createMerchantDto);
+                    if (!merchantCreated)
+                        throw new InvalidOperationException(
+                            _localizer["CreationFailed"]);
 
-                userDto.MerchantId = merchant.Id;
+                    var userDto = _mapper.Map<UserDto>(createMerchantDto);
 
-                var userResult = await _userService.CreateAsync(userDto);
+                    userDto.MerchantId = merchant.Id;
 
-                if (!userResult.Succeeded)
-                    throw new InvalidOperationException(
-                        $"Failed to assign user the merchant");
+                    var user = _mapper.Map<User>(userDto);
 
-                return _mapper.Map<CreateMerchantDto>(merchant);
+                    var userResult = await _userManager.CreateAsync(user, userDto.Password!);
+
+                    var role = await _roleManager.FindByIdAsync(userDto.RoleId.ToString())
+                        ?? throw new InvalidOperationException(_localizer["RoleNotFound"]);
+
+                    if (!userResult.Succeeded)
+                        throw new InvalidOperationException(
+                            $"{_localizer["UserCreationFailed"]}: {string.Join(",", userResult.Errors.Select(e => e.Description))}");
+
+                    var roleResult = await _userManager.AddToRoleAsync(user, role.Name!);
+
+                    if (!roleResult.Succeeded)
+                        throw new InvalidOperationException(
+                            _localizer["RoleAssignmentFailed", string.Join(", ", roleResult.Errors.Select(e => e.Description))]);
+
+                    await transaction.CommitAsync();
+
+                    return _mapper.Map<CreateMerchantDto>(merchant);
+                }
+                catch
+                {
+                    await transaction.RollbackAsync();
+
+                    // Clean up saved image since DB was rolled back
+                    _imageService.DeleteImage(createMerchantDto.ImagePath);
+
+                    throw;
+                }
             });
     }
 
@@ -106,7 +139,7 @@ public class MerchantService(
 
                 if (!merchantUpdated)
                     throw new InvalidOperationException(
-                        $"An error occurred while updating the merchant status");
+                        _localizer["MerchantStatusUpdateFailed"]);
 
                 return _mapper.Map<MerchantDto>(merchant);
             });

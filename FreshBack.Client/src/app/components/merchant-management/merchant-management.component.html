@@ -1,0 +1,349 @@
+<div class="merchant-management-page">
+  <!-- Summary Cards -->
+  <div class="merchant-stats-row">
+    <div class="stat-card suspended">
+      <div class="stat-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 21V19C16 17.9391 15.5786 16.9217 14.8284 16.1716C14.0783 15.4214 13.0609 15 12 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8.5 11C10.7091 11 12.5 9.20914 12.5 7C12.5 4.79086 10.7091 3 8.5 3C6.29086 3 4.5 4.79086 4.5 7C4.5 9.20914 6.29086 11 8.5 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ merchantStats.suspended }} <span class="stat-unit">{{ 'merchant' | translate }}</span></div>
+        <div class="stat-label">{{ 'suspended' | translate }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card pending">
+      <div class="stat-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 21V19C16 17.9391 15.5786 16.9217 14.8284 16.1716C14.0783 15.4214 13.0609 15 12 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8.5 11C10.7091 11 12.5 9.20914 12.5 7C12.5 4.79086 10.7091 3 8.5 3C6.29086 3 4.5 4.79086 4.5 7C4.5 9.20914 6.29086 11 8.5 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ merchantStats.pending }} <span class="stat-unit">{{ 'merchant' | translate }}</span></div>
+        <div class="stat-label">{{ 'pending' | translate }}</div>
+      </div>
+    </div>
+
+    <div class="stat-card active">
+      <div class="stat-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 21V19C16 17.9391 15.5786 16.9217 14.8284 16.1716C14.0783 15.4214 13.0609 15 12 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8.5 11C10.7091 11 12.5 9.20914 12.5 7C12.5 4.79086 10.7091 3 8.5 3C6.29086 3 4.5 4.79086 4.5 7C4.5 9.20914 6.29086 11 8.5 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ merchantStats.active }} <span class="stat-unit">{{ 'merchant' | translate }}</span></div>
+        <div class="stat-label">{{ 'active' | translate }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Merchant List Section -->
+  <div class="merchant-list-section">
+    <h2 class="section-title">{{ 'merchantsList' | translate }}</h2>
+    
+    <!-- Search and Filters -->
+    <div class="search-filters-row">
+      <button type="button" class="add-merchant-btn" (click)="openAddMerchantPanel()">
+        <span class="add-icon">+</span>
+        <span>{{ 'addNewMerchant' | translate }}</span>
+      </button>
+      <div class="search-container">
+        <input 
+          type="text" 
+          class="search-input" 
+          [placeholder]="'searchMerchant' | translate"
+          [(ngModel)]="searchQuery"
+          (input)="onSearch()"
+        />
+        <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+          <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <div class="filters-container">
+        <select class="filter-select" [(ngModel)]="selectedRegion" (change)="applyFilters()">
+          <option value="">{{ 'geographicRegion' | translate }}</option>
+          <option *ngFor="let region of regions" [value]="region">{{ region }}</option>
+        </select>
+
+        <select class="filter-select" [(ngModel)]="selectedSalesVolume" (change)="applyFilters()">
+          <option value="">{{ 'salesVolume' | translate }}</option>
+          <option *ngFor="let key of salesVolumeKeys" [value]="key">{{ key | translate }}</option>
+        </select>
+
+        <select class="filter-select" [(ngModel)]="selectedActivityType" (change)="applyFilters()">
+          <option value="">{{ 'activityType' | translate }}</option>
+          <option *ngFor="let type of activityTypes" [value]="type">{{ type }}</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Merchants Table -->
+    <div class="table-wrapper">
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>{{ 'loadingMerchants' | translate }}</p>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="!isLoading && errorMessage" class="error-state">
+        <p class="error-message">{{ errorMessage }}</p>
+        <button class="retry-btn" (click)="loadMerchants()">إعادة المحاولة</button>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!isLoading && !errorMessage && filteredMerchants.length === 0" class="empty-state">
+        <p>لا توجد تجار متاحين</p>
+      </div>
+
+      <!-- Table -->
+      <table *ngIf="!isLoading && !errorMessage && filteredMerchants.length > 0" class="merchants-table">
+        <thead>
+          <tr>
+            <th class="merchant-image-col">{{ 'merchantImage' | translate }}</th>
+            <th>{{ 'merchantName' | translate }}</th>
+            <th>{{ 'salesVolume' | translate }}</th>
+            <th>{{ 'ordersCount' | translate }}</th>
+            <th>{{ 'rating' | translate }}</th>
+            <th>{{ 'status' | translate }}</th>
+            <th>{{ 'actions' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let merchant of filteredMerchants">
+            <td class="merchant-image-cell">
+              <div class="merchant-table-thumb" [class.merchant-table-thumb--empty]="!merchant.imageUrl">
+                <img
+                  *ngIf="merchant.imageUrl"
+                  [src]="merchant.imageUrl"
+                  [alt]="merchant.name"
+                  loading="lazy"
+                  class="merchant-table-thumb-img"
+                />
+                <svg
+                  *ngIf="!merchant.imageUrl"
+                  class="merchant-table-thumb-placeholder"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                >
+                  <path d="M3 21H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M5 21V7L13 2L21 7V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M9 9V13H15V9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </td>
+            <td class="name-cell">{{ merchant.name }}</td>
+            <td class="sales-cell">{{ merchant.salesVolume | number }} {{ 'riyal' | translate }}</td>
+            <td class="orders-cell">{{ merchant.orderCount }}</td>
+            <td class="rating-cell">
+              <div class="rating">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                </svg>
+                <span>{{ merchant.rating }}</span>
+              </div>
+            </td>
+            <td class="status-cell">
+              <span class="status-badge" [ngClass]="getStatusClass(merchant.status)">
+                {{ merchant.status | translate }}
+              </span>
+            </td>
+            <td class="actions-cell">
+              <div class="actions-buttons">
+                <button 
+                  class="action-btn toggle-btn" 
+                  [class.active]="merchant.status === 'active'"
+                  [class.suspended]="merchant.status === 'suspended'"
+                  [class.pending]="merchant.status === 'pending'"
+                  (click)="toggleMerchantStatus(merchant)"
+                  [title]="(merchant.status === 'active' ? 'deactivateMerchantAccount' : 'activateMerchant') | translate"
+                ></button>
+                <button class="action-btn view-btn" (click)="viewMerchant(merchant)" [title]="'viewDetails' | translate">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 12S5 4 12 4S23 12 23 12S19 20 12 20S1 12 1 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </button>
+                <button class="action-btn chat-btn" (click)="chatWithMerchant(merchant)" [title]="'contact' | translate">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Pagination -->
+      <div class="table-pagination" *ngIf="!isLoading && !errorMessage && filteredMerchants.length > 0">
+        <button class="pagination-btn prev-btn" [disabled]="currentPage === 1" [class.disabled]="currentPage === 1">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <span class="pagination-info">{{ 'table' | translate }} {{ currentPage }} {{ 'of' | translate }} {{ totalPages }}</span>
+        <button class="pagination-btn next-btn" [disabled]="currentPage === totalPages" [class.disabled]="currentPage === totalPages">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Merchant Details Slide Panel -->
+  <div *ngIf="showMerchantDetails" class="merchant-details-overlay" (click)="closeMerchantDetails()">
+    <div class="merchant-details-panel" (click)="$event.stopPropagation()">
+      <!-- Panel Header -->
+      <div class="panel-header">
+        <h2 class="panel-title">{{ 'merchantDetails' | translate }}</h2>
+        <button class="close-btn" (click)="closeMerchantDetails()" [title]="'close' | translate">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Panel Body -->
+      <div class="panel-body">
+        <div *ngIf="isLoadingMerchantDetails" class="panel-state">
+          <div class="loading-spinner"></div>
+          <p>{{ 'loadingMerchants' | translate }}</p>
+        </div>
+
+        <div *ngIf="!isLoadingMerchantDetails && merchantDetailsError" class="panel-state panel-state--error">
+          <p>{{ merchantDetailsError }}</p>
+        </div>
+
+        <ng-container *ngIf="!isLoadingMerchantDetails && !merchantDetailsError && selectedMerchant">
+        <!-- Merchant Information Block -->
+        <div class="merchant-info-block">
+          <div class="merchant-info-content">
+            <div class="merchant-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 21H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M5 21V7L13 2L21 7V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9 9V13H15V9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9 21V13H15V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="merchant-name-section">
+              <h3 class="merchant-name">{{ selectedMerchant.name }}</h3>
+              <p class="merchant-specialization">{{ selectedMerchant.activityType }}</p>
+            </div>
+          </div>
+          <button class="deactivate-btn" (click)="deactivateMerchant()">{{ 'deactivateMerchantAccount' | translate }}</button>
+        </div>
+
+        <!-- Store Story Section -->
+        <div class="story-section">
+          <h4 class="section-title">{{ 'storeStorySection' | translate }}</h4>
+          <p class="story-text">{{ selectedMerchant.story || selectedMerchant.description || '--' }}</p>
+        </div>
+
+        <!-- Merchant Data Section -->
+        <div class="merchant-data-section">
+          <h4 class="section-title">{{ 'merchantData' | translate }}</h4>
+          <div class="data-item">
+            <span class="data-label">{{ 'contactNumber' | translate }}:</span>
+            <span class="data-value" *ngFor="let phone of selectedMerchant.phoneNumbers">{{ phone }}</span>
+            <span class="data-value" *ngIf="selectedMerchant.phoneNumbers.length === 0">--</span>
+          </div>
+        </div>
+
+        <!-- Customer Reviews Section -->
+        <div class="reviews-section">
+          <h4 class="section-title">{{ 'customerReviews' | translate }}</h4>
+          <div class="review-item" *ngFor="let review of selectedMerchant.reviews">
+            <button class="delete-review-btn" (click)="deleteReview(review.id)" [title]="'deleteReview' | translate">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <div class="review-header">
+              <span class="review-date">{{ review.date }}</span>
+              <div class="reviewer-info">
+                <span class="reviewer-name">{{ review.reviewerName }}</span>
+                <div class="reviewer-avatar">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <p class="review-text">{{ review.text || '--' }}</p>
+            <div class="review-images" *ngIf="review.imagePaths.length > 0">
+              <img *ngFor="let imagePath of review.imagePaths" [src]="imagePath" alt="review image" class="review-image" />
+            </div>
+            <div class="review-rating">
+              <svg *ngFor="let star of getStars(review.rating)" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+              </svg>
+            </div>
+          </div>
+          <div class="no-reviews" *ngIf="selectedMerchant.reviews.length === 0">--</div>
+        </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <app-add-merchant-panel
+    *ngIf="showAddMerchantPanel"
+    (close)="closeAddMerchantPanel()"
+    (saved)="onMerchantCreated()"
+  ></app-add-merchant-panel>
+
+  <!-- Deactivate Confirmation Modal -->
+  <div *ngIf="showDeactivateModal" class="deactivate-modal-overlay" (click)="closeDeactivateModal()">
+    <div class="deactivate-modal" (click)="$event.stopPropagation()">
+      <div class="modal-icon">
+        <div class="icon-background">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M9 12L11 14L15 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+      
+      <h3 class="modal-title">{{ 'confirmDeactivateTitle' | translate }}</h3>
+      
+      <p class="modal-description">
+        {{ 'deactivateModalDescription' | translate }}
+      </p>
+      
+      <div class="modal-form">
+        <select 
+          class="reason-select" 
+          [(ngModel)]="deactivateReason">
+          <option value="" disabled selected>{{ 'deactivateReasonPlaceholder' | translate }}</option>
+          <option *ngFor="let key of deactivateReasonKeys" [value]="key">{{ key | translate }}</option>
+        </select>
+      </div>
+      
+      <div class="modal-actions">
+        <button class="cancel-btn" (click)="closeDeactivateModal()">{{ 'cancel' | translate }}</button>
+        <button class="confirm-btn" [class.active]="deactivateReason" (click)="confirmDeactivate()" [disabled]="!deactivateReason">{{ 'confirmDeactivate' | translate }}</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,245 @@
+<div class="panel-overlay" (click)="onOverlayClick($event)">
+  <div class="panel-content" [class.ltr-layout]="isEnglish" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="panel-header">
+      <h2 class="panel-title">{{ t.title }}</h2>
+      <button class="close-btn" (click)="onClose()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="panel-body">
+      <form (ngSubmit)="onSubmit()">
+
+        <!-- ── Images ─────────────────────────────────────────────────────── -->
+        <div class="form-section">
+          <label class="section-label">{{ t.productImages }}</label>
+          <div class="image-uploads">
+
+            <!-- Primary image slot -->
+            <div class="image-upload-box">
+              <input
+                type="file"
+                id="edit-primary-image"
+                accept="image/*"
+                (change)="onPrimaryImageSelect($event)"
+                hidden
+              />
+              <div *ngIf="primaryImagePreview" class="image-preview-container">
+                <label for="edit-primary-image" class="image-preview-label">
+                  <img [src]="primaryImagePreview" alt="Primary" class="image-preview" />
+                </label>
+                <button type="button" class="remove-image-btn"
+                  (click)="removePrimaryImage(); $event.stopPropagation()" title="إزالة الصورة">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+              <label *ngIf="!primaryImagePreview" for="edit-primary-image" class="upload-label">
+                <div class="upload-icon">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                    <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+                    <path d="M12 8V16M8 12H16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <p class="upload-text">{{ t.dragOrClick }}</p>
+              </label>
+            </div>
+
+            <!-- Secondary image slot -->
+            <div class="image-upload-box">
+              <input
+                type="file"
+                id="edit-secondary-image"
+                accept="image/*"
+                (change)="onSecondaryImageSelect($event)"
+                hidden
+              />
+              <div *ngIf="secondaryImagePreview" class="image-preview-container">
+                <label for="edit-secondary-image" class="image-preview-label">
+                  <img [src]="secondaryImagePreview" alt="Secondary" class="image-preview" />
+                </label>
+                <button type="button" class="remove-image-btn"
+                  (click)="removeSecondaryImage(); $event.stopPropagation()" title="إزالة الصورة">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+              <label *ngIf="!secondaryImagePreview" for="edit-secondary-image" class="upload-label">
+                <div class="upload-icon">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                    <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+                    <path d="M12 8V16M8 12H16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <p class="upload-text">{{ t.dragOrClick }}</p>
+              </label>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ── Product Data ───────────────────────────────────────────────── -->
+        <div class="form-section product-data-section">
+          <label class="section-label">{{ t.productData }}</label>
+
+          <!-- Code -->
+          <div class="form-field">
+            <label class="field-label">{{ t.productCode }}</label>
+            <input type="text" [(ngModel)]="productData.code" name="code" class="form-input" />
+          </div>
+
+          <!-- Names row -->
+          <div class="form-row">
+            <div class="form-field">
+              <label class="field-label">{{ t.productNameEn }}</label>
+              <input type="text" [(ngModel)]="productData.nameEn" name="nameEn" class="form-input" />
+            </div>
+            <div class="form-field">
+              <label class="field-label">{{ t.productNameAr }}</label>
+              <input type="text" [(ngModel)]="productData.nameAr" name="nameAr" class="form-input" />
+            </div>
+          </div>
+
+          <!-- Description Arabic -->
+          <div class="form-field">
+            <label class="field-label">{{ t.productDescriptionAr }}</label>
+            <textarea [(ngModel)]="productData.descriptionAr" name="descriptionAr" class="form-textarea"></textarea>
+          </div>
+
+          <!-- Description English -->
+          <div class="form-field">
+            <label class="field-label">{{ t.productDescriptionEn }}</label>
+            <textarea [(ngModel)]="productData.descriptionEn" name="descriptionEn" class="form-textarea"></textarea>
+          </div>
+
+          <!-- Allergens Arabic -->
+          <div class="form-field">
+            <label class="field-label">{{ t.allergensAr }}</label>
+            <input type="text" [(ngModel)]="productData.allergens" name="allergens" class="form-input" />
+          </div>
+
+          <!-- Allergens English -->
+          <div class="form-field">
+            <label class="field-label">{{ t.allergensEn }}</label>
+            <input type="text" [(ngModel)]="productData.allergensEn" name="allergensEn" class="form-input" />
+          </div>
+
+          <!-- Price / Weight -->
+          <div class="form-row">
+            <div class="form-field">
+              <label class="field-label">{{ t.price }}</label>
+              <input type="number" [(ngModel)]="productData.price" name="price" class="form-input" step="0.01" min="0.01" />
+            </div>
+            <div class="form-field">
+              <label class="field-label">{{ t.weightInKg }}</label>
+              <input type="number" [(ngModel)]="productData.weightInKg" name="weightInKg" class="form-input" step="0.01" min="0.01" />
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Branches ───────────────────────────────────────────────────── -->
+        <div class="form-section">
+          <label class="section-label">{{ t.branchesAndQuantities }}</label>
+
+          <div *ngIf="isLoadingBranches" class="loading-branches">
+            <p>{{ t.loadingBranches }}</p>
+          </div>
+
+          <div *ngIf="!isLoadingBranches && branches.length === 0" class="no-branches">
+            <p>{{ t.noBranches }}</p>
+          </div>
+
+          <div *ngIf="!isLoadingBranches && branches.length > 0" class="branches-list">
+            <div *ngFor="let branch of branches" class="branch-item">
+              <div class="branch-checkbox">
+                <input
+                  type="checkbox"
+                  [id]="'edit-branch-' + branch.id"
+                  [checked]="isBranchSelected(branch.id)"
+                  (change)="onBranchToggle(branch, $event)"
+                  class="checkbox-input"
+                />
+                <label [for]="'edit-branch-' + branch.id" class="checkbox-label">
+                  {{ branch.name || branch.nameAr || branch.nameEn }}
+                </label>
+              </div>
+
+              <div *ngIf="isBranchSelected(branch.id)" class="branch-fields">
+
+                <!-- Row 1 -->
+                <div class="form-row">
+
+                  <div class="form-field">
+                    <label class="field-label">الكمية</label>
+                    <input type="number" [value]="getBranch(branch.id)?.quantity"
+                      (input)="updateBranchField(branch.id!, 'quantity', +$any($event.target).value)" min="0"
+                      placeholder="0" class="form-input" />
+                  </div>
+
+                  <div class="form-field">
+                    <label class="field-label">نسبة الخصم (%)</label>
+                    <input type="number" [value]="getBranch(branch.id)?.discount ?? 0"
+                      (input)="updateBranchField(branch.id!, 'discount', +$any($event.target).value)" min="0" max="100"
+                      placeholder="0" class="form-input" />
+                  </div>
+
+                </div>
+
+                <!-- Row 2 -->
+                <div class="form-row">
+
+                  <div class="form-field">
+                    <label class="field-label">تاريخ الانتهاء</label>
+                    <input type="date" [value]="getBranch(branch.id)?.expiryDate!.split('T')[0] || ''"
+                      (change)="updateBranchField(branch.id!, 'expiryDate', $any($event.target).value)"
+                      class="form-input" />
+                  </div>
+
+                  <div class="form-field">
+                    <label class="field-label">بداية التوصيل</label>
+                    <input type="datetime-local" [value]="getBranch(branch.id)?.startDeliveryDate ?? ''"
+                      (change)="updateBranchField(branch.id!, 'startDeliveryDate', $any($event.target).value)"
+                      class="form-input" />
+                  </div>
+
+                </div>
+
+                <!-- Row 3 -->
+                <div class="form-row">
+
+                  <div class="form-field">
+                    <label class="field-label">نهاية التوصيل</label>
+                    <input type="datetime-local" [value]="getBranch(branch.id)?.endDeliveryDate ?? ''"
+                      (change)="updateBranchField(branch.id!, 'endDeliveryDate', $any($event.target).value)"
+                      class="form-input" />
+                  </div>
+
+                  <div class="form-field empty-field"></div>
+
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Error ──────────────────────────────────────────────────────── -->
+        <div *ngIf="errorMessage" class="form-error-message">{{ errorMessage }}</div>
+
+        <!-- ── Submit ─────────────────────────────────────────────────────── -->
+        <button type="submit" class="submit-btn" [disabled]="isLoading">
+          <span *ngIf="!isLoading">{{ t.saveChanges }}</span>
+          <span *ngIf="isLoading">{{ t.saving }}</span>
+        </button>
+
+      </form>
+    </div>
+  </div>
+</div>

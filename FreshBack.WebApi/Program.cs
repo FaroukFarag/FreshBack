@@ -8,16 +8,8 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
 using System.Globalization;
-using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-
-builder.Services.AddControllers().AddJsonOptions(options =>
-{
-    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-});
 
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
@@ -55,17 +47,18 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-builder.Services.AddLocalization();
+CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
 
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
     var supportedCultures = new[]
     {
-        new CultureInfo("en"),
-        new CultureInfo("ar")
+        new CultureInfo("en-US"),
+        new CultureInfo("ar-EG")
     };
 
-    options.DefaultRequestCulture = new RequestCulture("en");
+    options.DefaultRequestCulture = new RequestCulture("en-US");
 
     options.SupportedCultures = supportedCultures;
     options.SupportedUICultures = supportedCultures;
@@ -87,6 +80,7 @@ builder.Services.RegisterValidators();
 builder.Services.RegisterIdentity();
 builder.Services.RegisterJwtSettings(builder.Configuration);
 builder.Services.RegisterCORS(builder.Configuration);
+builder.Services.RegisterLocalization();
 builder.Services.RegisterMiddlewares();
 builder.Services.RegisterDatabaseSeeder();
 builder.Services.RegisterSignalR();
@@ -99,6 +93,17 @@ app.UseStaticFiles(new StaticFileOptions
     FileProvider = new PhysicalFileProvider(
         Path.Combine(builder.Environment.ContentRootPath, "Images")),
     RequestPath = "/Images"
+});
+
+var supportedCultures = new[] { "en", "ar" };
+
+app.UseRequestLocalization(options =>
+{
+    options.SetDefaultCulture("en")
+           .AddSupportedCultures(supportedCultures)
+           .AddSupportedUICultures(supportedCultures);
+
+    options.ApplyCurrentCultureToResponseHeaders = true;
 });
 
 // Configure the HTTP request pipeline.
