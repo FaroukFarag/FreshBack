@@ -4,10 +4,9 @@ using FreshBack.Domain.Constants;
 using FreshBack.Infrastructure.IoC.DependencyContainer;
 using FreshBack.WebApi.Firebase;
 using FreshBack.WebApi.Middlewares.Exceptions;
-using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
-using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,28 +46,6 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
-CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
-
-builder.Services.Configure<RequestLocalizationOptions>(options =>
-{
-    var supportedCultures = new[]
-    {
-        new CultureInfo("en-US"),
-        new CultureInfo("ar-EG")
-    };
-
-    options.DefaultRequestCulture = new RequestCulture("en-US");
-
-    options.SupportedCultures = supportedCultures;
-    options.SupportedUICultures = supportedCultures;
-
-    options.RequestCultureProviders =
-    [
-        new AcceptLanguageHeaderRequestCultureProvider()
-    ];
-});
-
 builder.Services.RegisterDbContext(builder.Configuration);
 builder.Services.RegisterConfiguration(builder.Configuration);
 builder.Services.RegisterServices();
@@ -95,16 +72,10 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/Images"
 });
 
-var supportedCultures = new[] { "en", "ar" };
-
-app.UseRequestLocalization(options =>
-{
-    options.SetDefaultCulture("en")
-           .AddSupportedCultures(supportedCultures)
-           .AddSupportedUICultures(supportedCultures);
-
-    options.ApplyCurrentCultureToResponseHeaders = true;
-});
+app.UseRequestLocalization(
+    app.Services
+       .GetRequiredService<IOptions<RequestLocalizationOptions>>()
+       .Value);
 
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
@@ -122,8 +93,6 @@ await app.Services.SeedDatabaseAsync();
 FirebaseInitializer.Initialize(app.Services);
 
 app.UseCors(AppSettings.AllowedOrigins);
-
-app.UseRequestLocalization();
 
 app.UseAuthentication();
 

@@ -10,6 +10,8 @@ public class ProductOrderProfile : Profile
     {
         CreateMap<ProductOrder, ProductOrderDto>().ReverseMap();
 
+        CreateMap<ProductOrder, GetProductOrderDto>().ReverseMap();
+
         CreateMap<ProductOrder, CreateProductOrderDto>().ReverseMap();
     }
 }

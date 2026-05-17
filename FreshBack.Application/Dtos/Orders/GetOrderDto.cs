@@ -1,14 +1,9 @@
 ﻿using FreshBack.Application.Dtos.Abstraction;
-using FreshBack.Application.Dtos.Branches;
-using FreshBack.Application.Dtos.Customers;
-using FreshBack.Application.Dtos.Merchants;
-using FreshBack.Application.Dtos.ProductsOrders;
-using FreshBack.Application.Dtos.Settings.PaymentMethods;
 using FreshBack.Domain.Enums.Orders;
 
 namespace FreshBack.Application.Dtos.Orders;
 
-public class OrderDto : BaseModelDto<int>
+public class GetOrderDto : BaseModelDto<int>
 {
     public int Number { get; set; }
     public DateTime CreationDate { get; set; }
@@ -21,10 +16,4 @@ public class OrderDto : BaseModelDto<int>
     public int MerchantId { get; set; }
     public int BranchId { get; set; }
     public int CustomerId { get; set; }
-
-    public PaymentMethodDto? PaymentMethod { get; set; }
-    public MerchantDto? Merchant { get; set; }
-    public BranchDto? Branch { get; set; }
-    public CustomerDto? Customer { get; set; }
-    public IEnumerable<GetProductOrderDto>? ProductsOrders { get; set; }
 }

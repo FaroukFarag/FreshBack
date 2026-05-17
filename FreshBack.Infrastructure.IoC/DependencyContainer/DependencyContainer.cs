@@ -110,7 +110,9 @@ using FreshBack.Infrastructure.Data.Seeders;
 using FreshBack.Infrastructure.Data.UnitOfWork;
 using FreshBack.WebApi.Middlewares.Exceptions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -118,6 +120,7 @@ using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using System.Globalization;
 using System.Text;
 
 namespace FreshBack.Infrastructure.IoC.DependencyContainer;
@@ -285,11 +288,40 @@ public static class DependencyContainer
             });
 
         services.AddSingleton<IStringLocalizerFactory>(sp =>
-        {
-            var resourceAssembly = typeof(Resource).Assembly;
-            return new ResourceManagerStringLocalizerFactory(
+            new ResourceManagerStringLocalizerFactory(
                 sp.GetRequiredService<IOptions<LocalizationOptions>>(),
-                sp.GetRequiredService<ILoggerFactory>());
+                sp.GetRequiredService<ILoggerFactory>()));
+
+        services.Configure<RequestLocalizationOptions>(options =>
+        {
+            var supportedUICultures = new[]
+            {
+            new CultureInfo("en-US"),
+            new CultureInfo("ar-EG")
+        };
+
+            options.DefaultRequestCulture = new RequestCulture(
+                culture: "en-US",
+                uiCulture: "en-US");
+
+            options.SupportedCultures = [new CultureInfo("en-US")];
+            options.SupportedUICultures = supportedUICultures;
+
+            options.RequestCultureProviders =
+            [
+                new CustomRequestCultureProvider(context =>
+                {
+                    var acceptLanguage = context.Request.Headers.AcceptLanguage.ToString()
+                        .Split(',')
+                        .FirstOrDefault()
+                        ?.Trim() ?? "en-US";
+
+                    return Task.FromResult<ProviderCultureResult?>(new ProviderCultureResult(
+                        culture: "en-US",
+                        uiCulture: acceptLanguage
+                    ));
+                })
+            ];
         });
     }
 

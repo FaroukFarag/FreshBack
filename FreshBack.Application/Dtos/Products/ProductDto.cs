@@ -18,6 +18,6 @@ public class ProductDto : BaseModelDto<int>
     public int MerchantId { get; set; }
 
     public MerchantDto Merchant { get; set; } = default!;
-    public IEnumerable<ProductImageDto> ProductImages { get; set; } = default!;
+    public IEnumerable<GetProductImageDto> ProductImages { get; set; } = default!;
     public IEnumerable<BranchProductDto> ProductsBranches { get; set; } = default!;
 }

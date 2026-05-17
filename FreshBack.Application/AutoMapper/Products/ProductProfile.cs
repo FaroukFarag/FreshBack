@@ -25,7 +25,13 @@ public class ProductProfile : Profile
             .ForMember(dest => dest.ImagePath, opt => opt
                 .MapFrom<ImageUrlToPathResolver<CreateProductImageDto, ProductImage>>());
 
-        CreateMap<ProductImage, GetProductImageDto>().ReverseMap();
+        CreateMap<ProductImage, GetProductImageDto>()
+            .ForMember(dest => dest.ImagePath, opt => opt
+                .MapFrom<ImagePathToUrlResolver<ProductImage, GetProductImageDto>>());
+
+        CreateMap<GetProductImageDto, ProductImage>()
+            .ForMember(dest => dest.ImagePath, opt => opt
+                .MapFrom<ImageUrlToPathResolver<GetProductImageDto, ProductImage>>());
 
         CreateMap<Product, ProductDto>().ReverseMap();
 

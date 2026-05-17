@@ -10,5 +10,5 @@ public class CustomerDto : BaseModelDto<int>
     public string PhoneNumber { get; set; } = default!;
     public int SavedMeals { get; set; }
 
-    public IEnumerable<OrderDto> Orders { get; set; } = default!;
+    public IEnumerable<GetOrderDto> Orders { get; set; } = default!;
 }

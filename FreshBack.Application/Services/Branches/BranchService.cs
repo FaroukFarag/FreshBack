@@ -84,7 +84,7 @@ public class BranchService(
                         new IncludeChain<Branch>
                         {
                             InitialInclude = b => b.BranchesProducts
-                                .Where(bp => bp.ExpiryDate > DateTime.Now),
+                                .Where(bp => bp.ExpiryDate.Date > DateTime.Now.Date),
                             ThenIncludes =
                             [
                                 bp => (bp as BranchProduct)!.Product,

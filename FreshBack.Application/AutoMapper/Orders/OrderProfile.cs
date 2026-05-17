@@ -11,6 +11,8 @@ public class OrderProfile : Profile
     {
         CreateMap<Order, OrderDto>().ReverseMap();
 
+        CreateMap<Order, GetOrderDto>().ReverseMap();
+
         CreateMap<Order, CreateOrderDto>().ReverseMap();
 
         CreateMap<GetCustomerPreviousOrdersDto, PaginatedModel>();
